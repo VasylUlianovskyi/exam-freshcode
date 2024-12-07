@@ -18,6 +18,7 @@ import ContestCreationPage from './pages/ContestCreation/ContestCreationPage';
 import CONSTANTS from './constants';
 import browserHistory from './browserHistory';
 import ChatContainer from './components/Chat/ChatComponents/ChatContainer/ChatContainer';
+import HowItWorks from './pages/HowItWorks/HowItWorksPage.jsx';
 
 class App extends Component {
   render () {
@@ -36,6 +37,7 @@ class App extends Component {
         />
         <Switch>
           <Route exact path='/' component={Home} />
+          <Route exact path='/how-it-works' component={HowItWorks} />
           <Route
             exact
             path='/login'

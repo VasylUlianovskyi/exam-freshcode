@@ -50,7 +50,7 @@ const Home = props => {
                 for immediate purchase
               </p>
               <div className={styles.button}>
-                <Link className={styles.button__link} to='/dashboard'>
+                <Link className={styles.button__link} to='/login'>
                   DASHBOARD
                 </Link>
               </div>
