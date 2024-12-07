@@ -107,6 +107,11 @@
     font-size: 32px
     font-weight: 700
     margin: 0
+
+  h3
+    font-size: 26px
+    font-weight: 700
+
   p
     margin: 10px auto auto
     max-width: 800px
@@ -115,8 +120,10 @@
 .row
   display: flex
   flex-wrap: wrap
-  flex-direction: row
   justify-content: space-around
+  max-width: 1400px
+  width: 100%
+  margin: auto
 
 .colCard
   max-width: 30%
@@ -124,7 +131,6 @@
 
 .item
   height: 100%
-  margin: 0 0 30px 0
   padding: 25px
   background: #fff
   box-shadow: 0 16px 32px rgb(0 0 0 / .04)
@@ -189,3 +195,41 @@
     background: linear-gradient(45deg, #3d57d5 0, #5a73ed 100%)
     .arrowRight
       left: 10px
+
+.stepCard
+  width: 20%
+  min-height: 100%
+  display: flex
+  flex-direction: column
+  align-items: start
+  margin: 0 0 0 0
+  padding: 20px
+  background: #fff
+  box-shadow: 0 16px 32px rgb(0 0 0 / .04)
+  border-radius: 24px
+  margin: 20px 5px 30px 5px
+  position: relative
+
+  span
+    font-size: 14px
+    color: #fff
+    font-weight: 700
+    background: #4942F3
+    border-radius: 20px
+    text-align: center
+    align-items: center
+    padding: 5px 10px
+
+  p
+    margin-top: 20px
+    color: #828282
+    flex-grow: 1
+
+  .arrowRight
+    font-size: xx-large
+    color: blue
+    font-weight: bold
+    position: relative
+    align-self: flex-end
+    left: 15%
+    bottom: 45%
