@@ -14,6 +14,11 @@
   width: 100%
   margin-right: auto
   margin-left: auto
+  h3
+    font-weight: 700
+    font-family: "Product Sans", sans-serif
+    line-height: 1.3
+    font-size: 28px
 
 .flex
   max-width: 1040px
@@ -124,10 +129,13 @@
   max-width: 1400px
   width: 100%
   margin: auto
+  gap: 10px
 
 .colCard
-  max-width: 30%
-  margin: 20px
+  max-width: 400px
+  width: 100%
+  flex: 1 1 0
+  margin: 10px
 
 .item
   height: 100%
@@ -197,12 +205,11 @@
       left: 10px
 
 .stepCard
-  width: 20%
+  max-width: 20%
   min-height: 100%
   display: flex
   flex-direction: column
   align-items: start
-  margin: 0 0 0 0
   padding: 20px
   background: #fff
   box-shadow: 0 16px 32px rgb(0 0 0 / .04)
@@ -233,3 +240,169 @@
     align-self: flex-end
     left: 15%
     bottom: 45%
+
+.container
+  .faqsTabs
+    max-width: 680px
+    width: 100%
+    margin: 0px auto
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-wrap: wrap
+    overflow: hidden
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.04)), #FFFFFF
+    border-radius: 16px
+    margin-top: 10px
+    span
+      padding: 15px
+      border-radius: 16px
+      cursor: pointer
+    .active
+      background: linear-gradient(45deg, #ff6955 0, #e97543 100%)
+      color: #fff
+  h4
+    max-width: 680px
+    margin: 12px auto 30px auto
+    font-size: 1.75rem
+    text-align: start
+    font-weight: bold
+
+.questioWrap
+  max-width: 680px
+  margin: 12px auto 30px auto
+  display: flex
+  flex-direction: column
+  gap: 15px
+
+.faqItem
+  margin-bottom: 15px
+  max-width: 680px
+  font-size: 16px
+  font-weight: 700
+  color: #19184a
+  padding: 24px 24px 24px 24px
+  position: relative
+  cursor: pointer
+  border-radius: 16px
+  box-shadow: 0 0 1px 1px lightgrey
+
+  &:hover
+    outline: 1px solid blue
+    background-color: rgba(48, 125, 246, 0.1)
+
+  &.active
+    max-height: 500px
+    overflow: hidden
+    transition: max-height 0.5s ease, background-color 0.3s ease
+    background-color: #317df6
+    color: white
+
+.question
+  display: flex
+  justify-content: space-between
+  span
+    padding-right: 10px
+    text-align: start
+
+.answer
+  margin: 0
+  font-size: 12px
+  color: #fff
+  padding-top: 20px
+  text-align: start
+  font-weight: normal
+
+.icon
+  transition: transform 0.3s ease
+
+.open
+  transform: rotate(45deg)
+
+.searchBlock
+  text-align: center
+  background: #fff
+  padding: 80px 0
+
+.searchContainer
+  border-bottom: 1px solid #edeff3
+  padding-top: 40px
+  padding-bottom: 60px
+
+.searchForm
+  background: linear-gradient(45deg, rgb(142 97 255 / .5333333333) 0, #339bf7 50%, rgb(43 198 215 / .431372549) 100%)
+  border-radius: 30px
+  padding: 2px
+  margin: 0 auto 30px auto
+  position: relative
+  max-width: 650px
+  input
+    border: none
+    outline: 0
+    display: block
+    width: 600px
+    padding: 0px 20px 0px 30px
+    text-align: left
+    background: #fff
+    border-radius: 999px
+    font-size: 24px
+    height: 60px
+    line-height: 60px
+    color: #343434
+    font-size: 18px
+    font-weight: 400
+
+  button
+    background: #ff6955
+    color: white
+    width: 68px
+    height: 54px
+    padding: 0
+    position: absolute
+    top: 5px
+    right: 5px
+    cursor: pointer
+    border: none
+    border-radius: 40px
+    transition: all ease .6s
+    box-shadow: 3px 3px 10px 0 rgb(255 104 85 / .3)
+    span
+      background-image: url('../../../public/staticImages/search-white.svg')
+      width: 21px
+      height: 21px
+      display: inline-block
+      background-position: center
+      background-size: 100%
+      position: relative
+      top: 4px
+      color: white
+
+.searchIcon
+  background-image: url('../../../public/staticImages/search.svg')
+  width: 20px
+  height: 20px
+  position: absolute
+  top: 21px
+  left: 11px
+
+.listTags
+  display: flex
+  flex-directions: row
+  justify-content: center
+
+  a
+    text-decoration: none
+    display: inline-block
+    margin: 0 12px 12px 0
+    font-size: 14px
+    font-weight: 400
+    padding: 6px 12px
+    border-radius: 20px
+    transition: all ease .3s
+    color: #2b2aaa
+    border: none
+    background: rgb(43 42 170 / .1)
+    box-shadow: 0 1px 6px rgb(17 17 17 / .06)
+    backdrop-filter: blur(23.7219px)
+    &:hover
+      background: none
