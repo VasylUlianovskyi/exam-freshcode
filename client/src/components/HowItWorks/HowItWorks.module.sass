@@ -1,5 +1,5 @@
 .hhIner
-  padding: 40px 0 0 0
+  padding: 40px 0 0
   background-repeat: no-repeat
   background-position: top center
   background-size: cover
@@ -7,18 +7,47 @@
 .content
   max-width: 100%
   margin: 0 auto
-  padding: 20px 0 30px 0
+  padding: 20px 0 30px
   text-align: center
 
 .container
   width: 100%
-  margin-right: auto
-  margin-left: auto
+  margin: 0 auto
+
   h3
     font-weight: 700
     font-family: "Product Sans", sans-serif
     line-height: 1.3
     font-size: 28px
+
+  .faqsTabs
+    max-width: 680px
+    width: 100%
+    margin: 0 auto
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-wrap: wrap
+    overflow: hidden
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.04)), #FFFFFF
+    border-radius: 16px
+    margin-top: 10px
+
+    span
+      padding: 15px
+      border-radius: 16px
+      cursor: pointer
+
+    .active
+      background: linear-gradient(45deg, #ff6955 0, #e97543 100%)
+      color: #fff
+
+  h4
+    max-width: 680px
+    margin: 12px auto 30px
+    font-size: 1.75rem
+    text-align: start
+    font-weight: bold
 
 .flex
   max-width: 1040px
@@ -52,8 +81,9 @@
     font-size: 40px
     color: #19184A
     font-weight: bolder
+
   p
-    color: rgba(25,24,74,0.5)
+    color: rgba(25, 24, 74, 0.5)
     font-size: 16px
     margin-top: 10px
     line-height: 25px
@@ -65,7 +95,7 @@
 .videoBox
   position: relative
   padding-top: 56.25%
-  margin: 16px auto 0 auto
+  margin: 16px auto 0
   border-radius: 16px
   border-bottom: 3px solid #637cf7
   overflow: hidden
@@ -118,7 +148,7 @@
     font-weight: 700
 
   p
-    margin: 10px auto auto
+    margin: 10px auto
     max-width: 800px
     font-weight: bold
 
@@ -143,7 +173,7 @@
   background: #fff
   box-shadow: 0 16px 32px rgb(0 0 0 / .04)
   border-radius: 24px
-  margin: 0 0 30px 0
+  margin: 0 0 30px
 
 .alignBox
   display: flex
@@ -151,35 +181,39 @@
   justify-content: space-between
 
   .icon
-    margin: 0 0 10px 0
-    background-image: '/client/public/staticImages/g1.png'
+    margin-bottom: 10px
 
   h3
     font-weight: 700
-    margin: 0 0 10px 0
+    margin-bottom: 10px
     font-size: 20px
     color: #000
+
   p
     margin: 0
     color: #828282
     margin-bottom: 1rem
 
-.mb3
+.mb3 .button
+  background-color: #fff
+  font-size: 16px
+  color: #fff
+  display: inline-flex
+  align-items: center
+  font-weight: 700
+  padding: 13px 20px
+  justify-content: center
+  transition: all ease .3s
+  border-radius: 8px
+  background: rgb(255 255 255 / .16)
+  position: relative
+  text-decoration: none
 
-  .button
-    background-color: #fff
-    font-size: 16px
-    color: #fff
-    display: inline-flex
-    align-items: center
-    font-weight: 700
-    padding: 13px 20px
-    justify-content: center
-    transition: all ease .3s
-    border-radius: 8px
-    background: rgb(255 255 255 / .16)
-    position: relative
-    text-decoration: none
+  &:hover
+    background: linear-gradient(45deg, #3d57d5 0, #5a73ed 100%)
+
+    .arrowRight
+      left: 10px
 
   .buttonBrand
     background-color: #637cf7
@@ -192,17 +226,11 @@
     width: 35px
     height: 25px
     background-repeat: no-repeat
-    background-position: center center
+    background-position: center
     flex-shrink: 0
-    margin: 0 0 0 10px
+    margin-left: 10px
     transition: all ease .3s
     position: relative
-    left: 0
-
-  .button:hover
-    background: linear-gradient(45deg, #3d57d5 0, #5a73ed 100%)
-    .arrowRight
-      left: 10px
 
 .stepCard
   max-width: 20%
@@ -214,7 +242,7 @@
   background: #fff
   box-shadow: 0 16px 32px rgb(0 0 0 / .04)
   border-radius: 24px
-  margin: 20px 5px 30px 5px
+  margin: 20px 5px 30px
   position: relative
 
   span
@@ -241,34 +269,11 @@
     left: 15%
     bottom: 45%
 
-.container
-  .faqsTabs
-    max-width: 680px
-    width: 100%
-    margin: 0px auto
-    display: flex
-    align-items: center
-    justify-content: center
-    flex-wrap: wrap
-    overflow: hidden
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.04)), #FFFFFF
-    border-radius: 16px
-    margin-top: 10px
-    span
-      padding: 15px
-      border-radius: 16px
-      cursor: pointer
-    .active
-      background: linear-gradient(45deg, #ff6955 0, #e97543 100%)
-      color: #fff
-  h4
-    max-width: 680px
-    margin: 12px auto 30px auto
-    font-size: 1.75rem
-    text-align: start
-    font-weight: bold
+.container .faqsTabs .active
+  background: linear-gradient(45deg, #ff6955 0, #e97543 100%)
+  color: #fff
 
-.questioWrap
+.questionWrap
   max-width: 680px
   margin: 12px auto 30px auto
   display: flex
@@ -324,70 +329,71 @@
   background: #fff
   padding: 80px 0
 
-.searchContainer
-  border-bottom: 1px solid #edeff3
-  padding-top: 40px
-  padding-bottom: 60px
+  .searchContainer
+    border-bottom: 1px solid #edeff3
+    padding-top: 40px
+    padding-bottom: 60px
 
-.searchForm
-  background: linear-gradient(45deg, rgb(142 97 255 / .5333333333) 0, #339bf7 50%, rgb(43 198 215 / .431372549) 100%)
-  border-radius: 30px
-  padding: 2px
-  margin: 0 auto 30px auto
-  position: relative
-  max-width: 650px
-  input
-    border: none
-    outline: 0
-    display: block
-    width: 600px
-    padding: 0px 20px 0px 30px
-    text-align: left
-    background: #fff
-    border-radius: 999px
-    font-size: 24px
-    height: 60px
-    line-height: 60px
-    color: #343434
-    font-size: 18px
-    font-weight: 400
+  .searchForm
+    background: linear-gradient(45deg, rgb(142 97 255 / .5333333333) 0, #339bf7 50%, rgb(43 198 215 / .431372549) 100%)
+    border-radius: 30px
+    padding: 2px
+    margin: 0 auto 30px
+    position: relative
+    max-width: 650px
 
-  button
-    background: #ff6955
-    color: white
-    width: 68px
-    height: 54px
-    padding: 0
-    position: absolute
-    top: 5px
-    right: 5px
-    cursor: pointer
-    border: none
-    border-radius: 40px
-    transition: all ease .6s
-    box-shadow: 3px 3px 10px 0 rgb(255 104 85 / .3)
-    span
-      background-image: url('../../../public/staticImages/search-white.svg')
-      width: 21px
-      height: 21px
-      display: inline-block
-      background-position: center
-      background-size: 100%
-      position: relative
-      top: 4px
+    input
+      border: none
+      outline: 0
+      display: block
+      width: 600px
+      padding: 0px 20px 0px 30px
+      text-align: left
+      background: #fff
+      border-radius: 999px
+      font-size: 24px
+      height: 60px
+      line-height: 60px
+      color: #343434
+      font-size: 18px
+      font-weight: 400
+
+    button
+      background: #ff6955
       color: white
+      width: 68px
+      height: 54px
+      padding: 0
+      position: absolute
+      top: 5px
+      right: 5px
+      cursor: pointer
+      border: none
+      border-radius: 40px
+      transition: all ease .6s
+      box-shadow: 3px 3px 10px 0 rgb(255 104 85 / .3)
 
-.searchIcon
-  background-image: url('../../../public/staticImages/search.svg')
-  width: 20px
-  height: 20px
-  position: absolute
-  top: 21px
-  left: 11px
+      span
+        background-image: url('../../../public/staticImages/search-white.svg')
+        width: 21px
+        height: 21px
+        display: inline-block
+        background-position: center
+        background-size: 100%
+        position: relative
+        top: 4px
+
+  .searchIcon
+    background-image: url('../../../public/staticImages/search.svg')
+    width: 20px
+    height: 20px
+    position: absolute
+    top: 21px
+    left: 11px
 
 .listTags
   display: flex
-  flex-directions: row
+  flex-direction: row
   justify-content: center
 
   a
@@ -404,5 +410,6 @@
     background: rgb(43 42 170 / .1)
     box-shadow: 0 1px 6px rgb(17 17 17 / .06)
     backdrop-filter: blur(23.7219px)
+
     &:hover
       background: none

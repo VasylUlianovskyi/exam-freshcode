@@ -403,22 +403,22 @@ class HowItWorks extends Component {
                 </span>
               </div>
               <h4 id='collect-top'>Launching A Contest</h4>
-              <div className={styles.questioWrap}>
+              <div className={styles.questionWrap}>
                 {this.renderFAQ(faqs, 'faqs')}
               </div>
 
               <h4 id='collect-industry'>Buying From Marketplace</h4>
-              <div className={styles.questioWrap}>
+              <div className={styles.questionWrap}>
                 {this.renderFAQ(marketPlaceFaqs, 'marketplace')}
               </div>
 
               <h4 id='collect-ideas'>Managed Contests</h4>
-              <div className={styles.questioWrap}>
+              <div className={styles.questionWrap}>
                 {this.renderFAQ(manageFaqs, 'managed')}
               </div>
 
               <h4 id='for-ideas'>For Creatives</h4>
-              <div className={styles.questioWrap}>
+              <div className={styles.questionWrap}>
                 {this.renderFAQ(creativeFaqs, 'creatives')}
               </div>
             </div>
