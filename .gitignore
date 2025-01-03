@@ -11,3 +11,7 @@
 .server/public/images
 **server/public/*
 *server/public/*
+
+.codegpt
+
+.gitignore
