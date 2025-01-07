@@ -7,6 +7,7 @@ module.exports.getAllOffers = async (req, res, next) => {
     console.log(offers);
     res.status(200).json(offers);
   } catch (error) {
+    console.error('Error in getAllOffers:', error);
     next(new ServerError(error));
   }
 };

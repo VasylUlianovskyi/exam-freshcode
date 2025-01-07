@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const CONSTANTS = require('../constants');
 const TokenError = require('../errors/TokenError');
-const userQueries =require('../controllers/queries/userQueries');
+const userQueries = require('../controllers/queries/userQueries');
 
 module.exports.checkAuth = async (req, res, next) => {
   const accessToken = req.headers.authorization;
@@ -27,9 +27,13 @@ module.exports.checkAuth = async (req, res, next) => {
 };
 
 module.exports.checkToken = async (req, res, next) => {
-  const accessToken = req.headers.authorization;
+  let accessToken = req.headers.authorization;
   if (!accessToken) {
     return next(new TokenError('need token'));
+  }
+
+  if (accessToken.startsWith('Bearer ')) {
+    accessToken = accessToken.split(' ')[1];
   }
   try {
     req.tokenData = jwt.verify(accessToken, CONSTANTS.JWT_SECRET);

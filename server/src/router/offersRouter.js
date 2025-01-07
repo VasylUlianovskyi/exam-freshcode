@@ -5,17 +5,17 @@ const offerController = require('../controllers/offerController');
 
 const router = express.Router();
 
-router.get('/', checkToken.checkToken, offerController.getAllOffers);
+router.get('/offers', checkToken.checkToken, offerController.getAllOffers);
 
 router.patch(
-  '/:offerId/approve',
+  '/offers/:offerId/approve',
   checkToken.checkToken,
   offerApproveMiddleware.checkOfferApproval,
   offerController.approveOffer
 );
 
 router.patch(
-  '/:offerId/reject',
+  '/offers/:offerId/reject',
   checkToken.checkToken,
   offerApproveMiddleware.checkOfferApproval,
   offerController.rejectOffer
