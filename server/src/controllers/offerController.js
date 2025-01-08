@@ -18,6 +18,27 @@ module.exports.getAllOffers = async (req, res, next) => {
   }
 };
 
+module.exports.getPendingOffers = async (req, res, next) => {
+  try {
+    const { limit = 10, offset = 0 } = req.query;
+
+    const { count, rows: offers } = await db.Offers.findAndCountAll({
+      where: { isApproved: null },
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['id', 'DESC']],
+    });
+
+    res.status(200).json({
+      total: count,
+      offers,
+    });
+  } catch (error) {
+    console.error('Error in getPendingOffers:', error);
+    next(new ServerError(error));
+  }
+};
+
 module.exports.approveOffer = async (req, res, next) => {
   try {
     const { offerId } = req.params;
