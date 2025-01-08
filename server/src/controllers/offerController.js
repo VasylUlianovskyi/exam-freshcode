@@ -3,8 +3,13 @@ const ServerError = require('../errors/ServerError');
 
 module.exports.getAllOffers = async (req, res, next) => {
   try {
-    const offers = await db.Offers.findAll();
-    console.log(offers);
+    const { limit = 10, offset = 0 } = req.query;
+    const offers = await db.Offers.findAll({
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['id', 'DESC']],
+    });
+
     res.status(200).json(offers);
   } catch (error) {
     console.error('Error in getAllOffers:', error);
