@@ -4,8 +4,18 @@ export const registerRequest = data => http.post('registration', data);
 export const loginRequest = data => http.post('login', data);
 export const getUser = () => http.post('getUser');
 export const updateContest = data => http.post('updateContest', data);
+
+export const getPendingOffers = params =>
+  http.get('offers/pending', { params });
+export const approveOffer = offerId => http.patch(`offers/${offerId}/approve`);
+export const rejectOffer = offerId => http.patch(`offers/${offerId}/reject`);
+export const getCreativeOffers = () => http.get('offers/my-offers');
+export const getApprovedOffers = params =>
+  http.get('offers/approved', { params });
+
 export const setNewOffer = data => http.post('setNewOffer', data);
 export const setOfferStatus = data => http.post('setOfferStatus', data);
+
 export const downloadContestFile = data =>
   http.get(`downloadFile/${data.fileName}`);
 export const payMent = data => http.post('pay', data.formData);
