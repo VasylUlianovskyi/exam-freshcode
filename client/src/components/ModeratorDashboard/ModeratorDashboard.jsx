@@ -30,19 +30,27 @@ const ModeratorDashboard = () => {
     }
   };
 
-  const handleApprove = async offerId => {
+  const handleApprove = async (offerId, index) => {
     try {
       await approveOffer(offerId);
-      setRefresh(!refresh);
+      setOffers(prevOffers =>
+        prevOffers.map(offer =>
+          offer.id === offerId ? { ...offer, isApproved: true } : offer
+        )
+      );
     } catch (err) {
       console.error('Error approving offer:', err);
     }
   };
 
-  const handleReject = async offerId => {
+  const handleReject = async (offerId, index) => {
     try {
       await rejectOffer(offerId);
-      setRefresh(!refresh);
+      setOffers(prevOffers =>
+        prevOffers.map(offer =>
+          offer.id === offerId ? { ...offer, isApproved: false } : offer
+        )
+      );
     } catch (err) {
       console.error('Error rejecting offer:', err);
     }
@@ -65,45 +73,64 @@ const ModeratorDashboard = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>User ID</th>
-              <th>Contest ID</th>
-              <th>Text</th>
-              <th>File Name</th>
-              <th>Status</th>
-              <th>Is Approved</th>
-              <th>Actions</th>
+              <th>№</th>
+              <th>Offer</th>
+              <th>Title</th>
+              <th>Type of Name</th>
+              <th>Industry</th>
+              <th className={styles.actionCell}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {offers.map(offer => (
               <tr key={offer.id}>
                 <td>{offer.id}</td>
-                <td>{offer.userId}</td>
-                <td>{offer.contestId}</td>
                 <td>{offer.text || 'N/A'}</td>
-                <td>{offer.fileName || 'N/A'}</td>
-                <td>{offer.status}</td>
+                {offer.Contest?.title && <td>{offer.Contest.title}</td>}
                 <td>
-                  {offer.isApproved === null
-                    ? 'Pending'
-                    : offer.isApproved
-                    ? 'Approved'
-                    : 'Rejected'}
+                  {offer.Contest?.typeOfName
+                    ? offer.Contest.typeOfName
+                    : 'Not specified '}
                 </td>
+
                 <td>
-                  <button
-                    className={styles.approveBtn}
-                    onClick={() => handleApprove(offer.id)}
-                  >
-                    Approve
-                  </button>
-                  <button
-                    className={styles.rejectBtn}
-                    onClick={() => handleReject(offer.id)}
-                  >
-                    Reject
-                  </button>
+                  {offer.Contest?.industry ? offer.Contest.industry : 'N/A'}
+                </td>
+                <td className={styles.actionCell}>
+                  {offer.isApproved === null && (
+                    <>
+                      <button
+                        className={styles.approveBtn}
+                        onClick={() => handleApprove(offer.id)}
+                        disabled={offer.isApproved === true}
+                      >
+                        {offer.isApproved === true ? 'Approved' : 'Approve'}
+                      </button>
+                      <button
+                        className={styles.rejectBtn}
+                        onClick={() => handleReject(offer.id)}
+                        disabled={offer.isApproved === false}
+                      >
+                        {offer.isApproved === false ? 'Rejected' : 'Reject'}
+                      </button>
+                    </>
+                  )}
+                  {offer.isApproved === true && (
+                    <button
+                      className={`${styles.approveBtn} ${styles.centered}`}
+                      disabled
+                    >
+                      Approved
+                    </button>
+                  )}
+                  {offer.isApproved === false && (
+                    <button
+                      className={`${styles.rejectBtn} ${styles.centered}`}
+                      disabled
+                    >
+                      Rejected
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

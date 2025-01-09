@@ -24,6 +24,12 @@ module.exports.getPendingOffers = async (req, res, next) => {
 
     const { count, rows: offers } = await db.Offers.findAndCountAll({
       where: { isApproved: null },
+      include: [
+        {
+          model: db.Contests,
+          attributes: ['title', 'typeOfName', 'industry'],
+        },
+      ],
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [['id', 'DESC']],

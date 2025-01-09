@@ -1,6 +1,8 @@
 .moderatorDashboard
   padding: 20px
   font-family: Arial, sans-serif
+  max-width: 100%
+  margin: 0 auto
 
   .title
     font-size: 24px
@@ -15,9 +17,11 @@
     color: #555
 
   .table
-    width: 100%
+    width: 80%
+    max-width: 100%
     border-collapse: collapse
-
+    margin: 0 auto
+    table-layout: auto
     th, td
       border: 1px solid #ddd
       padding: 10px
@@ -33,25 +37,30 @@
     tr:hover
       background-color: #f1f1f1
 
-  .approveBtn
-    background-color: #4caf50
-    color: white
-    border: none
-    padding: 5px 10px
-    cursor: pointer
-    border-radius: 3px
-    margin-right: 5px
+  .actionCell
+    display: flex
+    justify-content: space-around
+    align-items: center
+    width: auto
+    gap: 5px
 
-    &:hover
-      background-color: #45a049
+.approveBtn, .rejectBtn
+  padding: 5px 10px
+  width: 100%
+  max-width: 120px
+  border: none
+  cursor: pointer
+  transition: 0.3s
+  border-radius: 5px
 
-  .rejectBtn
-    background-color: #f44336
-    color: white
-    border: none
-    padding: 5px 10px
-    cursor: pointer
-    border-radius: 3px
+.approveBtn
+  background-color: green
+  color: white
 
-    &:hover
-      background-color: #e53935
+.rejectBtn
+  background-color: red
+  color: white
+
+  .approveBtn:disabled, &:disabled
+    background-color: gray
+    cursor: not-allowed

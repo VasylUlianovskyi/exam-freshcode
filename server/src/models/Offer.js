@@ -45,12 +45,17 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Offer.associate = function (models) {
-    Offer.belongsTo(models.User, { foreignKey: 'user_id', sourceKey: 'id' });
+    Offer.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      as: 'user',
+      sourceKey: 'id',
+    });
   };
 
   Offer.associate = function (models) {
     Offer.belongsTo(models.Contest, {
       foreignKey: 'contest_id',
+      as: 'contest',
       sourceKey: 'id',
     });
   };
