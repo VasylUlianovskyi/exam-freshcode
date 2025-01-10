@@ -30,8 +30,11 @@ export const getContestById = decorateAsyncThunk({
   thunk: async payload => {
     const { data } = await restController.getContestById(payload);
     const { Offers } = data;
+
+    const filteredOffers = Offers.filter(offer => offer.isApproved);
+
     delete data.Offers;
-    return { contestData: data, offers: Offers };
+    return { contestData: data, offers: filteredOffers };
   },
 });
 
