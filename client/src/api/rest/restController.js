@@ -5,11 +5,11 @@ export const loginRequest = data => http.post('login', data);
 export const getUser = () => http.post('getUser');
 export const updateContest = data => http.post('updateContest', data);
 
+export const getAllOffers = params => http.get('offers', { params });
 export const getPendingOffers = params =>
   http.get('offers/pending', { params });
 export const approveOffer = offerId => http.patch(`offers/${offerId}/approve`);
 export const rejectOffer = offerId => http.patch(`offers/${offerId}/reject`);
-export const getCreativeOffers = () => http.get('offers/my-offers');
 export const getApprovedOffers = params =>
   http.get('offers/approved', { params });
 

@@ -28,12 +28,6 @@ router.patch(
 );
 
 router.get(
-  '/offers/creative-offers',
-  checkToken.checkToken,
-  offerController.getCreativeOffers
-);
-
-router.get(
   '/offers/approved',
   checkToken.checkToken,
   offerController.getApprovedOffers

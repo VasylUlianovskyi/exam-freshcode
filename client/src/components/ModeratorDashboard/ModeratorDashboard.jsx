@@ -1,36 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import {
-  getPendingOffers,
+  getAllOffers,
   approveOffer,
   rejectOffer,
 } from '../../api/rest/restController';
 import styles from './ModeratorDashboard.module.sass';
+import { useLocation } from 'react-router-dom';
 
 const ModeratorDashboard = () => {
+  const location = useLocation();
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [refresh, setRefresh] = useState(false);
+  const [filter, setFilter] = useState(location.state?.filter || null); // Встановлюємо початковий фільтр
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 10;
 
   useEffect(() => {
-    fetchPendingOffers();
-  }, [refresh]);
+    fetchOffers();
+  }, [filter, page]);
 
-  const fetchPendingOffers = async () => {
+  const fetchOffers = async () => {
     setLoading(true);
     setError('');
+    const offset = (page - 1) * limit;
+
     try {
-      const response = await getPendingOffers({ limit: 10, offset: 0 });
-      setOffers(response.data.offers);
+      const response = await getAllOffers({
+        limit,
+        offset,
+        isApproved: filter,
+      });
+
+      setOffers(response.data.offers || []);
+      setTotal(response.data.total);
     } catch (err) {
-      setError('Failed to fetch pending offers.');
-      console.error('Error fetching pending offers:', err);
+      setError('Failed to fetch offers.');
+      console.error('Error fetching offers:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleApprove = async (offerId, index) => {
+  const handleFilterChange = status => {
+    setFilter(status);
+    setPage(1);
+  };
+
+  const handleApprove = async offerId => {
     try {
       await approveOffer(offerId);
       setOffers(prevOffers =>
@@ -43,7 +61,7 @@ const ModeratorDashboard = () => {
     }
   };
 
-  const handleReject = async (offerId, index) => {
+  const handleReject = async offerId => {
     try {
       await rejectOffer(offerId);
       setOffers(prevOffers =>
@@ -67,8 +85,14 @@ const ModeratorDashboard = () => {
   return (
     <div className={styles.moderatorDashboard}>
       <h1 className={styles.title}>Moderator Dashboard</h1>
-      {offers.length === 0 ? (
-        <p className={styles.noOffers}>No pending offers at the moment.</p>
+      <div className={styles.filters}>
+        <button onClick={() => handleFilterChange(null)}>All</button>
+        <button onClick={() => handleFilterChange('null')}>Pending</button>
+        <button onClick={() => handleFilterChange('true')}>Approved</button>
+        <button onClick={() => handleFilterChange('false')}>Rejected</button>
+      </div>
+      {!offers || offers.length === 0 ? (
+        <p className={styles.noOffers}>No offers available.</p>
       ) : (
         <table className={styles.table}>
           <thead>
@@ -86,16 +110,13 @@ const ModeratorDashboard = () => {
               <tr key={offer.id}>
                 <td>{offer.id}</td>
                 <td>{offer.text || 'N/A'}</td>
-                {offer.Contest?.title && <td>{offer.Contest.title}</td>}
+                <td>{offer.Contest?.title || 'N/A'}</td>
                 <td>
                   {offer.Contest?.typeOfName
                     ? offer.Contest.typeOfName
-                    : 'Not specified '}
+                    : 'Not specified'}
                 </td>
-
-                <td>
-                  {offer.Contest?.industry ? offer.Contest.industry : 'N/A'}
-                </td>
+                <td>{offer.Contest?.industry || 'N/A'}</td>
                 <td className={styles.actionCell}>
                   {offer.isApproved === null && (
                     <>
@@ -137,6 +158,25 @@ const ModeratorDashboard = () => {
           </tbody>
         </table>
       )}
+      <div className={styles.pagination}>
+        <button
+          className={styles.paginationBtn}
+          onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+          disabled={page === 1}
+        >
+          Prev
+        </button>
+        <span>{`Page ${page}`}</span>
+        <button
+          className={styles.paginationBtn}
+          onClick={() =>
+            setPage(prev => (prev * limit < total ? prev + 1 : prev))
+          }
+          disabled={page * limit >= total}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

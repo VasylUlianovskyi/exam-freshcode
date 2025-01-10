@@ -4,17 +4,30 @@ const ServerError = require('../errors/ServerError');
 
 module.exports.getAllOffers = async (req, res, next) => {
   try {
-    const { limit = 10, offset = 0 } = req.query;
-    const offers = await db.Offers.findAll({
-      limit: parseInt(limit),
-      offset: parseInt(offset),
+    const { limit = 10, offset = 0, isApproved } = req.query;
+
+    const where = {};
+    if (isApproved !== undefined) {
+      where.isApproved =
+        isApproved === 'true' ? true : isApproved === 'false' ? false : null;
+    }
+
+    const { count, rows: offers } = await db.Offers.findAndCountAll({
+      where,
+      limit: parseInt(limit, 10),
+      offset: parseInt(offset, 10),
       order: [['id', 'DESC']],
     });
 
-    res.status(200).json(offers);
+    console.log('Fetched offers:', offers);
+
+    res.status(200).json({
+      total: count,
+      offers: offers || [],
+    });
   } catch (error) {
     console.error('Error in getAllOffers:', error);
-    next(new ServerError(error));
+    next(error);
   }
 };
 
@@ -129,22 +142,6 @@ module.exports.rejectOffer = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Error in rejectOffer:', error);
-    next(new ServerError(error));
-  }
-};
-
-module.exports.getCreativeOffers = async (req, res, next) => {
-  try {
-    const userId = req.tokenData.userId;
-
-    const offers = await db.Offers.findAll({
-      where: { userId },
-      order: [['id', 'DESC']],
-    });
-
-    res.status(200).json(offers);
-  } catch (error) {
-    console.error('Error in getMyOffers:', error);
     next(new ServerError(error));
   }
 };

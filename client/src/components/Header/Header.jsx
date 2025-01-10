@@ -268,8 +268,14 @@ class Header extends React.Component {
             {this.props.data && (
               <>
                 {this.props.data.role === CONSTANTS.MODERATOR ? (
-                  <Link to='/dashboard' className={styles.startContestBtn}>
-                    New Offers
+                  <Link
+                    to={{
+                      pathname: '/dashboard',
+                      state: { filter: 'null' },
+                    }}
+                    className={styles.startContestBtn}
+                  >
+                    NEW OFFERS
                   </Link>
                 ) : this.props.data.role !== CONSTANTS.CREATOR ? (
                   <div
