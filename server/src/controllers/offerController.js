@@ -17,6 +17,13 @@ module.exports.getAllOffers = async (req, res, next) => {
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
       order: [['id', 'DESC']],
+      include: [
+        {
+          model: db.Contests,
+          as: 'Contest', // Асоціація повинна відповідати налаштуванням у моделі Offers
+          attributes: ['title', 'typeOfName', 'industry'], // Вкажіть, які поля хочете отримати
+        },
+      ],
     });
 
     console.log('Fetched offers:', offers);

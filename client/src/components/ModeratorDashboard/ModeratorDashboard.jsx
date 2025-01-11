@@ -12,7 +12,7 @@ const ModeratorDashboard = () => {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState(location.state?.filter || null); // Встановлюємо початковий фільтр
+  const [filter, setFilter] = useState(location.state?.filter || null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 10;
@@ -106,55 +106,58 @@ const ModeratorDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {offers.map(offer => (
-              <tr key={offer.id}>
-                <td>{offer.id}</td>
-                <td>{offer.text || 'N/A'}</td>
-                <td>{offer.Contest?.title || 'N/A'}</td>
-                <td>
-                  {offer.Contest?.typeOfName
-                    ? offer.Contest.typeOfName
-                    : 'Not specified'}
-                </td>
-                <td>{offer.Contest?.industry || 'N/A'}</td>
-                <td className={styles.actionCell}>
-                  {offer.isApproved === null && (
-                    <>
+            {offers.map(offer => {
+              console.log(offer);
+              return (
+                <tr key={offer.id}>
+                  <td>{offer.id}</td>
+                  <td>{offer.text || 'N/A'}</td>
+                  <td>{offer.Contest?.title || 'N/A'}</td>
+                  <td>
+                    {offer.Contest?.typeOfName
+                      ? offer.Contest.typeOfName
+                      : 'Not specified'}
+                  </td>
+                  <td>{offer.Contest?.industry || 'N/A'}</td>
+                  <td className={styles.actionCell}>
+                    {offer.isApproved === null && (
+                      <>
+                        <button
+                          className={styles.approveBtn}
+                          onClick={() => handleApprove(offer.id)}
+                          disabled={offer.isApproved === true}
+                        >
+                          {offer.isApproved === true ? 'Approved' : 'Approve'}
+                        </button>
+                        <button
+                          className={styles.rejectBtn}
+                          onClick={() => handleReject(offer.id)}
+                          disabled={offer.isApproved === false}
+                        >
+                          {offer.isApproved === false ? 'Rejected' : 'Reject'}
+                        </button>
+                      </>
+                    )}
+                    {offer.isApproved === true && (
                       <button
-                        className={styles.approveBtn}
-                        onClick={() => handleApprove(offer.id)}
-                        disabled={offer.isApproved === true}
+                        className={`${styles.approveBtn} ${styles.centered}`}
+                        disabled
                       >
-                        {offer.isApproved === true ? 'Approved' : 'Approve'}
+                        Approved
                       </button>
+                    )}
+                    {offer.isApproved === false && (
                       <button
-                        className={styles.rejectBtn}
-                        onClick={() => handleReject(offer.id)}
-                        disabled={offer.isApproved === false}
+                        className={`${styles.rejectBtn} ${styles.centered}`}
+                        disabled
                       >
-                        {offer.isApproved === false ? 'Rejected' : 'Reject'}
+                        Rejected
                       </button>
-                    </>
-                  )}
-                  {offer.isApproved === true && (
-                    <button
-                      className={`${styles.approveBtn} ${styles.centered}`}
-                      disabled
-                    >
-                      Approved
-                    </button>
-                  )}
-                  {offer.isApproved === false && (
-                    <button
-                      className={`${styles.rejectBtn} ${styles.centered}`}
-                      disabled
-                    >
-                      Rejected
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
