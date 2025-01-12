@@ -23,7 +23,7 @@ module.exports.checkAuth = async (req, res, next) => {
       email: foundUser.email,
     });
   } catch (err) {
-    next(new TokenError());
+    logger.err('Token validation failed', 401, err.stack);
   }
 };
 
