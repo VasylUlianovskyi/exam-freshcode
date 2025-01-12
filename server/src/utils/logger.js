@@ -13,13 +13,12 @@ const logStream = fs.createWriteStream(path.join(logDirectory, 'errors.log'), {
 const logError = (message, code, stackTrace) => {
   const logObject = {
     message,
-    code,
     time: Date.now(),
-    stackTrace: stackTrace.split('\n')[0],
+    code,
+    stackTrace: stackTrace instanceof Error ? { stack: stackTrace.stack } : {},
   };
 
-  const formattedLog = `{ message: "${logObject.message}", code: ${logObject.code}, time: ${logObject.time}, stackTrace: "${logObject.stackTrace}" }\n`;
-  logStream.write(formattedLog);
+  logStream.write(JSON.stringify(logObject) + '\n');
 };
 
 module.exports = {
