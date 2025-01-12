@@ -3,6 +3,7 @@ const cors = require('cors');
 require('./dbMongo/mongoose');
 const router = require('./router');
 const handlerError = require('./handlerError/handler');
+const loggerErrorHandler = require('./handlerError/loggerErrorHandler');
 
 const app = express();
 
@@ -12,5 +13,6 @@ app.use('/public', express.static('public'));
 app.use(router);
 
 app.use(handlerError);
+app.use(loggerErrorHandler);
 
 module.exports = app;
