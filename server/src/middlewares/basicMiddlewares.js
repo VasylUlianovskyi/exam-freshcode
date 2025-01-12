@@ -2,6 +2,7 @@ const db = require('../models');
 const RightsError = require('../errors/RightsError');
 const ServerError = require('../errors/ServerError');
 const CONSTANTS = require('../constants');
+const logger = require('../utils/logger');
 
 module.exports.parseBody = (req, res, next) => {
   req.body.contests = JSON.parse(req.body.contests);
@@ -36,8 +37,9 @@ module.exports.canGetContest = async (req, res, next) => {
       });
     }
     result ? next() : next(new RightsError());
-  } catch (e) {
-    next(new ServerError(e));
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
+    next(new ServerError(err));
   }
 };
 
@@ -75,7 +77,8 @@ module.exports.canSendOffer = async (req, res, next) => {
     } else {
       return next(new RightsError());
     }
-  } catch (e) {
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError());
   }
 };
@@ -93,7 +96,8 @@ module.exports.onlyForCustomerWhoCreateContest = async (req, res, next) => {
       return next(new RightsError());
     }
     next();
-  } catch (e) {
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError());
   }
 };
@@ -111,7 +115,8 @@ module.exports.canUpdateContest = async (req, res, next) => {
       return next(new RightsError());
     }
     next();
-  } catch (e) {
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError());
   }
 };

@@ -1,11 +1,11 @@
 const Conversation = require('../models/mongoModels/Conversation');
 const Message = require('../models/mongoModels/Message');
 const Catalog = require('../models/mongoModels/Catalog');
-const moment = require('moment');
 const db = require('../models');
 const userQueries = require('./queries/userQueries');
 const controller = require('../socketInit');
 const _ = require('lodash');
+const logger = require('../utils/logger');
 
 module.exports.addMessage = async (req, res, next) => {
   const participants = [req.tokenData.userId, req.body.recipient];
@@ -69,6 +69,7 @@ module.exports.addMessage = async (req, res, next) => {
       preview: Object.assign(preview, { interlocutor: req.body.interlocutor }),
     });
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -116,6 +117,7 @@ module.exports.getChat = async (req, res, next) => {
       },
     });
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -185,6 +187,7 @@ module.exports.getPreview = async (req, res, next) => {
     });
     res.send(conversations);
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -204,6 +207,7 @@ module.exports.blackList = async (req, res, next) => {
     )[0];
     controller.getChatController().emitChangeBlockStatus(interlocutorId, chat);
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     res.send(err);
   }
 };
@@ -219,6 +223,7 @@ module.exports.favoriteChat = async (req, res, next) => {
     );
     res.send(chat);
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     res.send(err);
   }
 };
@@ -234,6 +239,7 @@ module.exports.createCatalog = async (req, res, next) => {
     await catalog.save();
     res.send(catalog);
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -250,6 +256,7 @@ module.exports.updateNameCatalog = async (req, res, next) => {
     );
     res.send(catalog);
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -266,6 +273,7 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
     );
     res.send(catalog);
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -282,6 +290,7 @@ module.exports.removeChatFromCatalog = async (req, res, next) => {
     );
     res.send(catalog);
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -294,6 +303,7 @@ module.exports.deleteCatalog = async (req, res, next) => {
     });
     res.end();
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -312,6 +322,7 @@ module.exports.getCatalogs = async (req, res, next) => {
     ]);
     res.send(catalogs);
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };

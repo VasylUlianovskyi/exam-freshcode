@@ -8,6 +8,7 @@ const controller = require('../socketInit');
 const userQueries = require('./queries/userQueries');
 const bankQueries = require('./queries/bankQueries');
 const ratingQueries = require('./queries/ratingQueries');
+const logger = require('../utils/logger');
 
 module.exports.login = async (req, res, next) => {
   try {
@@ -31,6 +32,7 @@ module.exports.login = async (req, res, next) => {
     await userQueries.updateUser({ accessToken }, foundUser.id);
     res.send({ token: accessToken });
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -60,6 +62,7 @@ module.exports.registration = async (req, res, next) => {
     if (err.name === 'SequelizeUniqueConstraintError') {
       next(new NotUniqueEmail());
     } else {
+      logger.err(err.message, err.status || 500, err.stack);
       next(err);
     }
   }
@@ -114,6 +117,7 @@ module.exports.changeMark = async (req, res, next) => {
     res.send({ userId: creatorId, rating: avg });
   } catch (err) {
     transaction.rollback();
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -167,6 +171,7 @@ module.exports.payment = async (req, res, next) => {
     res.send();
   } catch (err) {
     transaction.rollback();
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -191,6 +196,7 @@ module.exports.updateUser = async (req, res, next) => {
       id: updatedUser.id,
     });
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -236,6 +242,7 @@ module.exports.cashout = async (req, res, next) => {
     transaction.commit();
     res.send({ balance: updatedUser.balance });
   } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     transaction.rollback();
     next(err);
   }
@@ -255,8 +262,8 @@ module.exports.getUsersByRoles = async (req, res, next) => {
 
     console.log(formattedResult);
     res.status(200).json(result);
-  } catch (error) {
-    console.error('Error fetching users by roles:', error);
-    next(error);
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
+    next(err);
   }
 };

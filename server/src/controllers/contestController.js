@@ -35,7 +35,7 @@ module.exports.dataForContest = async (req, res, next) => {
     });
     res.send(response);
   } catch (err) {
-    console.log(err);
+    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError('cannot get contest preferences'));
   }
 };
@@ -60,7 +60,7 @@ module.exports.getContestById = async (req, res, next) => {
             ...(req.tokenData.role === CONSTANTS.CREATOR
               ? { userId: req.tokenData.userId }
               : {}),
-            isApproved: true, // Додаємо фільтрацію за isApprove
+            isApproved: true,
           },
           attributes: { exclude: ['userId', 'contestId'] },
           include: [
@@ -89,7 +89,8 @@ module.exports.getContestById = async (req, res, next) => {
       delete offer.Rating;
     });
     res.send(contestInfo);
-  } catch (e) {
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError());
   }
 };
@@ -112,8 +113,9 @@ module.exports.updateContest = async (req, res, next) => {
       userId: req.tokenData.userId,
     });
     res.send(updatedContest);
-  } catch (e) {
-    next(e);
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
+    next(err);
   }
 };
 
@@ -136,8 +138,9 @@ module.exports.setNewOffer = async (req, res, next) => {
       .emitEntryCreated(req.body.customerId);
     const User = Object.assign({}, req.tokenData, { id: req.tokenData.userId });
     res.send(Object.assign({}, result, { User }));
-  } catch (e) {
-    return next(new ServerError());
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
+    next(new ServerError());
   }
 };
 

@@ -1,6 +1,7 @@
 const db = require('../models');
 const emailService = require('./../utils/emailService');
 const ServerError = require('../errors/ServerError');
+const logger = require('../utils/logger');
 
 module.exports.getAllOffers = async (req, res, next) => {
   try {
@@ -26,15 +27,13 @@ module.exports.getAllOffers = async (req, res, next) => {
       ],
     });
 
-    console.log('Fetched offers:', offers);
-
     res.status(200).json({
       total: count,
       offers: offers || [],
     });
-  } catch (error) {
-    console.error('Error in getAllOffers:', error);
-    next(error);
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
+    next(err);
   }
 };
 
@@ -59,9 +58,9 @@ module.exports.getPendingOffers = async (req, res, next) => {
       total: count,
       offers,
     });
-  } catch (error) {
-    console.error('Error in getPendingOffers:', error);
-    next(new ServerError(error));
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
+    next(new ServerError(err));
   }
 };
 
@@ -103,9 +102,9 @@ module.exports.approveOffer = async (req, res, next) => {
       message: 'Offer approved successfully and email sent.',
       offer: offer,
     });
-  } catch (error) {
-    console.error('Error in approveOffer:', error);
-    next(new ServerError(error));
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
+    next(new ServerError(err));
   }
 };
 
@@ -147,9 +146,9 @@ module.exports.rejectOffer = async (req, res, next) => {
       message: 'Offer rejected successfully and email sent.',
       offer: offer,
     });
-  } catch (error) {
-    console.error('Error in rejectOffer:', error);
-    next(new ServerError(error));
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
+    next(new ServerError(err));
   }
 };
 
@@ -168,8 +167,8 @@ module.exports.getApprovedOffers = async (req, res, next) => {
       total: count,
       offers,
     });
-  } catch (error) {
-    console.error('Error in getApprovedOffers:', error);
-    next(new ServerError(error));
+  } catch (err) {
+    logger.err(err.message, err.status || 500, err.stack);
+    next(new ServerError(err));
   }
 };
