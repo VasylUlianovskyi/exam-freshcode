@@ -20,8 +20,8 @@ module.exports.getAllOffers = async (req, res, next) => {
       include: [
         {
           model: db.Contests,
-          as: 'Contest', // Асоціація повинна відповідати налаштуванням у моделі Offers
-          attributes: ['title', 'typeOfName', 'industry'], // Вкажіть, які поля хочете отримати
+          as: 'Contest',
+          attributes: ['title', 'typeOfName', 'industry'],
         },
       ],
     });
