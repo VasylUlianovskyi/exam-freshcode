@@ -116,11 +116,14 @@ class Header extends React.Component {
           </div>
         </div>
         <div className={styles.navContainer}>
-          <img
-            src={`${CONSTANTS.STATIC_IMAGES_PATH}blue-logo.png`}
-            className={styles.logo}
-            alt='blue_logo'
-          />
+          <Link to='/'>
+            <img
+              src={`${CONSTANTS.STATIC_IMAGES_PATH}blue-logo.png`}
+              className={styles.logo}
+              alt='blue_logo'
+            />
+          </Link>
+
           <div className={styles.leftNav}>
             <div className={styles.nav}>
               <ul>
@@ -262,13 +265,27 @@ class Header extends React.Component {
                 </li>
               </ul>
             </div>
-            {this.props.data && this.props.data.role !== CONSTANTS.CREATOR && (
-              <div
-                className={styles.startContestBtn}
-                onClick={this.startContests}
-              >
-                START CONTEST
-              </div>
+            {this.props.data && (
+              <>
+                {this.props.data.role === CONSTANTS.MODERATOR ? (
+                  <Link
+                    to={{
+                      pathname: '/dashboard',
+                      state: { filter: 'null' },
+                    }}
+                    className={styles.startContestBtn}
+                  >
+                    NEW OFFERS
+                  </Link>
+                ) : this.props.data.role !== CONSTANTS.CREATOR ? (
+                  <div
+                    className={styles.startContestBtn}
+                    onClick={this.startContests}
+                  >
+                    START CONTEST
+                  </div>
+                ) : null}
+              </>
             )}
           </div>
         </div>

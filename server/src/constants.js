@@ -1,6 +1,6 @@
 module.exports = {
   JWT_SECRET: 'asdasdasd4as5d4as8d7a8sd4as65d4a8sd7asd4as56d4',
-  ACCESS_TOKEN_TIME: 60 * 60,
+  ACCESS_TOKEN_TIME: 60 * 60 * 2,
   SALT_ROUNDS: 5,
   SQUADHELP_BANK_NUMBER: '4564654564564564',
   SQUADHELP_BANK_NAME: 'SquadHelp',
@@ -8,6 +8,7 @@ module.exports = {
   SQUADHELP_BANK_EXPIRY: '11/22',
   CUSTOMER: 'customer',
   CREATOR: 'creator',
+  MODERATOR: 'moderator',
   CREATOR_ENTRIES: 'creator_entries',
   CONTEST_STATUS_ACTIVE: 'active',
   CONTEST_STATUS_FINISHED: 'finished',
