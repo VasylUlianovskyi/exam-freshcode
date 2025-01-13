@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const CONSTANTS = require('../constants');
 const TokenError = require('../errors/TokenError');
 const userQueries = require('../controllers/queries/userQueries');
-const logger = require('./../utils/logger');
 
 module.exports.checkAuth = async (req, res, next) => {
   const accessToken = req.headers.authorization;
@@ -23,7 +22,7 @@ module.exports.checkAuth = async (req, res, next) => {
       email: foundUser.email,
     });
   } catch (err) {
-    logger.err('Token validation failed', 401, new Error('Token expired'));
+    next(new TokenError());
   }
 };
 
@@ -40,6 +39,6 @@ module.exports.checkToken = async (req, res, next) => {
     req.tokenData = jwt.verify(accessToken, CONSTANTS.JWT_SECRET);
     next();
   } catch (err) {
-    logger.err('Token validation failed', 401, new Error('Token expired'));
+    next(new TokenError());
   }
 };
