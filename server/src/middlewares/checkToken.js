@@ -23,7 +23,7 @@ module.exports.checkAuth = async (req, res, next) => {
       email: foundUser.email,
     });
   } catch (err) {
-    logger.err('Token validation failed', 401, err.stack);
+    logger.err('Token validation failed', 401, new Error('Token expired'));
   }
 };
 
@@ -40,6 +40,6 @@ module.exports.checkToken = async (req, res, next) => {
     req.tokenData = jwt.verify(accessToken, CONSTANTS.JWT_SECRET);
     next();
   } catch (err) {
-    logger.err('Token validation failed', 401, err.stack);
+    logger.err('Token validation failed', 401, new Error('Token expired'));
   }
 };

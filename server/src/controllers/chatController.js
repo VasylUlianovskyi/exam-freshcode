@@ -68,9 +68,13 @@ module.exports.addMessage = async (req, res, next) => {
       message,
       preview: Object.assign(preview, { interlocutor: req.body.interlocutor }),
     });
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+  } catch (error) {
+    logger.error(
+      `Failed to add message from user ${req.tokenData.userId} to recipient ${req.body.recipient}`,
+      500,
+      err
+    );
+    next(error);
   }
 };
 
@@ -116,9 +120,13 @@ module.exports.getChat = async (req, res, next) => {
         avatar: interlocutor.avatar,
       },
     });
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+  } catch (error) {
+    logger.error(
+      `Failed to retrieve chat for participants: ${participants.join(', ')}`,
+      500,
+      err
+    );
+    next(error);
   }
 };
 
@@ -186,9 +194,13 @@ module.exports.getPreview = async (req, res, next) => {
       });
     });
     res.send(conversations);
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+  } catch (error) {
+    logger.error(
+      `Failed to get preview for user ${req.tokenData.userId}`,
+      500,
+      err
+    );
+    next(error);
   }
 };
 
@@ -206,9 +218,15 @@ module.exports.blackList = async (req, res, next) => {
       participant => participant !== req.tokenData.userId
     )[0];
     controller.getChatController().emitChangeBlockStatus(interlocutorId, chat);
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    res.send(err);
+  } catch (error) {
+    logger.error(
+      `Failed to update blacklist for conversation with participants: ${req.body.participants.join(
+        ', '
+      )}`,
+      500,
+      err
+    );
+    res.send(error);
   }
 };
 
@@ -222,9 +240,15 @@ module.exports.favoriteChat = async (req, res, next) => {
       { new: true }
     );
     res.send(chat);
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    res.send(err);
+  } catch (error) {
+    logger.error(
+      `Failed to update favorite chat for participants: ${req.body.participants.join(
+        ', '
+      )}`,
+      500,
+      err
+    );
+    res.send(error);
   }
 };
 
@@ -238,9 +262,13 @@ module.exports.createCatalog = async (req, res, next) => {
   try {
     await catalog.save();
     res.send(catalog);
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+  } catch (error) {
+    logger.error(
+      `Failed to create catalog for user ${req.tokenData.userId} with name ${req.body.catalogName}`,
+      500,
+      err
+    );
+    next(error);
   }
 };
 
@@ -255,9 +283,13 @@ module.exports.updateNameCatalog = async (req, res, next) => {
       { new: true }
     );
     res.send(catalog);
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+  } catch (error) {
+    logger.error(
+      `Failed to update catalog name for catalog ID ${req.body.catalogId} by user ${req.tokenData.userId}`,
+      500,
+      err
+    );
+    next(error);
   }
 };
 
@@ -272,9 +304,13 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
       { new: true }
     );
     res.send(catalog);
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+  } catch (error) {
+    logger.error(
+      `Failed to add chat ${req.body.chatId} to catalog ${req.body.catalogId} for user ${req.tokenData.userId}`,
+      500,
+      err
+    );
+    next(error);
   }
 };
 
@@ -289,9 +325,13 @@ module.exports.removeChatFromCatalog = async (req, res, next) => {
       { new: true }
     );
     res.send(catalog);
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+  } catch (error) {
+    logger.error(
+      `Failed to remove chat ${req.body.chatId} from catalog ${req.body.catalogId} for user ${req.tokenData.userId}`,
+      500,
+      err
+    );
+    next(error);
   }
 };
 
@@ -302,9 +342,13 @@ module.exports.deleteCatalog = async (req, res, next) => {
       userId: req.tokenData.userId,
     });
     res.end();
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+  } catch (error) {
+    logger.error(
+      `Failed to delete catalog ${req.body.catalogId} for user ${req.tokenData.userId}`,
+      500,
+      err
+    );
+    next(error);
   }
 };
 
@@ -321,8 +365,12 @@ module.exports.getCatalogs = async (req, res, next) => {
       },
     ]);
     res.send(catalogs);
-  } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+  } catch (error) {
+    logger.error(
+      `Failed to retrieve catalogs for user ID ${req.tokenData.userId}`,
+      500,
+      err
+    );
+    next(error);
   }
 };
