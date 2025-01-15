@@ -8,6 +8,8 @@ const userController = require('../controllers/userController');
 
 const router = express.Router();
 
+router.post('/getUser', checkToken.checkAuth);
+
 router.get('/users/roles', userController.getUsersByRoles);
 
 router.post(
