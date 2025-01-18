@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 require('./dbMongo/mongoose');
 const router = require('./router');
+require('./utils/logRotator');
+
 const handlerError = require('./handlerError/handler');
 const loggerErrorHandler = require('./handlerError/loggerErrorHandler');
 
