@@ -17,5 +17,18 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW,
     },
   });
+
+  Conversations.associate = models => {
+    Conversations.hasMany(models.Messages, {
+      foreignKey: 'conversationId',
+      onDelete: 'CASCADE',
+    });
+
+    Conversations.hasMany(models.ConversationParticipants, {
+      foreignKey: 'conversationId',
+      onDelete: 'CASCADE',
+    });
+  };
+
   return Conversations;
 };

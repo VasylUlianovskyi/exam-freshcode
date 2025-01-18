@@ -21,5 +21,18 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW,
     },
   });
+
+  Messages.associate = models => {
+    Messages.belongsTo(models.Conversations, {
+      foreignKey: 'conversationId',
+      onDelete: 'CASCADE',
+    });
+
+    Messages.belongsTo(models.ChatUsers, {
+      foreignKey: 'senderId',
+      onDelete: 'CASCADE',
+    });
+  };
+
   return Messages;
 };

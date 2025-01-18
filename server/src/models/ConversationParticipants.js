@@ -12,5 +12,18 @@ module.exports = (sequelize, DataTypes) => {
       },
     }
   );
+
+  ConversationParticipants.associate = models => {
+    ConversationParticipants.belongsTo(models.Conversations, {
+      foreignKey: 'conversationId',
+      onDelete: 'CASCADE',
+    });
+
+    ConversationParticipants.belongsTo(models.ChatUsers, {
+      foreignKey: 'userId',
+      onDelete: 'CASCADE',
+    });
+  };
+
   return ConversationParticipants;
 };

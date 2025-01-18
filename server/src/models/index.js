@@ -63,7 +63,26 @@ db['Ratings'].belongsTo(db['Offers'], {
   targetKey: 'id',
 });
 
+db.ChatUsers.hasMany(db.ConversationParticipants, { foreignKey: 'userId' });
+db.ChatUsers.hasMany(db.Messages, { foreignKey: 'senderId' });
+
+db.Conversations.hasMany(db.ConversationParticipants, {
+  foreignKey: 'conversationId',
+});
+db.Conversations.hasMany(db.Messages, { foreignKey: 'conversationId' });
+
+db.ConversationParticipants.belongsTo(db.Conversations, {
+  foreignKey: 'conversationId',
+});
+db.ConversationParticipants.belongsTo(db.ChatUsers, { foreignKey: 'userId' });
+
+db.Messages.belongsTo(db.Conversations, { foreignKey: 'conversationId' });
+db.Messages.belongsTo(db.ChatUsers, { foreignKey: 'senderId' });
+
+db.ChatUsers.belongsTo(db.Users, { foreignKey: 'userId', targetKey: 'id' });
+
 console.log('Loaded models:', Object.keys(db));
+console.log('Models and associations loaded successfully');
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
