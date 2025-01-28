@@ -8,54 +8,64 @@ const _ = require('lodash');
 const logger = require('../utils/logger');
 
 module.exports.addMessage = async (req, res, next) => {
-  const participants = [req.tokenData.userId, req.body.recipient];
-  participants.sort(
-    (participant1, participant2) => participant1 - participant2
-  );
+  const { userId } = req.tokenData;
+  const { recipient, messageBody } = req.body;
+
+  const participants = [userId, recipient].sort((a, b) => a - b);
+
   try {
-    const newConversation = await Conversation.findOneAndUpdate(
-      {
-        participants,
+    let conversation = await db.Conversations.findOne({
+      include: [
+        {
+          model: db.ConversationParticipants,
+          where: {
+            userId: participants,
+          },
+        },
+      ],
+      where: {
+        id: participants,
       },
-      { participants, blackList: [false, false], favoriteList: [false, false] },
-      {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-        useFindAndModify: false,
-      }
-    );
-    const message = new Message({
-      sender: req.tokenData.userId,
-      body: req.body.messageBody,
-      conversation: newConversation._id,
     });
-    await message.save();
-    message._doc.participants = participants;
-    const interlocutorId = participants.filter(
-      participant => participant !== req.tokenData.userId
-    )[0];
+
+    if (!conversation) {
+      conversation = await db.Conversations.create(
+        {
+          blacklist: false,
+          favoriteList: false,
+          ConversationParticipants: participants.map(participant => ({
+            userId: participant,
+          })),
+        },
+        { include: [db.ConversationParticipants] }
+      );
+    }
+
+    const message = await db.Messages.create({
+      senderId: userId,
+      conversationId: conversation.id,
+      body: messageBody,
+    });
+
+    const interlocutorId = participants.find(
+      participant => participant !== userId
+    );
     const preview = {
-      _id: newConversation._id,
-      sender: req.tokenData.userId,
-      text: req.body.messageBody,
+      _id: conversation.id,
+      sender: userId,
+      text: messageBody,
       createAt: message.createdAt,
       participants,
-      blackList: newConversation.blackList,
-      favoriteList: newConversation.favoriteList,
+      blacklist: conversation.blacklist,
+      favoriteList: conversation.favoriteList,
     };
+
     controller.getChatController().emitNewMessage(interlocutorId, {
       message,
       preview: {
-        _id: newConversation._id,
-        sender: req.tokenData.userId,
-        text: req.body.messageBody,
-        createAt: message.createdAt,
-        participants,
-        blackList: newConversation.blackList,
-        favoriteList: newConversation.favoriteList,
+        ...preview,
         interlocutor: {
-          id: req.tokenData.userId,
+          id: userId,
           firstName: req.tokenData.firstName,
           lastName: req.tokenData.lastName,
           displayName: req.tokenData.displayName,
@@ -64,20 +74,23 @@ module.exports.addMessage = async (req, res, next) => {
         },
       },
     });
+
     res.send({
       message,
-      preview: Object.assign(preview, { interlocutor: req.body.interlocutor }),
+      preview: {
+        ...preview,
+        interlocutor: req.body.interlocutor,
+      },
     });
   } catch (error) {
     logger.error(
-      `Failed to add message from user ${req.tokenData.userId} to recipient ${req.body.recipient}`,
+      `Failed to add message from user ${userId} to recipient ${recipient}`,
       500,
-      err
+      error
     );
     next(error);
   }
 };
-
 module.exports.getChat = async (req, res, next) => {
   const participants = [req.tokenData.userId, req.body.interlocutorId];
   participants.sort(
