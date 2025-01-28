@@ -191,28 +191,43 @@ module.exports.getPreview = async (req, res, next) => {
 };
 
 module.exports.blackList = async (req, res, next) => {
-  const predicate =
-    'blackList.' + req.body.participants.indexOf(req.tokenData.userId);
+  const { userId } = req.tokenData;
+  const { participants, blackListFlag } = req.body;
+
   try {
-    const chat = await Conversation.findOneAndUpdate(
-      { participants: req.body.participants },
-      { $set: { [predicate]: req.body.blackListFlag } },
-      { new: true }
+    const conversation = await db.Conversations.findOne({
+      include: [
+        {
+          model: db.ConversationParticipants,
+          where: { userId: participants },
+        },
+      ],
+    });
+
+    if (!conversation) {
+      return res.status(404).send({ message: 'Conversation not found' });
+    }
+
+    await conversation.update({ blacklist: blackListFlag });
+
+    const interlocutorId = participants.find(
+      participant => participant !== userId
     );
-    res.send(chat);
-    const interlocutorId = req.body.participants.filter(
-      participant => participant !== req.tokenData.userId
-    )[0];
-    controller.getChatController().emitChangeBlockStatus(interlocutorId, chat);
+
+    controller
+      .getChatController()
+      .emitChangeBlockStatus(interlocutorId, conversation);
+
+    res.send(conversation);
   } catch (error) {
     logger.error(
-      `Failed to update blacklist for conversation with participants: ${req.body.participants.join(
+      `Failed to update blacklist for conversation with participants: ${participants.join(
         ', '
       )}`,
       500,
-      err
+      error
     );
-    res.send(error);
+    next(error);
   }
 };
 
