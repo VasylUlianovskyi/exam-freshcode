@@ -91,128 +91,101 @@ module.exports.addMessage = async (req, res, next) => {
     next(error);
   }
 };
-module.exports.getChat = async (req, res, next) => {
-  const participants = [req.tokenData.userId, req.body.interlocutorId];
-  participants.sort(
-    (participant1, participant2) => participant1 - participant2
-  );
-  try {
-    const messages = await Message.aggregate([
-      {
-        $lookup: {
-          from: 'conversations',
-          localField: 'conversation',
-          foreignField: '_id',
-          as: 'conversationData',
-        },
-      },
-      { $match: { 'conversationData.participants': participants } },
-      { $sort: { createdAt: 1 } },
-      {
-        $project: {
-          _id: 1,
-          sender: 1,
-          body: 1,
-          conversation: 1,
-          createdAt: 1,
-          updatedAt: 1,
-        },
-      },
-    ]);
 
-    const interlocutor = await userQueries.findUser({
-      id: req.body.interlocutorId,
+module.exports.getChat = async (req, res, next) => {
+  const { userId } = req.tokenData;
+  const { interlocutorId } = req.body;
+
+  try {
+    const conversation = await db.Conversations.findOne({
+      include: [
+        {
+          model: db.ConversationParticipants,
+          where: {
+            userId: [userId, interlocutorId],
+          },
+        },
+      ],
     });
+
+    if (!conversation) {
+      return res.status(404).json({ message: 'Conversation not found' });
+    }
+
+    const messages = await db.Messages.findAll({
+      where: { conversationId: conversation.id },
+      order: [['createdAt', 'ASC']],
+      attributes: ['id', 'senderId', 'body', 'conversationId', 'createdAt'],
+    });
+
+    const interlocutor = await db.Users.findOne({
+      where: { id: interlocutorId },
+      attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
+    });
+
     res.send({
       messages,
-      interlocutor: {
-        firstName: interlocutor.firstName,
-        lastName: interlocutor.lastName,
-        displayName: interlocutor.displayName,
-        id: interlocutor.id,
-        avatar: interlocutor.avatar,
-      },
+      interlocutor,
     });
   } catch (error) {
     logger.error(
-      `Failed to retrieve chat for participants: ${participants.join(', ')}`,
+      `Failed to retrieve chat for participants: ${userId}, ${interlocutorId}`,
       500,
-      err
+      error
     );
     next(error);
   }
 };
 
 module.exports.getPreview = async (req, res, next) => {
+  const { userId } = req.tokenData;
+
   try {
-    const conversations = await Message.aggregate([
-      {
-        $lookup: {
-          from: 'conversations',
-          localField: 'conversation',
-          foreignField: '_id',
-          as: 'conversationData',
+    const conversations = await db.Conversations.findAll({
+      include: [
+        {
+          model: db.ConversationParticipants,
+          where: { userId },
         },
-      },
-      {
-        $unwind: '$conversationData',
-      },
-      {
-        $match: {
-          'conversationData.participants': req.tokenData.userId,
+        {
+          model: db.Messages,
+          attributes: ['id', 'senderId', 'body', 'createdAt'],
+          order: [['createdAt', 'DESC']],
+          limit: 1,
         },
-      },
-      {
-        $sort: {
-          createdAt: -1,
-        },
-      },
-      {
-        $group: {
-          _id: '$conversationData._id',
-          sender: { $first: '$sender' },
-          text: { $first: '$body' },
-          createAt: { $first: '$createdAt' },
-          participants: { $first: '$conversationData.participants' },
-          blackList: { $first: '$conversationData.blackList' },
-          favoriteList: { $first: '$conversationData.favoriteList' },
-        },
-      },
-    ]);
-    const interlocutors = [];
-    conversations.forEach(conversation => {
-      interlocutors.push(
-        conversation.participants.find(
-          participant => participant !== req.tokenData.userId
-        )
-      );
+      ],
     });
-    const senders = await db.Users.findAll({
-      where: {
-        id: interlocutors,
-      },
+
+    const interlocutorIds = conversations.map(
+      convo =>
+        convo.ConversationParticipants.find(p => p.userId !== userId)?.userId
+    );
+
+    const interlocutors = await db.Users.findAll({
+      where: { id: interlocutorIds },
       attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
     });
-    conversations.forEach(conversation => {
-      senders.forEach(sender => {
-        if (conversation.participants.includes(sender.dataValues.id)) {
-          conversation.interlocutor = {
-            id: sender.dataValues.id,
-            firstName: sender.dataValues.firstName,
-            lastName: sender.dataValues.lastName,
-            displayName: sender.dataValues.displayName,
-            avatar: sender.dataValues.avatar,
-          };
-        }
-      });
+
+    const previews = conversations.map(convo => {
+      const lastMessage = convo.Messages[0] || {};
+      const interlocutor = interlocutors.find(i =>
+        convo.ConversationParticipants.some(p => p.userId === i.id)
+      );
+
+      return {
+        id: convo.id,
+        sender: lastMessage.senderId || null,
+        text: lastMessage.body || '',
+        createAt: lastMessage.createdAt || null,
+        blacklist: convo.blacklist,
+        favoriteList: convo.favoriteList,
+        interlocutor,
+      };
     });
-    res.send(conversations);
+
+    res.send(previews);
   } catch (error) {
-    logger.error(
-      `Failed to get preview for user ${req.tokenData.userId}`,
-      500,
-      err
-    );
+    logger.error(`Failed to get preview for user ${userId}`, 500, error);
     next(error);
   }
 };
