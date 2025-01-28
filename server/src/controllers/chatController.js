@@ -1,8 +1,5 @@
-const Conversation = require('../models/mongoModels/Conversation');
-const Message = require('../models/mongoModels/Message');
 const Catalog = require('../models/mongoModels/Catalog');
 const db = require('../models');
-const userQueries = require('./queries/userQueries');
 const controller = require('../socketInit');
 const _ = require('lodash');
 const logger = require('../utils/logger');
@@ -86,7 +83,7 @@ module.exports.addMessage = async (req, res, next) => {
     logger.error(
       `Failed to add message from user ${userId} to recipient ${recipient}`,
       500,
-      error
+      err
     );
     next(error);
   }
@@ -131,7 +128,7 @@ module.exports.getChat = async (req, res, next) => {
     logger.error(
       `Failed to retrieve chat for participants: ${userId}, ${interlocutorId}`,
       500,
-      error
+      err
     );
     next(error);
   }
@@ -225,7 +222,7 @@ module.exports.blackList = async (req, res, next) => {
         ', '
       )}`,
       500,
-      error
+      err
     );
     next(error);
   }
@@ -258,7 +255,7 @@ module.exports.favoriteChat = async (req, res, next) => {
         ', '
       )}`,
       500,
-      error
+      err
     );
     next(error);
   }
