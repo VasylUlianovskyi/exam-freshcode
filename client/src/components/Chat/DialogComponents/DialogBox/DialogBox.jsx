@@ -6,7 +6,6 @@ import CONSTANTS from '../../../../constants';
 const DialogBox = props => {
   const {
     chatPreview,
-    userId,
     getTimeStr,
     changeFavorite,
     changeBlackList,
@@ -15,16 +14,10 @@ const DialogBox = props => {
     chatMode,
     interlocutor,
   } = props;
-  const { favoriteList, participants, blackList, _id, text, createAt } =
-    chatPreview;
+  const { favoriteList, blackList, id, text, createAt } = chatPreview;
 
-  const participantIndex = participants ? participants.indexOf(userId) : -1;
-  const isFavorite =
-    favoriteList && participantIndex !== -1
-      ? favoriteList[participantIndex]
-      : false;
-  const isBlocked =
-    blackList && participantIndex !== -1 ? blackList[participantIndex] : false;
+  const isFavorite = favoriteList ?? false;
+  const isBlocked = blackList ?? false;
 
   return (
     <div
@@ -33,8 +26,7 @@ const DialogBox = props => {
         goToExpandedDialog({
           interlocutor,
           conversationData: {
-            participants,
-            _id,
+            id,
             blackList,
             favoriteList,
           },
@@ -43,11 +35,9 @@ const DialogBox = props => {
     >
       <img
         src={
-          interlocutor && interlocutor.avatar
-            ? interlocutor.avatar === 'anon.png'
-              ? CONSTANTS.ANONYM_IMAGE_PATH
-              : `${CONSTANTS.publicURL}${interlocutor.avatar}`
-            : CONSTANTS.ANONYM_IMAGE_PATH
+          interlocutor?.avatar === 'anon.png'
+            ? CONSTANTS.ANONYM_IMAGE_PATH
+            : `${CONSTANTS.publicURL}${interlocutor?.avatar}`
         }
         alt='user'
       />
@@ -55,34 +45,24 @@ const DialogBox = props => {
       <div className={styles.infoContainer}>
         <div className={styles.interlocutorInfo}>
           <span className={styles.interlocutorName}>
-            {interlocutor.firstName}
+            {interlocutor?.firstName}
           </span>
           <span className={styles.interlocutorMessage}>{text}</span>
         </div>
         <div className={styles.buttonsContainer}>
           <span className={styles.time}>{getTimeStr(createAt)}</span>
           <i
-            onClick={event =>
-              changeFavorite(
-                {
-                  participants,
-                  favoriteFlag: !isFavorite,
-                },
-                event
-              )
-            }
+            onClick={event => changeFavorite(chatPreview, event)}
             className={classNames({
               'far fa-heart': !isFavorite,
               'fas fa-heart': isFavorite,
             })}
           />
+
           <i
             onClick={event =>
               changeBlackList(
-                {
-                  participants,
-                  blackListFlag: !isBlocked,
-                },
+                { conversation_id: id, blackListFlag: !isBlocked },
                 event
               )
             }
@@ -92,7 +72,7 @@ const DialogBox = props => {
             })}
           />
           <i
-            onClick={event => catalogOperation(event, _id)}
+            onClick={event => catalogOperation(event, id)}
             className={classNames({
               'far fa-plus-square':
                 chatMode !== CONSTANTS.CATALOG_PREVIEW_CHAT_MODE,

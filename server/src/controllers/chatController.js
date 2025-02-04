@@ -215,16 +215,12 @@ module.exports.getPreview = async (req, res, next) => {
 
 module.exports.blackList = async (req, res, next) => {
   const { userId } = req.tokenData;
-  const { participants, blackListFlag } = req.body;
+  const { conversation_id, blackListFlag } = req.body;
 
   try {
     const conversation = await db.Conversations.findOne({
-      include: [
-        {
-          model: db.ConversationParticipants,
-          where: { userId: participants },
-        },
-      ],
+      where: { id: conversation_id },
+      include: [{ model: db.ConversationParticipants }],
     });
 
     if (!conversation) {
@@ -233,15 +229,16 @@ module.exports.blackList = async (req, res, next) => {
 
     await db.ConversationParticipants.update(
       { blacklist: blackListFlag },
-      { where: { conversationId: conversation.id, userId } }
+      { where: { conversationId: conversation_id, userId } }
     );
 
     const updatedConversation = await db.Conversations.findOne({
-      where: { id: conversation.id },
+      where: { id: conversation_id },
       include: [{ model: db.ConversationParticipants }],
     });
 
-    console.log('CONVERSATION LOG:', conversation);
+    console.log(' Updated Conversation:', updatedConversation);
+
     res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
     logger.err(`Failed to update blacklist`, error);
@@ -251,18 +248,11 @@ module.exports.blackList = async (req, res, next) => {
 
 module.exports.favoriteChat = async (req, res, next) => {
   const { userId } = req.tokenData;
-  const { participants, favoriteFlag } = req.body;
+  const { conversation_id, favoriteFlag } = req.body;
 
   try {
     const conversation = await db.Conversations.findOne({
-      where: {
-        id: sequelize.literal(`(
-          SELECT conversation_id FROM conversation_participants
-          WHERE user_id IN (${participants.join(', ')})
-          GROUP BY conversation_id
-          HAVING COUNT(user_id) = 2
-        )`),
-      },
+      where: { id: conversation_id },
       include: [
         {
           model: db.ConversationParticipants,
@@ -277,13 +267,17 @@ module.exports.favoriteChat = async (req, res, next) => {
 
     await db.Conversations.update(
       { favoriteList: favoriteFlag },
-      { where: { id: conversation.id } }
+      { where: { id: conversation_id } }
     );
 
-    res.send({ success: true, conversation });
+    const updatedConversation = await db.Conversations.findOne({
+      where: { id: conversation_id },
+    });
+
+    res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
     logger.err(
-      `Failed to update favorite chat for participants: ${participants.join(
+      `Failed to update favorite chat for participants: ${conversation_id.join(
         ', '
       )}`,
       500,
