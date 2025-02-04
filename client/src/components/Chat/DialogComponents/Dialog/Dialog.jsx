@@ -11,33 +11,45 @@ import styles from './Dialog.module.sass';
 import ChatInput from '../../ChatComponents/ChatInut/ChatInput';
 
 class Dialog extends React.Component {
-  componentDidMount() {
-    this.props.getDialog({ interlocutorId: this.props.interlocutor.id });
+  componentDidMount () {
+    if (this.props.interlocutor) {
+      this.props.getDialog({ interlocutorId: this.props.interlocutor.id });
+    }
     this.scrollToBottom();
   }
 
   messagesEnd = React.createRef();
 
   scrollToBottom = () => {
-    this.messagesEnd.current.scrollIntoView({ behavior: 'smooth' });
+    if (this.messagesEnd.current) {
+      this.messagesEnd.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    if (nextProps.interlocutor.id !== this.props.interlocutor.id)
-      this.props.getDialog({ interlocutorId: nextProps.interlocutor.id });
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.interlocutor && this.props.interlocutor) {
+      if (nextProps.interlocutor.id !== this.props.interlocutor.id) {
+        this.props.getDialog({ interlocutorId: nextProps.interlocutor.id });
+      }
+    }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.props.clearMessageList();
   }
 
-  componentDidUpdate() {
-    if (this.messagesEnd.current) this.scrollToBottom();
+  componentDidUpdate () {
+    this.scrollToBottom();
   }
 
   renderMainDialog = () => {
     const messagesArray = [];
-    const { messages, userId } = this.props;
+    const { messages = [], userId } = this.props;
+
+    if (!messages.length) {
+      return <p className={styles.noMessages}>No messages yet</p>;
+    }
+
     let currentTime = moment();
     messages.forEach((message, i) => {
       if (!currentTime.isSame(message.createdAt, 'date')) {
@@ -52,12 +64,12 @@ class Dialog extends React.Component {
         <div
           key={i}
           className={className(
-            userId === message.sender ? styles.ownMessage : styles.message
+            userId === message.senderId ? styles.ownMessage : styles.message
           )}
         >
           <span>{message.body}</span>
           <span className={styles.messageTime}>
-            {moment(message.createdAt).format('HH:mm')}
+            {moment.utc(message.createdAt).local().format('HH:mm')}
           </span>
           <div ref={this.messagesEnd} />
         </div>
@@ -68,25 +80,35 @@ class Dialog extends React.Component {
 
   blockMessage = () => {
     const { userId, chatData } = this.props;
-    const { blackList, participants } = chatData;
+
+    if (!chatData) return null;
+
+    const { blackList = [], participants = [] } = chatData;
     const userIndex = participants.indexOf(userId);
-    let message;
-    if (chatData && blackList[userIndex]) {
-      message = 'You block him';
-    } else if (chatData && blackList.includes(true)) {
-      message = 'He block you';
+
+    if (Array.isArray(blackList)) {
+      if (blackList[userIndex]) {
+        return <span className={styles.messageBlock}>You block him</span>;
+      }
+      if (blackList.includes(true)) {
+        return <span className={styles.messageBlock}>He block you</span>;
+      }
     }
-    return <span className={styles.messageBlock}>{message}</span>;
+
+    return null;
   };
 
-  render() {
+  render () {
     const { chatData, userId } = this.props;
+
     return (
       <>
         <ChatHeader userId={userId} />
         {this.renderMainDialog()}
         <div ref={this.messagesEnd} />
-        {chatData && chatData.blackList.includes(true) ? (
+        {chatData &&
+        Array.isArray(chatData.blackList) &&
+        chatData.blackList.includes(true) ? (
           this.blockMessage()
         ) : (
           <ChatInput />
@@ -96,10 +118,10 @@ class Dialog extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => state.chatStore;
+const mapStateToProps = state => state.chatStore;
 
-const mapDispatchToProps = (dispatch) => ({
-  getDialog: (data) => dispatch(getDialogMessages(data)),
+const mapDispatchToProps = dispatch => ({
+  getDialog: data => dispatch(getDialogMessages(data)),
   clearMessageList: () => dispatch(clearMessageList()),
 });
 

@@ -20,9 +20,6 @@ module.exports.addMessage = async (req, res, next) => {
           },
         },
       ],
-      where: {
-        id: participants,
-      },
     });
 
     if (!conversation) {
@@ -30,12 +27,26 @@ module.exports.addMessage = async (req, res, next) => {
         {
           blacklist: false,
           favoriteList: false,
-          ConversationParticipants: participants.map(participant => ({
-            userId: participant,
-          })),
+          ConversationParticipants: [{ userId: userId }, { userId: recipient }],
         },
         { include: [db.ConversationParticipants] }
       );
+    } else {
+      const existingParticipants = conversation.ConversationParticipants.map(
+        p => p.userId
+      );
+      if (!existingParticipants.includes(recipient)) {
+        await db.ConversationParticipants.create({
+          conversationId: conversation.id,
+          userId: recipient,
+        });
+      }
+      if (!existingParticipants.includes(userId)) {
+        await db.ConversationParticipants.create({
+          conversationId: conversation.id,
+          userId: userId,
+        });
+      }
     }
 
     const message = await db.Messages.create({
@@ -47,6 +58,7 @@ module.exports.addMessage = async (req, res, next) => {
     const interlocutorId = participants.find(
       participant => participant !== userId
     );
+
     const preview = {
       _id: conversation.id,
       sender: userId,
@@ -80,10 +92,10 @@ module.exports.addMessage = async (req, res, next) => {
       },
     });
   } catch (error) {
-    logger.err(
+    logger.error(
       `Failed to add message from user ${userId} to recipient ${recipient}`,
       500,
-      err
+      error
     );
     next(error);
   }
@@ -99,14 +111,20 @@ module.exports.getChat = async (req, res, next) => {
         {
           model: db.ConversationParticipants,
           where: {
-            userId: [userId, interlocutorId],
+            userId: userId,
+          },
+        },
+        {
+          model: db.ConversationParticipants,
+          where: {
+            userId: interlocutorId,
           },
         },
       ],
     });
 
     if (!conversation) {
-      return res.status(404).json({ message: 'Conversation not found' });
+      return res.send({ messages: [], interlocutor: null });
     }
 
     const messages = await db.Messages.findAll({
@@ -122,13 +140,13 @@ module.exports.getChat = async (req, res, next) => {
 
     res.send({
       messages,
-      interlocutor,
+      interlocutor: interlocutor || null,
     });
   } catch (error) {
     logger.err(
       `Failed to retrieve chat for participants: ${userId}, ${interlocutorId}`,
       500,
-      err
+      error
     );
     next(error);
   }
@@ -153,32 +171,51 @@ module.exports.getPreview = async (req, res, next) => {
       ],
     });
 
-    const interlocutorIds = conversations.map(
-      convo =>
-        convo.ConversationParticipants.find(p => p.userId !== userId)?.userId
-    );
+    const interlocutorIds = conversations
+      .map(
+        convo =>
+          convo.ConversationParticipants.find(p => p.userId !== userId)?.userId
+      )
+      .filter(id => id !== undefined && id !== null);
+
+    console.log('DEBUG interlocutorIds:', interlocutorIds);
+
+    if (!interlocutorIds.length) {
+      return res.send([]);
+    }
 
     const interlocutors = await db.Users.findAll({
       where: { id: interlocutorIds },
       attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
     });
 
+    console.log('DEBUG interlocutors:', JSON.stringify(interlocutors, null, 2));
+
     const previews = conversations.map(convo => {
-      const lastMessage = convo.Messages[0] || {};
+      const lastMessage = convo.Messages.length ? convo.Messages[0] : null;
+
       const interlocutor = interlocutors.find(i =>
         convo.ConversationParticipants.some(p => p.userId === i.id)
-      );
+      ) || {
+        id: null,
+        firstName: 'Unknown',
+        lastName: '',
+        displayName: 'Unknown',
+        avatar: 'anon.png',
+      };
 
       return {
         id: convo.id,
-        sender: lastMessage.senderId || null,
-        text: lastMessage.body || '',
-        createAt: lastMessage.createdAt || null,
+        sender: lastMessage ? lastMessage.senderId : null,
+        text: lastMessage ? lastMessage.body : '',
+        createAt: lastMessage ? lastMessage.createdAt : null,
         blacklist: convo.blacklist,
         favoriteList: convo.favoriteList,
         interlocutor,
       };
     });
+
+    console.log('DEBUG previews:', JSON.stringify(previews, null, 2));
 
     res.send(previews);
   } catch (error) {
@@ -205,25 +242,20 @@ module.exports.blackList = async (req, res, next) => {
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
-    await conversation.update({ blacklist: blackListFlag });
-
-    const interlocutorId = participants.find(
-      participant => participant !== userId
+    await db.ConversationParticipants.update(
+      { blacklist: blackListFlag },
+      { where: { conversationId: conversation.id, userId } }
     );
 
-    controller
-      .getChatController()
-      .emitChangeBlockStatus(interlocutorId, conversation);
+    const updatedConversation = await db.Conversations.findOne({
+      where: { id: conversation.id },
+      include: [{ model: db.ConversationParticipants }],
+    });
 
-    res.send(conversation);
+    console.log('CONVERSATION LOG:', conversation);
+    res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
-    logger.err(
-      `Failed to update blacklist for conversation with participants: ${participants.join(
-        ', '
-      )}`,
-      500,
-      err
-    );
+    logger.err(`Failed to update blacklist`, error);
     next(error);
   }
 };
@@ -234,10 +266,18 @@ module.exports.favoriteChat = async (req, res, next) => {
 
   try {
     const conversation = await db.Conversations.findOne({
+      where: {
+        id: sequelize.literal(`(
+          SELECT conversation_id FROM conversation_participants
+          WHERE user_id IN (${participants.join(', ')})
+          GROUP BY conversation_id
+          HAVING COUNT(user_id) = 2
+        )`),
+      },
       include: [
         {
           model: db.ConversationParticipants,
-          where: { userId: participants },
+          where: { userId },
         },
       ],
     });
@@ -246,16 +286,19 @@ module.exports.favoriteChat = async (req, res, next) => {
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
-    await conversation.update({ favoriteList: favoriteFlag });
+    await db.Conversations.update(
+      { favoriteList: favoriteFlag },
+      { where: { id: conversation.id } }
+    );
 
-    res.send(conversation);
+    res.send({ success: true, conversation });
   } catch (error) {
     logger.err(
       `Failed to update favorite chat for participants: ${participants.join(
         ', '
       )}`,
       500,
-      err
+      error
     );
     next(error);
   }

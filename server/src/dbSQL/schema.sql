@@ -35,6 +35,12 @@ CREATE TABLE messages (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Altering the columns to have a time zone
+
+ALTER TABLE messages
+ALTER COLUMN created_at TYPE TIMESTAMP WITH TIME ZONE,
+ALTER COLUMN updated_at TYPE TIMESTAMP WITH TIME ZONE;
+
 -- Function to automatically insert into chat_users when a user is added to Users
 CREATE OR REPLACE FUNCTION add_to_chat_users()
 RETURNS TRIGGER AS $$

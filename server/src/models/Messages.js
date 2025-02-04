@@ -1,3 +1,5 @@
+const { Sequelize, DataTypes } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   const Messages = sequelize.define(
     'Messages',
@@ -16,11 +18,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       createdAt: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     },
     {
