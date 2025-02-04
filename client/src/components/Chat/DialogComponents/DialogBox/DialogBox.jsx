@@ -60,12 +60,7 @@ const DialogBox = props => {
           />
 
           <i
-            onClick={event => {
-              changeBlackList(
-                { conversation_id: id, blackListFlag: !isBlocked },
-                event
-              );
-            }}
+            onClick={event => changeBlackList(chatPreview, event)}
             className={classNames({
               'fas fa-user-lock': !isBlocked,
               'fas fa-unlock': isBlocked,
