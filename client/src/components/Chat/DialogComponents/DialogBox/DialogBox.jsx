@@ -15,16 +15,17 @@ const DialogBox = props => {
     chatMode,
     interlocutor,
   } = props;
-  const {
-    favoriteList,
-    participants,
-    blackList,
-    _id,
-    text,
-    createAt,
-  } = chatPreview;
-  const isFavorite = favoriteList[participants.indexOf(userId)];
-  const isBlocked = blackList[participants.indexOf(userId)];
+  const { favoriteList, participants, blackList, _id, text, createAt } =
+    chatPreview;
+
+  const participantIndex = participants ? participants.indexOf(userId) : -1;
+  const isFavorite =
+    favoriteList && participantIndex !== -1
+      ? favoriteList[participantIndex]
+      : false;
+  const isBlocked =
+    blackList && participantIndex !== -1 ? blackList[participantIndex] : false;
+
   return (
     <div
       className={styles.previewChatBox}
@@ -42,12 +43,15 @@ const DialogBox = props => {
     >
       <img
         src={
-          interlocutor.avatar === 'anon.png'
-            ? CONSTANTS.ANONYM_IMAGE_PATH
-            : `${CONSTANTS.publicURL}${interlocutor.avatar}`
+          interlocutor && interlocutor.avatar
+            ? interlocutor.avatar === 'anon.png'
+              ? CONSTANTS.ANONYM_IMAGE_PATH
+              : `${CONSTANTS.publicURL}${interlocutor.avatar}`
+            : CONSTANTS.ANONYM_IMAGE_PATH
         }
         alt='user'
       />
+
       <div className={styles.infoContainer}>
         <div className={styles.interlocutorInfo}>
           <span className={styles.interlocutorName}>

@@ -160,7 +160,7 @@ module.exports.getPreview = async (req, res, next) => {
       include: [
         {
           model: db.ConversationParticipants,
-          where: { userId },
+          attributes: ['userId'],
         },
         {
           model: db.Messages,
@@ -172,13 +172,13 @@ module.exports.getPreview = async (req, res, next) => {
     });
 
     const interlocutorIds = conversations
-      .map(
-        convo =>
-          convo.ConversationParticipants.find(p => p.userId !== userId)?.userId
-      )
-      .filter(id => id !== undefined && id !== null);
-
-    console.log('DEBUG interlocutorIds:', interlocutorIds);
+      .map(convo => {
+        const participantIds = convo.ConversationParticipants.map(
+          p => p.userId
+        );
+        return participantIds.find(id => id !== userId);
+      })
+      .filter(id => id !== undefined);
 
     if (!interlocutorIds.length) {
       return res.send([]);
@@ -189,33 +189,22 @@ module.exports.getPreview = async (req, res, next) => {
       attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
     });
 
-    console.log('DEBUG interlocutors:', JSON.stringify(interlocutors, null, 2));
-
     const previews = conversations.map(convo => {
-      const lastMessage = convo.Messages.length ? convo.Messages[0] : null;
-
+      const lastMessage = convo.Messages[0] || {};
       const interlocutor = interlocutors.find(i =>
         convo.ConversationParticipants.some(p => p.userId === i.id)
-      ) || {
-        id: null,
-        firstName: 'Unknown',
-        lastName: '',
-        displayName: 'Unknown',
-        avatar: 'anon.png',
-      };
+      );
 
       return {
         id: convo.id,
-        sender: lastMessage ? lastMessage.senderId : null,
-        text: lastMessage ? lastMessage.body : '',
-        createAt: lastMessage ? lastMessage.createdAt : null,
+        sender: lastMessage.senderId || null,
+        text: lastMessage.body || '',
+        createAt: lastMessage.createdAt || null,
         blacklist: convo.blacklist,
         favoriteList: convo.favoriteList,
         interlocutor,
       };
     });
-
-    console.log('DEBUG previews:', JSON.stringify(previews, null, 2));
 
     res.send(previews);
   } catch (error) {
