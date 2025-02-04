@@ -25,7 +25,7 @@ const DialogList = props => {
     if (!chatPreview || !chatPreview.id) return;
     props.changeChatBlock({
       conversation_id: chatPreview.id,
-      blackListFlag: !chatPreview.blackList,
+      blackListFlag: !chatPreview.blacklist,
     });
     event.stopPropagation();
   };
@@ -35,6 +35,9 @@ const DialogList = props => {
     event.stopPropagation();
   };
 
+  const onlyFavoriteDialogs = chatPreview => chatPreview.favoriteList === true;
+  const onlyBlockDialogs = chatPreview => chatPreview.blacklist === true;
+
   const getTimeStr = time => {
     const currentTime = moment();
     if (currentTime.isSame(time, 'day')) return moment(time).format('HH:mm');
@@ -43,11 +46,16 @@ const DialogList = props => {
     return moment(time).format('MMMM DD, YYYY');
   };
 
-  const renderPreview = () => {
+  const renderPreview = filterFunc => {
+    const arrayList = [];
     const { preview, goToExpandedDialog, chatMode, removeChat } = props;
 
-    return preview.length ? (
-      preview.map((chatPreview, index) => (
+    preview.forEach((chatPreview, index) => {
+      if (filterFunc && !filterFunc(chatPreview)) {
+        return;
+      }
+
+      const dialogNode = (
         <DialogBox
           interlocutor={chatPreview.interlocutor}
           chatPreview={chatPreview}
@@ -63,16 +71,33 @@ const DialogList = props => {
           }
           goToExpandedDialog={goToExpandedDialog}
         />
-      ))
+      );
+
+      arrayList.push(dialogNode);
+    });
+
+    return arrayList.length ? (
+      arrayList
     ) : (
       <span className={styles.notFound}>Not found</span>
     );
   };
 
-  return <div className={styles.previewContainer}>{renderPreview()}</div>;
+  const renderChatPreview = () => {
+    const { chatMode } = props;
+    if (chatMode === CONSTANTS.FAVORITE_PREVIEW_CHAT_MODE)
+      return renderPreview(onlyFavoriteDialogs);
+    if (chatMode === CONSTANTS.BLOCKED_PREVIEW_CHAT_MODE)
+      return renderPreview(onlyBlockDialogs);
+    return renderPreview();
+  };
+
+  return <div className={styles.previewContainer}>{renderChatPreview()}</div>;
 };
 
-const mapStateToProps = state => state.chatStore;
+const mapStateToProps = state => {
+  return state.chatStore;
+};
 
 const mapDispatchToProps = dispatch => ({
   goToExpandedDialog: data => dispatch(goToExpandedDialog(data)),

@@ -11,23 +11,42 @@ import CONSTANTS from '../../../../constants';
 
 const ChatHeader = props => {
   const changeFavorite = event => {
-    if (!props.chatData || !props.chatData.id) return;
-    props.changeChatFavorite({
+    if (!props.chatData || !props.chatData.id) {
+      console.warn(
+        '⚠️ Warning: chatData or chatData.id is missing',
+        props.chatData
+      );
+      return;
+    }
+
+    const payload = {
       conversation_id: props.chatData.id,
       favoriteFlag: !props.chatData.favoriteList,
-    });
+    };
+
+    console.log('📤 Dispatching changeChatFavorite with payload:', payload);
+
+    props.changeChatFavorite(payload);
     event.stopPropagation();
   };
 
   const changeBlackList = event => {
-    if (!props.chatData || !props.chatData.id) return;
-    props.changeChatBlock({
+    if (!props.chatData || !props.chatData.id) {
+      console.warn(
+        '⚠️ Warning: chatData or chatData.id is missing',
+        props.chatData
+      );
+      return;
+    }
+
+    const payload = {
       conversation_id: props.chatData.id,
-      blackListFlag: !props.chatData.blackList,
-    });
+      blackListFlag: !props.chatData.blacklist,
+    };
+
+    props.changeChatBlock(payload);
     event.stopPropagation();
   };
-
   const { avatar, firstName } = props.interlocutor;
   const { backToDialogList, chatData } = props;
   return (
@@ -62,8 +81,8 @@ const ChatHeader = props => {
             <i
               onClick={changeBlackList}
               className={classNames({
-                'fas fa-user-lock': !chatData.blackList,
-                'fas fa-unlock': chatData.blackList,
+                'fas fa-user-lock': !chatData.blacklist,
+                'fas fa-unlock': chatData.blacklist,
               })}
             />
           </div>
@@ -73,7 +92,10 @@ const ChatHeader = props => {
   );
 };
 
-const mapStateToProps = state => state.chatStore;
+const mapStateToProps = state => ({
+  chatData: state.chatStore.chatData,
+  interlocutor: state.chatStore.interlocutor,
+});
 
 const mapDispatchToProps = dispatch => ({
   backToDialogList: () => dispatch(backToDialogList()),

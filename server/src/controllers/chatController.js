@@ -220,28 +220,27 @@ module.exports.blackList = async (req, res, next) => {
   try {
     const conversation = await db.Conversations.findOne({
       where: { id: conversation_id },
-      include: [{ model: db.ConversationParticipants }],
     });
 
     if (!conversation) {
+      console.error(`Conversation with ID ${conversation_id} not found`);
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
-    await db.ConversationParticipants.update(
+    await db.Conversations.update(
       { blacklist: blackListFlag },
-      { where: { conversationId: conversation_id, userId } }
+      { where: { id: conversation_id } }
     );
 
     const updatedConversation = await db.Conversations.findOne({
       where: { id: conversation_id },
-      include: [{ model: db.ConversationParticipants }],
     });
 
-    console.log(' Updated Conversation:', updatedConversation);
+    console.log(` Updated conversation:`, updatedConversation.dataValues);
 
     res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
-    logger.err(`Failed to update blacklist`, error);
+    console.error(' Error updating blacklist:', error);
     next(error);
   }
 };

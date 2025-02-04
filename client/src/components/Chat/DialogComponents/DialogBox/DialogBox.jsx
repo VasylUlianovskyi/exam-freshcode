@@ -14,10 +14,10 @@ const DialogBox = props => {
     chatMode,
     interlocutor,
   } = props;
-  const { favoriteList, blackList, id, text, createAt } = chatPreview;
+  const { favoriteList, blacklist, id, text, createAt } = chatPreview;
 
   const isFavorite = favoriteList ?? false;
-  const isBlocked = blackList ?? false;
+  const isBlocked = blacklist ?? false;
 
   return (
     <div
@@ -27,7 +27,7 @@ const DialogBox = props => {
           interlocutor,
           conversationData: {
             id,
-            blackList,
+            blacklist,
             favoriteList,
           },
         })
@@ -60,17 +60,18 @@ const DialogBox = props => {
           />
 
           <i
-            onClick={event =>
+            onClick={event => {
               changeBlackList(
                 { conversation_id: id, blackListFlag: !isBlocked },
                 event
-              )
-            }
+              );
+            }}
             className={classNames({
               'fas fa-user-lock': !isBlocked,
               'fas fa-unlock': isBlocked,
             })}
           />
+
           <i
             onClick={event => catalogOperation(event, id)}
             className={classNames({
