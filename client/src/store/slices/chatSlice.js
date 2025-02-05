@@ -88,24 +88,29 @@ export const sendMessage = decorateAsyncThunk({
 const sendMessageExtraReducers = createExtraReducers({
   thunk: sendMessage,
   fulfilledReducer: (state, { payload }) => {
-    const { message, preview } = payload;
+    const { messagesPreview } = state;
+    let isNew = true;
 
-    state.messagesPreview = state.messagesPreview.map(prev =>
-      prev.id === preview.id
-        ? {
-            ...prev,
-            text: message.body,
-            sender: message.sender,
-            createAt: message.createdAt,
-          }
-        : prev
-    );
+    messagesPreview.forEach(preview => {
+      if (preview.id === payload.message.conversationId) {
+        preview.text = payload.message.body; // Оновлюємо останнє повідомлення
+        preview.sender = payload.message.senderId;
+        preview.createAt = payload.message.createdAt;
+        isNew = false;
+      }
+    });
 
-    if (!state.messagesPreview.some(prev => prev.id === preview.id)) {
-      state.messagesPreview.push(preview);
+    if (isNew) {
+      messagesPreview.push({
+        id: payload.message.conversationId,
+        sender: payload.message.senderId,
+        text: payload.message.body,
+        createAt: payload.message.createdAt,
+      });
     }
 
-    state.messages = [...state.messages, message];
+    state.messagesPreview = [...messagesPreview]; // Примушуємо оновлення Redux-стану
+    state.messages = [...state.messages, payload.message];
   },
   rejectedReducer: (state, { payload }) => {
     state.error = payload;
