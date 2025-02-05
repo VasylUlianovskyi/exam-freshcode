@@ -124,13 +124,15 @@ export const changeChatFavorite = decorateAsyncThunk({
 const changeChatFavoriteExtraReducers = createExtraReducers({
   thunk: changeChatFavorite,
   fulfilledReducer: (state, { payload }) => {
-    const { messagesPreview } = state;
-    messagesPreview.forEach(preview => {
-      if (isEqual(preview.participants, payload.participants))
-        preview.favoriteList = payload.favoriteList;
-    });
-    state.chatData = payload;
-    state.messagesPreview = messagesPreview;
+    state.messagesPreview = state.messagesPreview.map(preview =>
+      preview.id === payload.conversation.id
+        ? { ...preview, ...payload.conversation }
+        : preview
+    );
+
+    if (state.chatData?.id === payload.conversation.id) {
+      state.chatData = { ...state.chatData, ...payload.conversation };
+    }
   },
   rejectedReducer: (state, { payload }) => {
     state.error = payload;
@@ -149,13 +151,15 @@ export const changeChatBlock = decorateAsyncThunk({
 const changeChatBlockExtraReducers = createExtraReducers({
   thunk: changeChatBlock,
   fulfilledReducer: (state, { payload }) => {
-    const { messagesPreview } = state;
-    messagesPreview.forEach(preview => {
-      if (isEqual(preview.participants, payload.participants))
-        preview.blackList = payload.blackList;
-    });
-    state.chatData = payload;
-    state.messagesPreview = messagesPreview;
+    state.messagesPreview = state.messagesPreview.map(preview =>
+      preview.id === payload.conversation.id
+        ? { ...preview, ...payload.conversation }
+        : preview
+    );
+
+    if (state.chatData?.id === payload.conversation.id) {
+      state.chatData = { ...state.chatData, ...payload.conversation };
+    }
   },
   rejectedReducer: (state, { payload }) => {
     state.error = payload;
