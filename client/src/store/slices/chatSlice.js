@@ -41,7 +41,11 @@ export const getPreviewChat = decorateAsyncThunk({
 const getPreviewChatExtraReducers = createExtraReducers({
   thunk: getPreviewChat,
   fulfilledReducer: (state, { payload }) => {
-    state.messagesPreview = payload;
+    const uniquePreviews = payload.filter(
+      chat => !state.messagesPreview.some(prev => prev.id === chat.id)
+    );
+
+    state.messagesPreview = [...state.messagesPreview, ...uniquePreviews];
     state.error = null;
   },
   rejectedReducer: (state, { payload }) => {
@@ -84,28 +88,24 @@ export const sendMessage = decorateAsyncThunk({
 const sendMessageExtraReducers = createExtraReducers({
   thunk: sendMessage,
   fulfilledReducer: (state, { payload }) => {
-    const { messagesPreview } = state;
-    let isNew = true;
-    messagesPreview.forEach(preview => {
-      if (isEqual(preview.participants, payload.message.participants)) {
-        preview.text = payload.message.body;
-        preview.sender = payload.message.sender;
-        preview.createAt = payload.message.createdAt;
-        isNew = false;
-      }
-    });
-    if (isNew) {
-      messagesPreview.push(payload.preview);
+    const { message, preview } = payload;
+
+    state.messagesPreview = state.messagesPreview.map(prev =>
+      prev.id === preview.id
+        ? {
+            ...prev,
+            text: message.body,
+            sender: message.sender,
+            createAt: message.createdAt,
+          }
+        : prev
+    );
+
+    if (!state.messagesPreview.some(prev => prev.id === preview.id)) {
+      state.messagesPreview.push(preview);
     }
-    const chatData = {
-      _id: payload.preview._id,
-      participants: payload.preview.participants,
-      favoriteList: payload.preview.favoriteList,
-      blackList: payload.preview.blackList,
-    };
-    state.chatData = { ...state.chatData, ...chatData };
-    state.messagesPreview = messagesPreview;
-    state.messages = [...state.messages, payload.message];
+
+    state.messages = [...state.messages, message];
   },
   rejectedReducer: (state, { payload }) => {
     state.error = payload;

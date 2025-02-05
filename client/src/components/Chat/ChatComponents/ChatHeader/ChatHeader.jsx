@@ -24,8 +24,6 @@ const ChatHeader = props => {
       favoriteFlag: !props.chatData.favoriteList,
     };
 
-    console.log('📤 Dispatching changeChatFavorite with payload:', payload);
-
     props.changeChatFavorite(payload);
     event.stopPropagation();
   };

@@ -92,7 +92,7 @@ module.exports.addMessage = async (req, res, next) => {
       },
     });
   } catch (error) {
-    logger.error(
+    logger.err(
       `Failed to add message from user ${userId} to recipient ${recipient}`,
       500,
       error
@@ -106,25 +106,26 @@ module.exports.getChat = async (req, res, next) => {
   const { interlocutorId } = req.body;
 
   try {
-    const conversation = await db.Conversations.findOne({
+    let conversation = await db.Conversations.findOne({
       include: [
         {
           model: db.ConversationParticipants,
-          where: {
-            userId: userId,
-          },
+          where: { userId },
         },
         {
           model: db.ConversationParticipants,
-          where: {
-            userId: interlocutorId,
-          },
+          where: { userId: interlocutorId },
         },
       ],
     });
 
     if (!conversation) {
-      return res.send({ messages: [], interlocutor: null });
+      conversation = await db.Conversations.create();
+
+      await db.ConversationParticipants.bulkCreate([
+        { conversationId: conversation.id, userId },
+        { conversationId: conversation.id, userId: interlocutorId },
+      ]);
     }
 
     const messages = await db.Messages.findAll({
@@ -141,6 +142,7 @@ module.exports.getChat = async (req, res, next) => {
     res.send({
       messages,
       interlocutor: interlocutor || null,
+      conversationId: conversation.id,
     });
   } catch (error) {
     logger.err(
