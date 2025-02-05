@@ -93,7 +93,7 @@ const sendMessageExtraReducers = createExtraReducers({
 
     messagesPreview.forEach(preview => {
       if (preview.id === payload.message.conversationId) {
-        preview.text = payload.message.body; // Оновлюємо останнє повідомлення
+        preview.text = payload.message.body;
         preview.sender = payload.message.senderId;
         preview.createAt = payload.message.createdAt;
         isNew = false;
@@ -109,7 +109,7 @@ const sendMessageExtraReducers = createExtraReducers({
       });
     }
 
-    state.messagesPreview = [...messagesPreview]; // Примушуємо оновлення Redux-стану
+    state.messagesPreview = [...messagesPreview];
     state.messages = [...state.messages, payload.message];
   },
   rejectedReducer: (state, { payload }) => {
