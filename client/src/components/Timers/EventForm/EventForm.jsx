@@ -21,7 +21,7 @@ const EventForm = () => {
         //   reminder: values.reminderTime,
         //   status: 'active',
         // })
-        resetForm(); // Очищаємо форму
+        resetForm();
       }}
     >
       {({ isSubmitting }) => (
