@@ -1,17 +1,25 @@
 
 .eventsPage
   max-width: 1200px
-  margin: 0 auto
+  margin: 50px
   padding: 20px
   text-align: center
-
-  & h1
-    font-size: 28px
-    margin-bottom: 20px
 
   & p
     font-size: 18px
     color: #555
+
+h1
+  font-size: 28px
+  margin: 20px
+  font-weight: bold
+  text-align: center
+
+.eventsContainer
+  display: flex
+  flex-direction: row
+  justify-content: space-around
+  gap: 40%
 
 .eventsList
   display: flex
@@ -35,3 +43,10 @@
 
 .Footer
   margin-top: auto
+
+@media screen and (max-width: 768px)
+  .eventsPage
+    margin: 0 auto
+  .eventsContainer
+    flex-direction: column
+    gap: 20px

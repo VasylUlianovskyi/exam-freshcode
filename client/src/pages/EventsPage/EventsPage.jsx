@@ -6,6 +6,7 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import styles from './EventsPage.module.sass';
 import EventForm from './../../components/Timers/EventForm/EventForm';
+import EventList from './../../components/Timers/EventsList/EventsList';
 
 const EventsPage = () => {
   const user = useSelector(state => state.userStore?.data);
@@ -17,11 +18,14 @@ const EventsPage = () => {
   return (
     <>
       <Header />
+      <h1>Events</h1>
       <div className={styles.eventsPage}>
-        <h1>Сторінка Подій (Events)</h1>
-        <p>Тут будуть таймери для брендингу</p>
-        <EventForm />
-        <div className={styles.eventsList}>{/* Тут будуть таймери */}</div>
+        <div className={styles.eventsContainer}>
+          <EventForm />
+          <div className={styles.eventsList}>
+            <EventList />
+          </div>
+        </div>
       </div>
       <Footer />
     </>

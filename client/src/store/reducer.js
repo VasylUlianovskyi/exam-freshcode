@@ -10,7 +10,7 @@ import contestByIdReducer from './slices/contestByIdSlice';
 import contestUpdationReducer from './slices/contestUpdationSlice';
 import chatReducer from './slices/chatSlice';
 import userProfileReducer from './slices/userProfileSlice';
-import timersReducer from './slices/timerSlice';
+import timersReducer from './slices/timersSlice';
 
 const rootReducer = combineReducers({
   userStore: userReducer,

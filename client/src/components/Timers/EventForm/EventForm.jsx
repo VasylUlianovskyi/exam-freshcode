@@ -2,9 +2,10 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import validationSchemes from '../../../utils/validators/validationSchems';
-// import { addTimer } from '../../store/slices/timersSlice';
+import timersSlice from '../../../store/slices/timersSlice';
 import styles from './EventForm.module.sass';
 const EventForm = () => {
+  const { addTimer } = timersSlice;
   const { EventsFormSchema } = validationSchemes;
   const dispatch = useDispatch();
 
@@ -14,13 +15,13 @@ const EventForm = () => {
       validationSchema={EventsFormSchema}
       onSubmit={(values, { resetForm }) => {
         dispatch();
-        // addTimer({
-        //   id: Date.now(),
-        //   name: values.eventName,
-        //   date: new Date(values.eventDate).toISOString(),
-        //   reminder: values.reminderTime,
-        //   status: 'active',
-        // })
+        addTimer({
+          id: Date.now(),
+          name: values.eventName,
+          date: new Date(values.eventDate).toISOString(),
+          reminder: values.reminderTime,
+          status: 'active',
+        });
         resetForm();
       }}
     >
