@@ -15,19 +15,36 @@ const timersSlice = createSlice({
   name: 'timers',
   initialState: {
     events: loadTimersFromStorage(),
+    activeAlerts: 0,
   },
   reducers: {
     addTimer: (state, action) => {
       state.events.push(action.payload);
       state.events.sort((a, b) => new Date(a.date) - new Date(b.date));
       saveTimersToStorage(state.events);
+      state.activeAlerts = calculateActiveAlerts(state.events);
     },
     removeTimer: (state, action) => {
       state.events = state.events.filter(event => event.id !== action.payload);
       saveTimersToStorage(state.events);
+      state.activeAlerts = calculateActiveAlerts(state.events);
+    },
+    updateTimers: state => {
+      state.activeAlerts = calculateActiveAlerts(state.events);
     },
   },
 });
 
-export const { addTimer, removeTimer } = timersSlice.actions;
+const calculateActiveAlerts = events => {
+  const now = new Date();
+  return events.filter(event => {
+    const eventTime = new Date(event.date);
+    const reminderTime = event.reminder
+      ? eventTime - event.reminder * 60 * 1000
+      : eventTime;
+    return eventTime <= now || reminderTime <= now;
+  }).length;
+};
+
+export const { addTimer, removeTimer, updateTimers } = timersSlice.actions;
 export default timersSlice.reducer;

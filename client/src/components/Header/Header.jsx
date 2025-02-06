@@ -5,6 +5,7 @@ import styles from './Header.module.sass';
 import CONSTANTS from '../../constants';
 import { clearUserStore } from '../../store/slices/userSlice';
 import { getUser } from '../../store/slices/userSlice';
+import EventBadge from './../EventsBadge/EventsBadge';
 
 class Header extends React.Component {
   componentDidMount () {
@@ -36,11 +37,13 @@ class Header extends React.Component {
               }
               alt='user'
             />
+            <EventBadge />
             <span>{`Hi, ${this.props.data.displayName}`}</span>
             <img
               src={`${CONSTANTS.STATIC_IMAGES_PATH}menu-down.png`}
               alt='menu'
             />
+
             <ul>
               <li>
                 <Link to='/dashboard' style={{ textDecoration: 'none' }}>
@@ -61,8 +64,12 @@ class Header extends React.Component {
                 </Link>
               </li>
               <li>
-                <Link to='/events' style={{ textDecoration: 'none' }}>
+                <Link
+                  to='/events'
+                  style={{ textDecoration: 'none', display: 'flex' }}
+                >
                   <span>Events</span>
+                  <EventBadge />
                 </Link>
               </li>
               <li>
