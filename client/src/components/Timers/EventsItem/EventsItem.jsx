@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import timersSlice from '../../../store/slices/timersSlice';
+import { removeTimer } from '../../../store/slices/timersSlice';
 import styles from './EventsItem.module.sass';
 
 const EventItem = ({ timer }) => {
-  const { removeTimer } = timersSlice;
   const dispatch = useDispatch();
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(timer.date));
   const totalTime =
