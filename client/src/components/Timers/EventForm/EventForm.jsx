@@ -1,5 +1,6 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import validationSchemes from '../../../utils/validators/validationSchems';
 import { addTimer } from '../../../store/slices/timersSlice';
@@ -7,7 +8,8 @@ import styles from './EventForm.module.sass';
 const EventForm = () => {
   const { EventsFormSchema } = validationSchemes;
   const dispatch = useDispatch();
-  const timers = useSelector(state => state.timers.events);
+
+  const [isClicked, setIsClicked] = useState(false);
 
   return (
     <Formik
@@ -26,6 +28,9 @@ const EventForm = () => {
         dispatch(addTimer(newTimer));
 
         resetForm();
+
+        setIsClicked(true);
+        setTimeout(() => setIsClicked(false), 300);
       }}
     >
       {({ isSubmitting }) => (
@@ -54,7 +59,11 @@ const EventForm = () => {
             className={styles.error}
           />
 
-          <button type='submit' disabled={isSubmitting}>
+          <button
+            type='submit'
+            disabled={isSubmitting}
+            className={isClicked ? styles.active : ''}
+          >
             Add Event
           </button>
         </Form>
