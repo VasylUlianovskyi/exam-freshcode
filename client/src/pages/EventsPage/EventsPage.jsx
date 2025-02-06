@@ -20,7 +20,9 @@ const EventsPage = () => {
       dispatch(updateTimers());
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [dispatch]);
 
   if (!user || user.role !== CONSTANTS.CUSTOMER) {

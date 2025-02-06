@@ -30,6 +30,19 @@ const timersSlice = createSlice({
       state.activeAlerts = calculateActiveAlerts(state.events);
     },
     updateTimers: state => {
+      const now = new Date();
+
+      state.events = state.events.map(event => {
+        const eventTime = new Date(event.date);
+
+        if (eventTime <= now) {
+          return { ...event, status: 'expired' };
+        }
+
+        return event;
+      });
+
+      saveTimersToStorage(state.events);
       state.activeAlerts = calculateActiveAlerts(state.events);
     },
   },
