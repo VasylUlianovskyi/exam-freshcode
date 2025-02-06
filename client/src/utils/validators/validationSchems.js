@@ -3,10 +3,7 @@ import valid from 'card-validator';
 
 export default {
   LoginSchem: yup.object().shape({
-    email: yup
-      .string()
-      .email('check email')
-      .required('required'),
+    email: yup.string().email('check email').required('required'),
     password: yup
       .string()
       .test(
@@ -17,10 +14,7 @@ export default {
       .required('required'),
   }),
   RegistrationSchem: yup.object().shape({
-    email: yup
-      .string()
-      .email('check email')
-      .required('Email is required'),
+    email: yup.string().email('check email').required('Email is required'),
     password: yup
       .string()
       .test(
@@ -149,10 +143,7 @@ export default {
       .required('required'),
   }),
   CashoutSchema: yup.object().shape({
-    sum: yup
-      .number()
-      .min(5, 'min sum is 5$')
-      .required('required'),
+    sum: yup.number().min(5, 'min sum is 5$').required('required'),
     number: yup
       .string()
       .test(
@@ -161,10 +152,7 @@ export default {
         value => valid.number(value).isValid
       )
       .required('required'),
-    name: yup
-      .string()
-      .min(1)
-      .required('required'),
+    name: yup.string().min(1).required('required'),
     cvc: yup
       .string()
       .test('test-cvc', 'cvc is invalid', value => valid.cvv(value).isValid)
@@ -224,5 +212,19 @@ export default {
         value => value && value.trim().length >= 1
       )
       .required('required'),
+  }),
+  EventsFormSchema: yup.object().shape({
+    eventName: yup
+      .string()
+      .min(3, 'Name must be at least 3 characters!')
+      .required('Name is required'),
+    eventDate: yup
+      .date()
+      .min(new Date(), 'Date must be in the future!')
+      .required('Date is required'),
+    reminderTime: yup
+      .number()
+      .min(1, 'Reminder time must be at least 1 minute!')
+      .required('Reminder time is required'),
   }),
 };
