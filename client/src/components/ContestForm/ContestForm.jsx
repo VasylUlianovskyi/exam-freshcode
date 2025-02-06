@@ -13,6 +13,7 @@ import FormTextArea from '../InputComponents/FormTextArea/FormTextArea';
 import TryAgain from '../TryAgain/TryAgain';
 import Schems from '../../utils/validators/validationSchems';
 import OptionalSelects from '../OptionalSelects/OptionalSelects';
+import ButtonGroup from '../ButtonGroup/ButtonGroup';
 
 const variableOptions = {
   [CONSTANTS.NAME_CONTEST]: {
@@ -28,6 +29,24 @@ const variableOptions = {
     typeOfTagline: '',
   },
 };
+
+const optionsArray = [
+  {
+    label: 'Yes',
+    subLabel: 'But minor variations are allowed',
+    value: 'minor',
+  },
+  {
+    label: 'Yes',
+    subLabel: 'The Domain should exactly match the name',
+    value: 'exact',
+  },
+  {
+    label: 'No',
+    subLabel: 'I am only looking for a name, not a Domain',
+    value: 'none',
+  },
+];
 
 class ContestForm extends React.Component {
   getPreference = () => {
@@ -51,11 +70,11 @@ class ContestForm extends React.Component {
     }
   };
 
-  componentDidMount() {
+  componentDidMount () {
     this.getPreference();
   }
 
-  render() {
+  render () {
     const { isFetching, error } = this.props.dataForContest;
     if (error) {
       return <TryAgain getData={this.getPreference} />;
@@ -73,6 +92,7 @@ class ContestForm extends React.Component {
               focusOfWork: '',
               targetCustomer: '',
               file: '',
+              domainPreference: 'minor',
               ...variableOptions[this.props.contestType],
               ...this.props.initialValues,
             }}
@@ -85,9 +105,9 @@ class ContestForm extends React.Component {
               <div className={styles.inputContainer}>
                 <span className={styles.inputHeader}>Title of contest</span>
                 <FormInput
-                  name="title"
-                  type="text"
-                  label="Title"
+                  name='title'
+                  type='text'
+                  label='Title'
                   classes={{
                     container: styles.componentInputContainer,
                     input: styles.input,
@@ -97,14 +117,14 @@ class ContestForm extends React.Component {
               </div>
               <div className={styles.inputContainer}>
                 <SelectInput
-                  name="industry"
+                  name='industry'
                   classes={{
                     inputContainer: styles.selectInputContainer,
                     inputHeader: styles.selectHeader,
                     selectInput: styles.select,
                     warning: styles.warning,
                   }}
-                  header="Describe industry associated with your venture"
+                  header='Describe industry associated with your venture'
                   optionsArray={this.props.dataForContest.data.industry}
                 />
               </div>
@@ -113,9 +133,9 @@ class ContestForm extends React.Component {
                   What does your company / business do?
                 </span>
                 <FormTextArea
-                  name="focusOfWork"
-                  type="text"
-                  label="e.g. We`re an online lifestyle brand that provides stylish and high quality apparel to the expert eco-conscious shopper"
+                  name='focusOfWork'
+                  type='text'
+                  label='e.g. We`re an online lifestyle brand that provides stylish and high quality apparel to the expert eco-conscious shopper'
                   classes={{
                     container: styles.componentInputContainer,
                     inputStyle: styles.textArea,
@@ -128,9 +148,9 @@ class ContestForm extends React.Component {
                   Tell us about your customers
                 </span>
                 <FormTextArea
-                  name="targetCustomer"
-                  type="text"
-                  label="customers"
+                  name='targetCustomer'
+                  type='text'
+                  label='customers'
                   classes={{
                     container: styles.componentInputContainer,
                     inputStyle: styles.textArea,
@@ -139,8 +159,16 @@ class ContestForm extends React.Component {
                 />
               </div>
               <OptionalSelects {...this.props} />
+              <div className={styles.inputContainer}>
+                <span className={styles.inputHeader}>
+                  {'Do you want a matching domain (.com URL) with your name?'}
+                </span>
+
+                <ButtonGroup name='domainPreference' options={optionsArray} />
+              </div>
+
               <FieldFileInput
-                name="file"
+                name='file'
                 classes={{
                   fileUploadContainer: styles.fileUploadContainer,
                   labelClass: styles.label,
@@ -148,10 +176,10 @@ class ContestForm extends React.Component {
                   fileInput: styles.fileInput,
                   warning: styles.warning,
                 }}
-                type="file"
+                type='file'
               />
               {this.props.isEditContest ? (
-                <button type="submit" className={styles.changeData}>
+                <button type='submit' className={styles.changeData}>
                   Set Data
                 </button>
               ) : null}
@@ -172,8 +200,8 @@ const mapStateToProps = (state, ownProps) => {
     initialValues: ownProps.defaultData,
   };
 };
-const mapDispatchToProps = (dispatch) => ({
-  getData: (data) => dispatch(getDataForContest(data)),
+const mapDispatchToProps = dispatch => ({
+  getData: data => dispatch(getDataForContest(data)),
 });
 
 export default withRouter(
