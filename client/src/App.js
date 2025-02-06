@@ -19,6 +19,7 @@ import CONSTANTS from './constants';
 import browserHistory from './browserHistory';
 import ChatContainer from './components/Chat/ChatComponents/ChatContainer/ChatContainer';
 import HowItWorks from './pages/HowItWorks/HowItWorksPage.jsx';
+import EventsPage from './pages/EventsPage/EventsPage.jsx';
 
 class App extends Component {
   render () {
@@ -60,6 +61,14 @@ class App extends Component {
             component={PrivateHoc(ContestCreationPage, {
               contestType: CONSTANTS.NAME_CONTEST,
               title: 'Company Name',
+            })}
+          />
+
+          <Route
+            exact
+            path='/events'
+            component={PrivateHoc(EventsPage, {
+              requiredRole: CONSTANTS.CUSTOMER,
             })}
           />
           <Route

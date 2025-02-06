@@ -1,37 +1,43 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 import { getUser } from '../../store/slices/userSlice';
 import Spinner from '../Spinner/Spinner';
+import { Redirect } from 'react-router-dom';
 
 const PrivateHoc = (Component, props) => {
   class Hoc extends React.Component {
-    componentDidMount() {
+    componentDidMount () {
       if (!this.props.data) {
         this.props.getUser();
       }
     }
 
-    render() {
+    render () {
+      if (this.props.isFetching) {
+        return <Spinner />;
+      }
+
+      if (!this.props.data) {
+        return <Redirect to='/login' replace />;
+      }
+
+      if (props.requiredRole && this.props.data.role !== props.requiredRole) {
+        return <Redirect to='/' replace />;
+      }
+
       return (
-        <>
-          {this.props.isFetching ? (
-            <Spinner />
-          ) : (
-            <Component
-              history={this.props.history}
-              match={this.props.match}
-              {...props}
-            />
-          )}
-        </>
+        <Component
+          history={this.props.history}
+          match={this.props.match}
+          {...props}
+        />
       );
     }
   }
 
-  const mapStateToProps = (state) => state.userStore;
+  const mapStateToProps = state => state.userStore;
 
-  const mapDispatchToProps = (dispatch) => ({
+  const mapDispatchToProps = dispatch => ({
     getUser: () => dispatch(getUser()),
   });
 
