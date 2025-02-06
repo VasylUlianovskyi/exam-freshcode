@@ -37,12 +37,14 @@ class Header extends React.Component {
               }
               alt='user'
             />
-            <EventBadge />
+
             <span>{`Hi, ${this.props.data.displayName}`}</span>
+
             <img
               src={`${CONSTANTS.STATIC_IMAGES_PATH}menu-down.png`}
               alt='menu'
             />
+            <EventBadge />
 
             <ul>
               <li>
