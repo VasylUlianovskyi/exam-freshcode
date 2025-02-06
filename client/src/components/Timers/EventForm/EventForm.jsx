@@ -52,7 +52,7 @@ const EventForm = () => {
           />
 
           <button type='submit' disabled={isSubmitting}>
-            Add Timer
+            Add Event
           </button>
         </Form>
       )}
