@@ -59,7 +59,12 @@ const EventItem = ({ timer }) => {
             : `Time left: ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`}
         </p>
       </div>
-      <button onClick={() => dispatch(removeTimer(timer.id))}>DELETE</button>
+      <button
+        className={styles.deleteFromBtn}
+        onClick={() => dispatch(removeTimer(timer.id))}
+      >
+        DELETE
+      </button>
     </div>
   );
 };
