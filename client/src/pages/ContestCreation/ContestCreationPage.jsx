@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { connect } from 'react-redux';
 import styles from './ContestCreationPage.module.sass';
 import { saveContestToStore } from '../../store/slices/contestCreationSlice';
@@ -9,13 +9,20 @@ import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import Footer from '../../components/Footer/Footer';
 import Header from '../../components/Header/Header';
 
-const ContestCreationPage = (props) => {
+const ContestCreationPage = props => {
   const formRef = useRef();
+
+  useEffect(() => {
+    if (!props.bundleStore.bundle) {
+      props.history.replace('/startContest');
+    }
+  }, [props.bundleStore.bundle]);
+
   const contestData = props.contestCreationStore.contests[props.contestType]
     ? props.contestCreationStore.contests[props.contestType]
     : { contestType: props.contestType };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = values => {
     props.saveContest({ type: props.contestType, info: values });
     const route =
       props.bundleStore.bundle[props.contestType] === 'payment'
@@ -29,8 +36,6 @@ const ContestCreationPage = (props) => {
       formRef.current.handleSubmit();
     }
   };
-
-  !props.bundleStore.bundle && props.history.replace('/startContest');
 
   return (
     <div>
@@ -68,13 +73,13 @@ const ContestCreationPage = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const { contestCreationStore, bundleStore } = state;
   return { contestCreationStore, bundleStore };
 };
 
-const mapDispatchToProps = (dispatch) => ({
-  saveContest: (data) => dispatch(saveContestToStore(data)),
+const mapDispatchToProps = dispatch => ({
+  saveContest: data => dispatch(saveContestToStore(data)),
 });
 
 export default connect(
