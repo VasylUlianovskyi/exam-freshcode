@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Field, Form, Formik } from 'formik';
+import { Form, Formik } from 'formik';
 import { checkAuth, clearAuth } from '../../store/slices/authSlice';
 import styles from './LoginForm.module.sass';
 import FormInput from '../FormInput/FormInput';
@@ -9,15 +9,15 @@ import Error from '../Error/Error';
 import CONSTANTS from '../../constants';
 
 class LoginForm extends React.Component {
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.props.authClear();
   }
 
-  clicked = (values) => {
+  clicked = values => {
     this.props.loginRequest({ data: values, history: this.props.history });
   };
 
-  render() {
+  render () {
     const { error, isFetching } = this.props.auth;
     const { submitting, authClear } = this.props;
 
@@ -50,18 +50,18 @@ class LoginForm extends React.Component {
           <Form>
             <FormInput
               classes={formInputClasses}
-              name="email"
-              type="text"
-              label="Email Address"
+              name='email'
+              type='text'
+              label='Email Address'
             />
             <FormInput
               classes={formInputClasses}
-              name="password"
-              type="password"
-              label="Password"
+              name='password'
+              type='password'
+              label='Password'
             />
             <button
-              type="submit"
+              type='submit'
               disabled={submitting}
               className={styles.submitContainer}
             >
@@ -76,12 +76,12 @@ class LoginForm extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const { auth } = state;
   return { auth };
 };
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   loginRequest: ({ data, history }) =>
     dispatch(checkAuth({ data, history, authMode: CONSTANTS.AUTH_MODE.LOGIN })),
   authClear: () => dispatch(clearAuth()),

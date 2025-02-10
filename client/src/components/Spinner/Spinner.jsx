@@ -1,6 +1,5 @@
 import React from 'react';
 import { ClipLoader } from 'react-spinners';
-// import { css } from '@emotion/core';
 import styles from './Spinner.module.sass';
 
 /* const override = css`
