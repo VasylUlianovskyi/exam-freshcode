@@ -115,8 +115,23 @@ module.exports.getContestById = async (req, res, next) => {
 };
 
 module.exports.downloadFile = async (req, res, next) => {
-  const file = CONSTANTS.CONTESTS_DEFAULT_DIR + req.params.fileName;
-  res.download(file);
+  const filePath = path.join(
+    __dirname,
+    '../../public/images',
+    req.params.fileName
+  );
+
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="${req.params.fileName}"`
+  );
+  res.setHeader('Content-Type', 'application/octet-stream');
+
+  res.download(filePath, err => {
+    if (err) {
+      next(new ServerError('File not found'));
+    }
+  });
 };
 
 module.exports.updateContest = async (req, res, next) => {
