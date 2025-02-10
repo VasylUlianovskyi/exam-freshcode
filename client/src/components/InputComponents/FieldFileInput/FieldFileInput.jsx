@@ -9,7 +9,7 @@ const FieldFileInput = ({ classes, ...rest }) => {
       {({ field, form }) => {
         const handleFileChange = event => {
           const file = event.currentTarget.files[0];
-          form.setFieldValue(rest.name, file || null); // Якщо файл вибраний – передаємо його, якщо ні – null
+          form.setFieldValue(rest.name, file || null);
         };
 
         return (

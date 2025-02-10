@@ -8,9 +8,6 @@ const CONSTANTS = require('../constants');
 
 module.exports.createContest = async (req, res, next) => {
   try {
-    console.log('📥 Отриманий запит:', req.body);
-    console.log('📁 Отриманий файл:', req.file || 'Файл не передано');
-
     const contestData = {
       ...req.body,
       userId: req.tokenData.userId,
@@ -24,8 +21,7 @@ module.exports.createContest = async (req, res, next) => {
     const newContest = await db.Contests.create(contestData);
     res.status(201).json(newContest);
   } catch (err) {
-    console.error('❌ Помилка створення контесту:', err);
-    next(new ServerError('Не вдалося створити контест'));
+    next(new ServerError('Cannot create contest'));
   }
 };
 
