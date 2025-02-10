@@ -7,6 +7,13 @@ const upload = require('../utils/fileUpload');
 const router = express.Router();
 
 router.post(
+  '/startContest/:contestType',
+  checkToken.checkToken,
+  upload.uploadLogoFiles,
+  contestController.createContest
+);
+
+router.post(
   '/dataForContest',
   checkToken.checkToken,
   contestController.dataForContest

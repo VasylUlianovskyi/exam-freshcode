@@ -6,14 +6,10 @@ const FieldFileInput = ({ classes, ...rest }) => {
 
   return (
     <Field name={rest.name}>
-      {props => {
-        const { field } = props;
-
-        const getFileName = () => {
-          if (props.field.value) {
-            return props.field.value.name;
-          }
-          return '';
+      {({ field, form }) => {
+        const handleFileChange = event => {
+          const file = event.currentTarget.files[0];
+          form.setFieldValue(rest.name, file || null); // Якщо файл вибраний – передаємо його, якщо ні – null
         };
 
         return (
@@ -22,13 +18,13 @@ const FieldFileInput = ({ classes, ...rest }) => {
               Choose file
             </label>
             <span id='fileNameContainer' className={fileNameClass}>
-              {getFileName()}
+              {field.value ? field.value.name : 'No file chosen'}
             </span>
             <input
-              {...field}
+              type='file'
               className={fileInput}
               id='fileInput'
-              type='file'
+              onChange={handleFileChange}
             />
           </div>
         );
