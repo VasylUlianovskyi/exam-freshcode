@@ -53,8 +53,11 @@ class App extends Component {
           <Route
             exact
             path='/startContest'
-            component={PrivateHoc(StartContestPage)}
+            component={PrivateHoc(StartContestPage, {
+              requiredRole: CONSTANTS.CUSTOMER,
+            })}
           />
+
           <Route
             exact
             path='/startContest/nameContest'

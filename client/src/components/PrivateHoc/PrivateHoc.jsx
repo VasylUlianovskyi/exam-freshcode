@@ -4,7 +4,7 @@ import { getUser } from '../../store/slices/userSlice';
 import Spinner from '../Spinner/Spinner';
 import { Redirect } from 'react-router-dom';
 
-const PrivateHoc = (Component, props) => {
+const PrivateHoc = (Component, options = {}) => {
   class Hoc extends React.Component {
     componentDidMount () {
       if (!this.props.data) {
@@ -21,7 +21,10 @@ const PrivateHoc = (Component, props) => {
         return <Redirect to='/login' replace />;
       }
 
-      if (props.requiredRole && this.props.data.role !== props.requiredRole) {
+      if (
+        options.requiredRole &&
+        this.props.data.role !== options.requiredRole
+      ) {
         return <Redirect to='/' replace />;
       }
 
@@ -29,7 +32,8 @@ const PrivateHoc = (Component, props) => {
         <Component
           history={this.props.history}
           match={this.props.match}
-          {...props}
+          {...this.props}
+          {...options}
         />
       );
     }
