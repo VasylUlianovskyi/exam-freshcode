@@ -15,7 +15,14 @@ app.use(cors());
 app.use(express.json());
 app.use('/public', express.static('public'));
 
-app.use('/images', express.static(path.join(__dirname, '../../public/images')));
+app.use(
+  '/images',
+  (req, res, next) => {
+    res.setHeader('Content-Disposition', 'attachment');
+    next();
+  },
+  express.static(path.join(__dirname, '../../public/images'))
+);
 
 app.use(router);
 
