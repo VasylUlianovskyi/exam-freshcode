@@ -90,6 +90,12 @@ const ContestInfo = props => {
             >
               {originalFileName}
             </a>
+
+            <img
+              src={`${CONSTANTS.publicURL}${fileName}`}
+              alt='Contest File'
+              className={styles.previewImage}
+            />
           </div>
         )}
       </div>

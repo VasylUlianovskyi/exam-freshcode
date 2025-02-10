@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+
 require('./dbMongo/mongoose');
 const router = require('./router');
 require('./utils/logRotator');
@@ -12,6 +14,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/public', express.static('public'));
+
+app.use('/images', express.static(path.join(__dirname, '../../public/images')));
+
 app.use(router);
 
 app.use(handlerError);
