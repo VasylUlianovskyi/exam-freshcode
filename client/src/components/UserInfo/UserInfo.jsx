@@ -6,13 +6,14 @@ import { changeEditModeOnUserProfile } from '../../store/slices/userProfileSlice
 import CONSTANTS from '../../constants';
 import styles from './UserInfo.module.sass';
 
-const UserInfo = (props) => {
-  const updateUserData = (values) => {
+const UserInfo = props => {
+  const updateUserData = values => {
     const formData = new FormData();
     formData.append('file', values.file);
     formData.append('firstName', values.firstName);
     formData.append('lastName', values.lastName);
     formData.append('displayName', values.displayName);
+    formData.append('balance', values.balance);
     props.updateUser(formData);
   };
 
@@ -32,7 +33,7 @@ const UserInfo = (props) => {
                 : `${CONSTANTS.publicURL}${avatar}`
             }
             className={styles.avatar}
-            alt="user"
+            alt='user'
           />
           <div className={styles.infoContainer}>
             <div className={styles.infoBlock}>
@@ -55,7 +56,7 @@ const UserInfo = (props) => {
               <span className={styles.label}>Role</span>
               <span className={styles.info}>{role}</span>
             </div>
-            {role === CONSTANTS.CREATOR && (
+            {(role === CONSTANTS.CREATOR || role === CONSTANTS.CUSTOMER) && (
               <div className={styles.infoBlock}>
                 <span className={styles.label}>Balance</span>
                 <span className={styles.info}>{`${balance}$`}</span>
@@ -74,15 +75,15 @@ const UserInfo = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const { data } = state.userStore;
   const { isEdit } = state.userProfile;
   return { data, isEdit };
 };
 
-const mapDispatchToProps = (dispatch) => ({
-  updateUser: (data) => dispatch(updateUser(data)),
-  changeEditMode: (data) => dispatch(changeEditModeOnUserProfile(data)),
+const mapDispatchToProps = dispatch => ({
+  updateUser: data => dispatch(updateUser(data)),
+  changeEditMode: data => dispatch(changeEditModeOnUserProfile(data)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserInfo);
