@@ -3,7 +3,7 @@ import CONTANTS from '../../../constants';
 import {
   addMessage,
   changeBlockStatusInStore,
-  getDialogMessages,
+  getPreviewChat,
 } from '../../../store/slices/chatSlice';
 
 class ChatSocket extends WebSocket {
@@ -26,6 +26,8 @@ class ChatSocket extends WebSocket {
     this.socket.on('newMessage', data => {
       this.dispatch(addMessage(data.message));
     });
+
+    this.dispatch(getPreviewChat());
   };
 
   subscribeChat = id => {
