@@ -8,7 +8,11 @@ class ChatController extends WebSocket {
   }
 
   onSubscribeChat (socket) {
-    socket.on('subscribeShat', conversationId => {
+    socket.on('subscribeChat', conversationId => {
+      if (!conversationId) {
+        return;
+      }
+
       socket.join(conversationId);
     });
   }

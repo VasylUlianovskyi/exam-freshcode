@@ -29,16 +29,9 @@ class Dialog extends React.Component {
     }
   };
   componentDidUpdate (prevProps) {
-    const prevMessages = prevProps.messages;
-    const newMessages = this.props.messages;
-
     if (prevProps.messages.length !== this.props.messages.length) {
-      this.props.getDialog({
-        conversationId: this.props.chatData.id,
-        interlocutorId: this.props.interlocutor?.id,
-      });
+      this.forceUpdate();
     }
-
     this.scrollToBottom();
   }
 

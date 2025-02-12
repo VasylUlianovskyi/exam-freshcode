@@ -69,7 +69,7 @@ module.exports.addMessage = async (req, res, next) => {
       favoriteList: conversation.favoriteList,
     };
 
-    controller.getChatController().emitNewMessage(interlocutorId, {
+    controller.getChatController().emitNewMessage(message.conversationId, {
       message,
       preview: {
         ...preview,
@@ -82,6 +82,7 @@ module.exports.addMessage = async (req, res, next) => {
           email: req.tokenData.email,
         },
       },
+      interlocutorId,
     });
 
     res.send({

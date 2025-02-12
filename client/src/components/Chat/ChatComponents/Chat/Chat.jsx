@@ -19,13 +19,27 @@ import CatalogListHeader from '../../CatalogComponents/CatalogListHeader/Catalog
 import ChatError from '../../../ChatError/ChatError';
 
 class Chat extends React.Component {
-  componentDidMount() {
-    chatController.subscribeChat(this.props.userStore.data.id);
+  componentDidMount () {
+    const { chatData } = this.props.chatStore;
+
+    if (chatData?.id) {
+      chatController.subscribeChat(chatData.id);
+    }
+
     this.props.getPreviewChat();
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     chatController.unsubscribeChat(this.props.userStore.data.id);
+  }
+
+  componentDidUpdate (prevProps) {
+    if (
+      !prevProps.chatStore.chatData?.id &&
+      this.props.chatStore.chatData?.id
+    ) {
+      chatController.subscribeChat(this.props.chatStore.chatData.id);
+    }
   }
 
   renderDialogList = () => {
@@ -43,7 +57,7 @@ class Chat extends React.Component {
         {isShowChatsInCatalog && <CatalogListHeader />}
         {!isShowChatsInCatalog && (
           <div className={styles.chatHeader}>
-            <img src={`${CONSTANTS.STATIC_IMAGES_PATH}logo.png`} alt="logo" />
+            <img src={`${CONSTANTS.STATIC_IMAGES_PATH}logo.png`} alt='logo' />
           </div>
         )}
         {!isShowChatsInCatalog && (
@@ -91,7 +105,7 @@ class Chat extends React.Component {
     );
   };
 
-  render() {
+  render () {
     const { isExpanded, isShow, isShowCatalogCreation, error } =
       this.props.chatStore;
     const { id } = this.props.userStore.data;
@@ -113,14 +127,14 @@ class Chat extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const { chatStore, userStore } = state;
   return { chatStore, userStore };
 };
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   changeShow: () => dispatch(changeChatShow()),
-  setChatPreviewMode: (mode) => dispatch(setPreviewChatMode(mode)),
+  setChatPreviewMode: mode => dispatch(setPreviewChatMode(mode)),
   changeShowModeCatalog: () => dispatch(changeShowModeCatalog()),
   clearChatError: () => dispatch(clearChatError()),
   getPreviewChat: () => dispatch(getPreviewChat()),
