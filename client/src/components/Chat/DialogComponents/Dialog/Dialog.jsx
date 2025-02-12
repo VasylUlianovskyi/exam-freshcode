@@ -12,8 +12,11 @@ import ChatInput from '../../ChatComponents/ChatInut/ChatInput';
 
 class Dialog extends React.Component {
   componentDidMount () {
-    if (this.props.interlocutor) {
-      this.props.getDialog({ interlocutorId: this.props.interlocutor.id });
+    if (this.props.chatData) {
+      this.props.getDialog({
+        conversationId: this.props.chatData.id,
+        interlocutorId: this.props.interlocutor?.id,
+      });
     }
     this.scrollToBottom();
   }
@@ -25,23 +28,28 @@ class Dialog extends React.Component {
       this.messagesEnd.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
   componentDidUpdate (prevProps) {
-    if (
-      this.props.interlocutor &&
-      prevProps.interlocutor &&
-      this.props.interlocutor.id !== prevProps.interlocutor.id
-    ) {
-      this.props.getDialog({ interlocutorId: this.props.interlocutor.id });
+    const prevMessages = prevProps.messages;
+    const newMessages = this.props.messages;
+
+    if (prevProps.messages.length !== this.props.messages.length) {
+      this.props.getDialog({
+        conversationId: this.props.chatData.id,
+        interlocutorId: this.props.interlocutor?.id,
+      });
     }
+
+    this.scrollToBottom();
+  }
+
+  shouldComponentUpdate (nextProps) {
+    return (
+      JSON.stringify(this.props.messages) !== JSON.stringify(nextProps.messages)
+    );
   }
 
   componentWillUnmount () {
     this.props.clearMessageList();
-  }
-
-  componentDidUpdate () {
-    this.scrollToBottom();
   }
 
   renderMainDialog = () => {
@@ -113,14 +121,18 @@ class Dialog extends React.Component {
         chatData.blackList.includes(true) ? (
           this.blockMessage()
         ) : (
-          <ChatInput />
+          <ChatInput chatData={chatData} />
         )}
       </>
     );
   }
 }
 
-const mapStateToProps = state => state.chatStore;
+const mapStateToProps = state => ({
+  messages: state.chatStore.messages.slice(),
+  chatData: state.chatStore.chatData,
+  interlocutor: state.chatStore.interlocutor,
+});
 
 const mapDispatchToProps = dispatch => ({
   getDialog: data => dispatch(getDialogMessages(data)),

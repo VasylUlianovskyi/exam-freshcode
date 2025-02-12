@@ -66,8 +66,8 @@ export const getDialogMessages = decorateAsyncThunk({
 const getDialogMessagesExtraReducers = createExtraReducers({
   thunk: getDialogMessages,
   fulfilledReducer: (state, { payload }) => {
-    state.messages = payload.messages;
-    state.interlocutor = payload.interlocutor;
+    state.messages = [...payload.messages];
+    state.interlocutor = { ...payload.interlocutor };
   },
   rejectedReducer: (state, { payload }) => {
     state.messages = [];
@@ -81,7 +81,8 @@ export const sendMessage = decorateAsyncThunk({
   key: `${CHAT_SLICE_NAME}/sendMessage`,
   thunk: async payload => {
     const { data } = await restController.newMessage(payload);
-    return data;
+
+    return { ...data, conversationId: payload.conversationId };
   },
 });
 
@@ -110,10 +111,7 @@ const sendMessageExtraReducers = createExtraReducers({
     }
 
     state.messagesPreview = [...messagesPreview];
-    state.messages = [...state.messages, payload.message];
-  },
-  rejectedReducer: (state, { payload }) => {
-    state.error = payload;
+    state.messages.push(payload.message);
   },
 });
 

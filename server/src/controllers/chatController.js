@@ -105,7 +105,13 @@ module.exports.getChat = async (req, res, next) => {
   const { userId } = req.tokenData;
   const { interlocutorId } = req.body;
 
+  console.log('🔎 [SERVER] Отримано запит getChat:', req.body);
+
   try {
+    console.log(
+      `🟢 [SERVER] Отримано getChat для userId: ${userId}, interlocutorId: ${interlocutorId}`
+    );
+
     let conversation = await db.Conversations.findOne({
       include: [
         {
@@ -120,6 +126,7 @@ module.exports.getChat = async (req, res, next) => {
     });
 
     if (!conversation) {
+      console.log('❌ [SERVER] Чат не знайдено, створюємо новий...');
       conversation = await db.Conversations.create();
 
       await db.ConversationParticipants.bulkCreate([
@@ -128,15 +135,25 @@ module.exports.getChat = async (req, res, next) => {
       ]);
     }
 
+    console.log(`🛠 [SERVER] Отримано conversationId: ${conversation.id}`);
+
     const messages = await db.Messages.findAll({
       where: { conversationId: conversation.id },
       order: [['createdAt', 'ASC']],
       attributes: ['id', 'senderId', 'body', 'conversationId', 'createdAt'],
     });
 
+    console.log(`📩 [SERVER] Відправляємо ${messages.length} повідомлень`);
+
     const interlocutor = await db.Users.findOne({
       where: { id: interlocutorId },
       attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
+    });
+
+    console.log('📡 [SERVER] Відправка чату клієнту:', {
+      conversationId: conversation.id,
+      messages: messages.length,
+      interlocutor: interlocutor?.id || null,
     });
 
     res.send({
@@ -145,6 +162,7 @@ module.exports.getChat = async (req, res, next) => {
       conversationId: conversation.id,
     });
   } catch (error) {
+    console.error('❌ [SERVER] Помилка отримання чату:', error);
     logger.err(
       `Failed to retrieve chat for participants: ${userId}, ${interlocutorId}`,
       500,
