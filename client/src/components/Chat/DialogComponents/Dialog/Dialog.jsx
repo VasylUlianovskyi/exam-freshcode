@@ -28,17 +28,15 @@ class Dialog extends React.Component {
       this.messagesEnd.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
   componentDidUpdate (prevProps) {
     if (prevProps.messages.length !== this.props.messages.length) {
-      this.forceUpdate();
+      this.scrollToBottom();
     }
-    this.scrollToBottom();
   }
 
   shouldComponentUpdate (nextProps) {
-    return (
-      JSON.stringify(this.props.messages) !== JSON.stringify(nextProps.messages)
-    );
+    return this.props.messages.length !== nextProps.messages.length;
   }
 
   componentWillUnmount () {
