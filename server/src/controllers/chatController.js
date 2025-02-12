@@ -106,13 +106,7 @@ module.exports.getChat = async (req, res, next) => {
   const { userId } = req.tokenData;
   const { interlocutorId } = req.body;
 
-  console.log('🔎 [SERVER] Отримано запит getChat:', req.body);
-
   try {
-    console.log(
-      `🟢 [SERVER] Отримано getChat для userId: ${userId}, interlocutorId: ${interlocutorId}`
-    );
-
     let conversation = await db.Conversations.findOne({
       include: [
         {
@@ -127,7 +121,6 @@ module.exports.getChat = async (req, res, next) => {
     });
 
     if (!conversation) {
-      console.log('❌ [SERVER] Чат не знайдено, створюємо новий...');
       conversation = await db.Conversations.create();
 
       await db.ConversationParticipants.bulkCreate([
@@ -136,25 +129,15 @@ module.exports.getChat = async (req, res, next) => {
       ]);
     }
 
-    console.log(`🛠 [SERVER] Отримано conversationId: ${conversation.id}`);
-
     const messages = await db.Messages.findAll({
       where: { conversationId: conversation.id },
       order: [['createdAt', 'ASC']],
       attributes: ['id', 'senderId', 'body', 'conversationId', 'createdAt'],
     });
 
-    console.log(`📩 [SERVER] Відправляємо ${messages.length} повідомлень`);
-
     const interlocutor = await db.Users.findOne({
       where: { id: interlocutorId },
       attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
-    });
-
-    console.log('📡 [SERVER] Відправка чату клієнту:', {
-      conversationId: conversation.id,
-      messages: messages.length,
-      interlocutor: interlocutor?.id || null,
     });
 
     res.send({
@@ -163,7 +146,6 @@ module.exports.getChat = async (req, res, next) => {
       conversationId: conversation.id,
     });
   } catch (error) {
-    console.error('❌ [SERVER] Помилка отримання чату:', error);
     logger.err(
       `Failed to retrieve chat for participants: ${userId}, ${interlocutorId}`,
       500,
@@ -244,7 +226,6 @@ module.exports.blackList = async (req, res, next) => {
     });
 
     if (!conversation) {
-      console.error(`Conversation with ID ${conversation_id} not found`);
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
@@ -257,11 +238,9 @@ module.exports.blackList = async (req, res, next) => {
       where: { id: conversation_id },
     });
 
-    console.log(` Updated conversation:`, updatedConversation.dataValues);
-
     res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
-    console.error(' Error updating blacklist:', error);
+    logger.err(' Error updating blacklist:', error);
     next(error);
   }
 };
@@ -308,7 +287,6 @@ module.exports.favoriteChat = async (req, res, next) => {
 };
 
 module.exports.createCatalog = async (req, res, next) => {
-  console.log(req.body);
   const catalog = new Catalog({
     userId: req.tokenData.userId,
     catalogName: req.body.catalogName,
