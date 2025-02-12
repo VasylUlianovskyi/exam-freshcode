@@ -66,13 +66,8 @@ export const getDialogMessages = decorateAsyncThunk({
 const getDialogMessagesExtraReducers = createExtraReducers({
   thunk: getDialogMessages,
   fulfilledReducer: (state, { payload }) => {
-    state.messages = [...payload.messages];
-    state.interlocutor = { ...payload.interlocutor };
-  },
-  rejectedReducer: (state, { payload }) => {
-    state.messages = [];
-    state.interlocutor = null;
-    state.error = payload;
+    state.messages = payload.messages;
+    state.interlocutor = payload.interlocutor;
   },
 });
 
