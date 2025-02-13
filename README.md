@@ -4,12 +4,16 @@
 
 - Command to build images and start containers:
   ```bash
-  docker compose -f docker-compose-dev.yaml up --build
+      docker compose -f docker-compose-dev.yaml up --build
   ```
   The application is available at: `http://localhost:3000`
 - To check the container status:
   ```bash
-  sudo docker container inspect exam-freshcode-front-react
+      sudo docker container inspect exam-freshcode-front-react
+  ```
+- Command to unbuild images ande cleat containers:
+  ```bash
+    docker compose -f docker-compose-dev.yaml down -v
   ```
 
 ---
@@ -95,5 +99,3 @@ POSTGRES_DB=freshcode-exam-project
 - **Refactored API requests** for unified controller structure.
 
 ---
-
-### ✅ **Project tested and ready for deployment**
