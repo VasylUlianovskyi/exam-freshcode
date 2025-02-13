@@ -104,63 +104,49 @@ module.exports.getPreview = async (req, res, next) => {
 };
 
 module.exports.blackList = async (req, res, next) => {
-  const { conversationId, blackListFlag } = req.body;
+  const { conversation_id, blackListFlag } = req.body;
 
   try {
-    const conversation = await findConversationById(conversationId);
+    const conversation = await findConversationById(conversation_id);
 
     if (!conversation) {
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
-    const updatedConversation = await updateConversation(conversationId, {
+    const updatedConversation = await updateConversation(conversation_id, {
       blacklist: blackListFlag,
     });
 
     res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
     logger.err(
-      `Error updating blacklist for conversation ${conversationId}`,
+      `Error updating blacklist for conversation ${conversation_id}`,
       500,
       error
     );
     next(error);
   }
 };
+
 module.exports.favoriteChat = async (req, res, next) => {
-  const { userId } = req.tokenData;
   const { conversation_id, favoriteFlag } = req.body;
+  const { userId } = req.tokenData;
 
   try {
-    const conversation = await db.Conversations.findOne({
-      where: { id: conversation_id },
-      include: [
-        {
-          model: db.ConversationParticipants,
-          where: { userId },
-        },
-      ],
-    });
+    const conversation = await findConversationById(conversation_id, userId);
 
     if (!conversation) {
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
-    await db.Conversations.update(
-      { favoriteList: favoriteFlag },
-      { where: { id: conversation_id } }
-    );
-
-    const updatedConversation = await db.Conversations.findOne({
-      where: { id: conversation_id },
+    const updatedConversation = await updateConversation(conversation_id, {
+      favoriteList: favoriteFlag,
     });
 
     res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
     logger.err(
-      `Failed to update favorite chat for participants: ${conversation_id.join(
-        ', '
-      )}`,
+      `Error updating favorite chat for conversation ${conversation_id}`,
       500,
       error
     );
