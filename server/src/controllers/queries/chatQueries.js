@@ -101,10 +101,24 @@ const getUserConversationsWithPreview = async userId => {
   });
 };
 
+const findConversationById = async conversationId => {
+  return db.Conversations.findOne({
+    where: { id: conversationId },
+  });
+};
+
+const updateConversation = async (conversationId, updateData) => {
+  await db.Conversations.update(updateData, { where: { id: conversationId } });
+
+  return findConversationById(conversationId);
+};
+
 module.exports = {
   findOrCreateConversation,
   createMessage,
   getChatMessages,
   getInterlocutor,
   getUserConversationsWithPreview,
+  findConversationById,
+  updateConversation,
 };

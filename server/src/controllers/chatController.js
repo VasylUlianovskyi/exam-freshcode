@@ -9,6 +9,8 @@ const {
   getChatMessages,
   getInterlocutor,
   getUserConversationsWithPreview,
+  findConversationById,
+  updateConversation,
 } = require('./queries/chatQueries');
 
 module.exports.addMessage = async (req, res, next) => {
@@ -102,34 +104,29 @@ module.exports.getPreview = async (req, res, next) => {
 };
 
 module.exports.blackList = async (req, res, next) => {
-  const { userId } = req.tokenData;
-  const { conversation_id, blackListFlag } = req.body;
+  const { conversationId, blackListFlag } = req.body;
 
   try {
-    const conversation = await db.Conversations.findOne({
-      where: { id: conversation_id },
-    });
+    const conversation = await findConversationById(conversationId);
 
     if (!conversation) {
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
-    await db.Conversations.update(
-      { blacklist: blackListFlag },
-      { where: { id: conversation_id } }
-    );
-
-    const updatedConversation = await db.Conversations.findOne({
-      where: { id: conversation_id },
+    const updatedConversation = await updateConversation(conversationId, {
+      blacklist: blackListFlag,
     });
 
     res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
-    logger.err(' Error updating blacklist:', error);
+    logger.err(
+      `Error updating blacklist for conversation ${conversationId}`,
+      500,
+      error
+    );
     next(error);
   }
 };
-
 module.exports.favoriteChat = async (req, res, next) => {
   const { userId } = req.tokenData;
   const { conversation_id, favoriteFlag } = req.body;
