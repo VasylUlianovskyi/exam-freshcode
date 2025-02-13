@@ -8,6 +8,7 @@ const {
   createMessage,
   getChatMessages,
   getInterlocutor,
+  getUserConversationsWithPreview,
 } = require('./queries/chatQueries');
 
 module.exports.addMessage = async (req, res, next) => {
@@ -91,55 +92,7 @@ module.exports.getPreview = async (req, res, next) => {
   const { userId } = req.tokenData;
 
   try {
-    const conversations = await db.Conversations.findAll({
-      include: [
-        {
-          model: db.ConversationParticipants,
-          attributes: ['userId'],
-        },
-        {
-          model: db.Messages,
-          attributes: ['id', 'senderId', 'body', 'createdAt'],
-          order: [['createdAt', 'DESC']],
-          limit: 1,
-        },
-      ],
-    });
-
-    const interlocutorIds = conversations
-      .map(convo => {
-        const participantIds = convo.ConversationParticipants.map(
-          p => p.userId
-        );
-        return participantIds.find(id => id !== userId);
-      })
-      .filter(id => id !== undefined);
-
-    if (!interlocutorIds.length) {
-      return res.send([]);
-    }
-
-    const interlocutors = await db.Users.findAll({
-      where: { id: interlocutorIds },
-      attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
-    });
-
-    const previews = conversations.map(convo => {
-      const lastMessage = convo.Messages[0] || {};
-      const interlocutor = interlocutors.find(i =>
-        convo.ConversationParticipants.some(p => p.userId === i.id)
-      );
-
-      return {
-        id: convo.id,
-        sender: lastMessage.senderId || null,
-        text: lastMessage.body || '',
-        createAt: lastMessage.createdAt || null,
-        blacklist: convo.blacklist,
-        favoriteList: convo.favoriteList,
-        interlocutor,
-      };
-    });
+    const previews = await getUserConversationsWithPreview(userId);
 
     res.send(previews);
   } catch (error) {

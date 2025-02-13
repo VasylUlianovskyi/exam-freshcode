@@ -49,9 +49,62 @@ const getInterlocutor = async interlocutorId => {
   });
 };
 
+const getUserConversationsWithPreview = async userId => {
+  const conversations = await db.Conversations.findAll({
+    include: [
+      {
+        model: db.ConversationParticipants,
+        attributes: ['userId'],
+      },
+      {
+        model: db.Messages,
+        attributes: ['id', 'senderId', 'body', 'createdAt'],
+        order: [['createdAt', 'DESC']],
+        limit: 1,
+      },
+    ],
+  });
+
+  const filteredConversations = conversations.filter(convo =>
+    convo.ConversationParticipants.some(p => p.userId === userId)
+  );
+
+  const interlocutorIds = filteredConversations
+    .map(convo => {
+      const participantIds = convo.ConversationParticipants.map(p => p.userId);
+      return participantIds.find(id => id !== userId);
+    })
+    .filter(id => id !== undefined);
+
+  if (!interlocutorIds.length) return [];
+
+  const interlocutors = await db.Users.findAll({
+    where: { id: interlocutorIds },
+    attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
+  });
+
+  return filteredConversations.map(convo => {
+    const lastMessage = convo.Messages[0] || {};
+    const interlocutor = interlocutors.find(i =>
+      convo.ConversationParticipants.some(p => p.userId === i.id)
+    );
+
+    return {
+      id: convo.id,
+      sender: lastMessage.senderId || null,
+      text: lastMessage.body || '',
+      createAt: lastMessage.createdAt || null,
+      blacklist: convo.blacklist,
+      favoriteList: convo.favoriteList,
+      interlocutor,
+    };
+  });
+};
+
 module.exports = {
   findOrCreateConversation,
   createMessage,
   getChatMessages,
   getInterlocutor,
+  getUserConversationsWithPreview,
 };
