@@ -1,39 +1,39 @@
--- Chat-users table
-CREATE TABLE chat_users (
-    id SERIAL PRIMARY KEY,
-    first_name VARCHAR(255),
-    last_name VARCHAR(255),
-    email VARCHAR(255) UNIQUE NOT NULL,
-    user_id INT UNIQUE REFERENCES "Users"(id) ON DELETE CASCADE, 
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
+-- -- Chat-users table
+-- CREATE TABLE chat_users (
+--     id SERIAL PRIMARY KEY,
+--     first_name VARCHAR(255),
+--     last_name VARCHAR(255),
+--     email VARCHAR(255) UNIQUE NOT NULL,
+--     user_id INT UNIQUE REFERENCES "Users"(id) ON DELETE CASCADE, 
+--     created_at TIMESTAMP DEFAULT NOW(),
+--     updated_at TIMESTAMP DEFAULT NOW()
+-- );
 
--- Conversations table
-CREATE TABLE conversations (
-    id SERIAL PRIMARY KEY,
-    blacklist BOOLEAN DEFAULT FALSE,
-    favorite_list BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
+-- -- Conversations table
+-- CREATE TABLE conversations (
+--     id SERIAL PRIMARY KEY,
+--     blacklist BOOLEAN DEFAULT FALSE,
+--     favorite_list BOOLEAN DEFAULT FALSE,
+--     created_at TIMESTAMP DEFAULT NOW(),
+--     updated_at TIMESTAMP DEFAULT NOW()
+-- );
 
--- Conversations participants table
-CREATE TABLE conversation_participants (
-    id SERIAL PRIMARY KEY,
-    conversation_id INT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-    user_id INT NOT NULL REFERENCES chat_users(id) ON DELETE CASCADE
-);
+-- -- Conversations participants table
+-- CREATE TABLE conversation_participants (
+--     id SERIAL PRIMARY KEY,
+--     conversation_id INT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+--     user_id INT NOT NULL REFERENCES chat_users(id) ON DELETE CASCADE
+-- );
 
--- Messages table
-CREATE TABLE messages (
-    id SERIAL PRIMARY KEY,
-    body TEXT NOT NULL,
-    conversation_id INT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-    sender_id INT NOT NULL REFERENCES chat_users(id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
+-- -- Messages table
+-- CREATE TABLE messages (
+--     id SERIAL PRIMARY KEY,
+--     body TEXT NOT NULL,
+--     conversation_id INT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+--     sender_id INT NOT NULL REFERENCES chat_users(id) ON DELETE CASCADE,
+--     created_at TIMESTAMP DEFAULT NOW(),
+--     updated_at TIMESTAMP DEFAULT NOW()
+-- );
 
 -- Altering the columns to have a time zone
 
@@ -52,8 +52,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- Trigger to call the function after a new user is added
-CREATE TRIGGER after_user_insert
-AFTER INSERT ON "Users"
-FOR EACH ROW
-EXECUTE FUNCTION add_to_chat_users();
+-- Check if trigger already exists and create it only if not
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'after_user_insert') THEN
+    CREATE TRIGGER after_user_insert
+    AFTER INSERT ON "Users"
+    FOR EACH ROW
+    EXECUTE FUNCTION add_to_chat_users();
+  END IF;
+END $$;

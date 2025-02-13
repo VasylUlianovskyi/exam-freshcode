@@ -1,27 +1,27 @@
 {
   "development": {
     "username": "postgres",
-    "password": "admin",
+    "password": "password",
     "database": "freshcode-exam-project",
-    "host": "localhost",
+    "host": "db-dev",
     "dialect": "postgres",
     "operatorsAliases": "Op",
     "seederStorage": "sequelize"
   },
   "test": {
     "username": "postgres",
-    "password": "admin",
+    "password": "password",
     "database": "squad-help-test",
-    "host": "localhost",
+    "host": "db-dev",
     "dialect": "postgres",
     "operatorsAliases": "Op",
     "seederStorage": "sequelize"
   },
   "production": {
     "username": "postgres",
-    "password": "admin",
+    "password": "password",
     "database": "squad-help-prod",
-    "host": "localhost",
+    "host": "db-dev",
     "dialect": "postgres",
     "operatorsAliases": "Op",
     "seederStorage": "sequelize"

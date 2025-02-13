@@ -9,6 +9,8 @@ RUN mkdir /server \
 
 RUN mkdir -p /var/www/html/images 
 
+RUN apk add --no-cache postgresql-client
+
 WORKDIR /server
 
 COPY package*.json ./
@@ -22,7 +24,7 @@ RUN chown -R node:node /server/node_modules
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 5000
 
 # CMD sequelize db:migrate && sequelize db:seed:all && npm start
 CMD npm start

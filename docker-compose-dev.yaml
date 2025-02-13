@@ -4,7 +4,6 @@ services:
   front-react:
     build:
       context: ./client
-
     environment:
       NODE_ENV: development
     depends_on:
@@ -13,16 +12,15 @@ services:
       - ./client:/client
       - /client/node_modules
     ports:
-      - "5000:3000"
+      - "3000:3000"
       
   server-dev:
     build:
       context: ./server
-
     environment:
       NODE_ENV: development
     ports:
-      - "3000:3000"
+      - "5000:5000"
     depends_on:
       - db-dev
       - mongo-dev
@@ -30,23 +28,36 @@ services:
       - ./var/www/html/images:/var/www/html/images
       - ./server:/server
       - /server/node_modules
-
-
+    entrypoint: >
+      sh -c "
+        export PGPASSWORD=password &&
+        npx sequelize db:migrate &&
+        npx sequelize db:seed:all &&
+        psql -h db-dev -U postgres -d freshcode-exam-project -f /server/src/dbSQL/schema.sql &&
+        npm start
+      "
+      
   mongo-dev:
     image: mongo:6.0.11
+    container_name: mongo-dev  
+    restart: always            
     ports:
-      - "12345:27017"
-
-
+      - "12345:27017"       
+    volumes:
+      - mongo-data:/data/db
 
   db-dev:
     image: postgres:15.5-bullseye
     environment:
-      - POSTGRES_PASSWORD=password
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=todo-dev
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=freshcode-exam-project
     ports:
-      - "12346:5432"
+      - "5433:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
 
 volumes:
   server-dev:
+  mongo-data: 
+  pg-data: 
