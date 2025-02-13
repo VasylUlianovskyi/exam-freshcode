@@ -66,38 +66,11 @@ module.exports.getChat = async (req, res, next) => {
   const { interlocutorId } = req.body;
 
   try {
-    let conversation = await db.Conversations.findOne({
-      include: [
-        {
-          model: db.ConversationParticipants,
-          where: { userId },
-        },
-        {
-          model: db.ConversationParticipants,
-          where: { userId: interlocutorId },
-        },
-      ],
-    });
+    let conversation = await findOrCreateConversation(userId, interlocutorId);
 
-    if (!conversation) {
-      conversation = await db.Conversations.create();
+    const messages = await getChatMessages(conversation.id);
 
-      await db.ConversationParticipants.bulkCreate([
-        { conversationId: conversation.id, userId },
-        { conversationId: conversation.id, userId: interlocutorId },
-      ]);
-    }
-
-    const messages = await db.Messages.findAll({
-      where: { conversationId: conversation.id },
-      order: [['createdAt', 'ASC']],
-      attributes: ['id', 'senderId', 'body', 'conversationId', 'createdAt'],
-    });
-
-    const interlocutor = await db.Users.findOne({
-      where: { id: interlocutorId },
-      attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
-    });
+    const interlocutor = await getInterlocutor(interlocutorId);
 
     res.send({
       messages,
