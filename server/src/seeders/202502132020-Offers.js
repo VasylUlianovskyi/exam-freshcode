@@ -5,7 +5,7 @@ module.exports = {
         userId: 1,
         contestId: 1,
         text: 'This is a test offer 1',
-        isApproved: null,
+        isApproved: false,
       },
       {
         userId: 1,
