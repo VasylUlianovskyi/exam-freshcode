@@ -3,68 +3,27 @@ const db = require('../models');
 const controller = require('../socketInit');
 const _ = require('lodash');
 const logger = require('../utils/logger');
+const {
+  findOrCreateConversation,
+  createMessage,
+  getChatMessages,
+  getInterlocutor,
+} = require('./queries/chatQueries');
 
 module.exports.addMessage = async (req, res, next) => {
   const { userId } = req.tokenData;
   const { recipient, messageBody } = req.body;
 
-  const participants = [userId, recipient].sort((a, b) => a - b);
-
   try {
-    let conversation = await db.Conversations.findOne({
-      include: [
-        {
-          model: db.ConversationParticipants,
-          where: {
-            userId: participants,
-          },
-        },
-      ],
-    });
-
-    if (!conversation) {
-      conversation = await db.Conversations.create(
-        {
-          blacklist: false,
-          favoriteList: false,
-          ConversationParticipants: [{ userId: userId }, { userId: recipient }],
-        },
-        { include: [db.ConversationParticipants] }
-      );
-    } else {
-      const existingParticipants = conversation.ConversationParticipants.map(
-        p => p.userId
-      );
-      if (!existingParticipants.includes(recipient)) {
-        await db.ConversationParticipants.create({
-          conversationId: conversation.id,
-          userId: recipient,
-        });
-      }
-      if (!existingParticipants.includes(userId)) {
-        await db.ConversationParticipants.create({
-          conversationId: conversation.id,
-          userId: userId,
-        });
-      }
-    }
-
-    const message = await db.Messages.create({
-      senderId: userId,
-      conversationId: conversation.id,
-      body: messageBody,
-    });
-
-    const interlocutorId = participants.find(
-      participant => participant !== userId
-    );
+    const conversation = await findOrCreateConversation(userId, recipient);
+    const message = await createMessage(conversation.id, userId, messageBody);
 
     const preview = {
       _id: conversation.id,
       sender: userId,
       text: messageBody,
       createAt: message.createdAt,
-      participants,
+      participants: [userId, recipient],
       blacklist: conversation.blacklist,
       favoriteList: conversation.favoriteList,
     };
@@ -82,7 +41,7 @@ module.exports.addMessage = async (req, res, next) => {
           email: req.tokenData.email,
         },
       },
-      interlocutorId,
+      interlocutorId: recipient,
     });
 
     res.send({
