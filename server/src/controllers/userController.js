@@ -179,25 +179,30 @@ module.exports.payment = async (req, res, next) => {
 module.exports.updateUser = async (req, res, next) => {
   try {
     if (req.file) {
-      req.body.avatar = req.file.filename;
+      req.body.avatar = `/images/${req.file.filename}`;
     }
+
+    if (req.body.balance === 'undefined' || req.body.balance === undefined) {
+      delete req.body.balance;
+    }
+
     const updatedUser = await userQueries.updateUser(
       req.body,
       req.tokenData.userId
     );
+
     res.send({
+      id: updatedUser.id,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       displayName: updatedUser.displayName,
       avatar: updatedUser.avatar,
       email: updatedUser.email,
-      balance: updatedUser.balance,
       role: updatedUser.role,
-      id: updatedUser.id,
+      balance: updatedUser.balance,
     });
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
-    next(err);
+    res.status(500).json({ error: err.message });
   }
 };
 
