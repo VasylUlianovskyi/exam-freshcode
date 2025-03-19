@@ -88,7 +88,7 @@ const ContestInfo = props => {
               download={originalFileName}
               rel='noreferrer'
             >
-              {originalFileName}
+              Download additional file
             </a>
 
             <img
