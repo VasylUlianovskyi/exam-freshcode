@@ -84,7 +84,7 @@ const ContestInfo = props => {
             <a
               target='_blank'
               className={styles.file}
-              href={`${CONSTANTS.publicURL}${fileName}`}
+              href={`${CONSTANTS.publicURL}/images/${fileName}`}
               download={originalFileName}
               rel='noreferrer'
             >
@@ -92,7 +92,7 @@ const ContestInfo = props => {
             </a>
 
             <img
-              src={`${CONSTANTS.publicURL}${fileName}`}
+              src={`${CONSTANTS.publicURL}/images/${fileName}`}
               alt='Contest File'
               className={styles.previewImage}
             />
