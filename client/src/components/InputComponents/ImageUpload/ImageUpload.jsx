@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 const ImageUpload = ({ name, classes }) => {
   const [field, meta] = useField(name);
-  const { setFieldValue } = useFormikContext(); // Додаємо доступ до `Formik`
+  const { setFieldValue } = useFormikContext();
   const { uploadContainer, inputContainer, imgStyle } = classes;
   const [preview, setPreview] = useState(null);
 
@@ -16,11 +16,11 @@ const ImageUpload = ({ name, classes }) => {
 
     if (!file.type.match(imageType)) {
       e.target.value = '';
-      setFieldValue(name, null); // Скидаємо значення у Formik
+      setFieldValue(name, null);
       return;
     }
 
-    setFieldValue(name, file); // Оновлюємо значення у Formik
+    setFieldValue(name, file);
 
     const reader = new FileReader();
     reader.onload = () => setPreview(reader.result);
