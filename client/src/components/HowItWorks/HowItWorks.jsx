@@ -235,7 +235,7 @@ class HowItWorks extends Component {
                     </p>
                   </div>
                 </div>
-                <div className={styles.row}>
+                <div className={styles.waysToUseContainer}>
                   <div className={styles.colCard}>
                     <div className={`${styles.item} ${styles.alignBox}`}>
                       <div>
