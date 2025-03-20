@@ -13,7 +13,7 @@ const EventForm = () => {
 
   return (
     <Formik
-      initialValues={{ eventName: '', eventDate: '', reminderTime: 10 }}
+      initialValues={{ eventName: '', eventDate: '', reminderTime: 1 }}
       validationSchema={EventsFormSchema}
       onSubmit={(values, { resetForm }) => {
         const newTimer = {
@@ -51,7 +51,7 @@ const EventForm = () => {
             className={styles.error}
           />
 
-          <label>Remind in ... minutes :</label>
+          <label>Remind in ... minutes:</label>
           <Field type='number' name='reminderTime' min='1' />
           <ErrorMessage
             name='reminderTime'

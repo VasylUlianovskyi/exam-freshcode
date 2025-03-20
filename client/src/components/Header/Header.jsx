@@ -65,15 +65,17 @@ class Header extends React.Component {
                   <span>Messages</span>
                 </Link>
               </li>
-              <li>
-                <Link
-                  to='/events'
-                  style={{ textDecoration: 'none', display: 'flex' }}
-                >
-                  <span>Events</span>
-                  <EventBadge />
-                </Link>
-              </li>
+              {this.props.data?.role === CONSTANTS.CUSTOMER && (
+                <li>
+                  <Link
+                    to='/events'
+                    style={{ textDecoration: 'none', display: 'flex' }}
+                  >
+                    <span>Events</span>
+                    <EventBadge />
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link
                   to='http:/www.google.com'
