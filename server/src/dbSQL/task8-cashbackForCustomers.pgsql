@@ -34,8 +34,7 @@ WITH holiday_orders AS (
     WHERE 
         u.role = 'customer'
         AND o.created_at BETWEEN 
-            (DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '2 year') + INTERVAL '11 months 25 days' 
-            AND (DATE_TRUNC('year', CURRENT_DATE) + INTERVAL '14 days') 
+            '2023-12-25' AND '2025-01-05'
     GROUP BY o.user_id
 )
 UPDATE "Users" u
