@@ -2,7 +2,6 @@ const Catalog = require('../models/mongoModels/Catalog');
 const db = require('../models');
 const controller = require('../socketInit');
 const _ = require('lodash');
-const logger = require('../utils/logger');
 const {
   findOrCreateConversation,
   createMessage,
@@ -55,11 +54,6 @@ module.exports.addMessage = async (req, res, next) => {
       },
     });
   } catch (error) {
-    logger.err(
-      `Failed to add message from user ${userId} to recipient ${recipient}`,
-      500,
-      error
-    );
     next(error);
   }
 };
@@ -81,11 +75,6 @@ module.exports.getChat = async (req, res, next) => {
       conversationId: conversation.id,
     });
   } catch (error) {
-    logger.err(
-      `Failed to retrieve chat for participants: ${userId}, ${interlocutorId}`,
-      500,
-      error
-    );
     next(error);
   }
 };
@@ -98,7 +87,6 @@ module.exports.getPreview = async (req, res, next) => {
 
     res.send(previews);
   } catch (error) {
-    logger.err(`Failed to get preview for user ${userId}`, 500, error);
     next(error);
   }
 };
@@ -119,11 +107,6 @@ module.exports.blackList = async (req, res, next) => {
 
     res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
-    logger.err(
-      `Error updating blacklist for conversation ${conversation_id}`,
-      500,
-      error
-    );
     next(error);
   }
 };
@@ -145,11 +128,6 @@ module.exports.favoriteChat = async (req, res, next) => {
 
     res.send({ success: true, conversation: updatedConversation });
   } catch (error) {
-    logger.err(
-      `Error updating favorite chat for conversation ${conversation_id}`,
-      500,
-      error
-    );
     next(error);
   }
 };
@@ -164,11 +142,6 @@ module.exports.createCatalog = async (req, res, next) => {
     await catalog.save();
     res.send(catalog);
   } catch (error) {
-    logger.err(
-      `Failed to create catalog for user ${req.tokenData.userId} with name ${req.body.catalogName}`,
-      500,
-      err
-    );
     next(error);
   }
 };
@@ -185,11 +158,6 @@ module.exports.updateNameCatalog = async (req, res, next) => {
     );
     res.send(catalog);
   } catch (error) {
-    logger.err(
-      `Failed to update catalog name for catalog ID ${req.body.catalogId} by user ${req.tokenData.userId}`,
-      500,
-      err
-    );
     next(error);
   }
 };
@@ -206,11 +174,6 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
     );
     res.send(catalog);
   } catch (error) {
-    logger.err(
-      `Failed to add chat ${req.body.chatId} to catalog ${req.body.catalogId} for user ${req.tokenData.userId}`,
-      500,
-      err
-    );
     next(error);
   }
 };
@@ -227,11 +190,6 @@ module.exports.removeChatFromCatalog = async (req, res, next) => {
     );
     res.send(catalog);
   } catch (error) {
-    logger.err(
-      `Failed to remove chat ${req.body.chatId} from catalog ${req.body.catalogId} for user ${req.tokenData.userId}`,
-      500,
-      err
-    );
     next(error);
   }
 };
@@ -244,11 +202,6 @@ module.exports.deleteCatalog = async (req, res, next) => {
     });
     res.end();
   } catch (error) {
-    logger.err(
-      `Failed to delete catalog ${req.body.catalogId} for user ${req.tokenData.userId}`,
-      500,
-      err
-    );
     next(error);
   }
 };
@@ -267,11 +220,6 @@ module.exports.getCatalogs = async (req, res, next) => {
     ]);
     res.send(catalogs);
   } catch (error) {
-    logger.err(
-      `Failed to retrieve catalogs for user ID ${req.tokenData.userId}`,
-      500,
-      err
-    );
     next(error);
   }
 };

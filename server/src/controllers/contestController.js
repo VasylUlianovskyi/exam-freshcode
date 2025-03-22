@@ -54,7 +54,6 @@ module.exports.dataForContest = async (req, res, next) => {
     });
     res.send(response);
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError('cannot get contest preferences'));
   }
 };
@@ -109,7 +108,6 @@ module.exports.getContestById = async (req, res, next) => {
     });
     res.send(contestInfo);
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError());
   }
 };
@@ -148,7 +146,6 @@ module.exports.updateContest = async (req, res, next) => {
     });
     res.send(updatedContest);
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -173,7 +170,6 @@ module.exports.setNewOffer = async (req, res, next) => {
     const User = Object.assign({}, req.tokenData, { id: req.tokenData.userId });
     res.send(Object.assign({}, result, { User }));
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError());
   }
 };

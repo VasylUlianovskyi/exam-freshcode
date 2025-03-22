@@ -1,11 +1,15 @@
 const bd = require('../../models');
 const NotFound = require('../../errors/UserNotFoundError');
+const UncorrectPassword = require('../../errors/UncorrectPassword');
 const ServerError = require('../../errors/ServerError');
 const bcrypt = require('bcrypt');
 
 module.exports.updateUser = async (data, userId, transaction) => {
-  const [updatedCount, [updatedUser]] = await bd.Users.update(data,
-    { where: { id: userId }, returning: true, transaction });
+  const [updatedCount, [updatedUser]] = await bd.Users.update(data, {
+    where: { id: userId },
+    returning: true,
+    transaction,
+  });
   if (updatedCount !== 1) {
     throw new ServerError('cannot update user');
   }
@@ -21,7 +25,7 @@ module.exports.findUser = async (predicate, transaction) => {
   }
 };
 
-module.exports.userCreation = async (data) => {
+module.exports.userCreation = async data => {
   const newUser = await bd.Users.create(data);
   if (!newUser) {
     throw new ServerError('server error on user creation');
@@ -33,6 +37,6 @@ module.exports.userCreation = async (data) => {
 module.exports.passwordCompare = async (pass1, pass2) => {
   const passwordCompare = await bcrypt.compare(pass1, pass2);
   if (!passwordCompare) {
-    throw new NotFound('Wrong password');
+    throw new UncorrectPassword('Wrong email or password');
   }
 };

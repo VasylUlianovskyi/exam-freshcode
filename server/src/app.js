@@ -19,7 +19,7 @@ app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
 app.use(router);
 
-app.use(handlerError);
 app.use(loggerErrorHandler);
+app.use(handlerError);
 
 module.exports = app;

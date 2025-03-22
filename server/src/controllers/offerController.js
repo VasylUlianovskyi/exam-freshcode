@@ -1,7 +1,6 @@
 const db = require('../models');
 const emailService = require('./../utils/emailService');
 const ServerError = require('../errors/ServerError');
-const logger = require('../utils/logger');
 
 module.exports.getAllOffers = async (req, res, next) => {
   try {
@@ -32,7 +31,6 @@ module.exports.getAllOffers = async (req, res, next) => {
       offers: offers || [],
     });
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
     next(err);
   }
 };
@@ -59,7 +57,6 @@ module.exports.getPendingOffers = async (req, res, next) => {
       offers,
     });
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError(err));
   }
 };
@@ -103,7 +100,6 @@ module.exports.approveOffer = async (req, res, next) => {
       offer: offer,
     });
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError(err));
   }
 };
@@ -147,7 +143,6 @@ module.exports.rejectOffer = async (req, res, next) => {
       offer: offer,
     });
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError(err));
   }
 };
@@ -168,7 +163,6 @@ module.exports.getApprovedOffers = async (req, res, next) => {
       offers,
     });
   } catch (err) {
-    logger.err(err.message, err.status || 500, err.stack);
     next(new ServerError(err));
   }
 };

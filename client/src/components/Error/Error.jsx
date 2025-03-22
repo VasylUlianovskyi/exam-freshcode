@@ -9,6 +9,9 @@ const Error = props => {
         return data;
       case 400:
         return 'Check the input data';
+      case 401:
+        return 'Wrong email or password';
+
       case 409:
         return data;
       case 403:
@@ -23,7 +26,9 @@ const Error = props => {
   const { clearError } = props;
   return (
     <div className={styles.errorContainer}>
-      <span>{getMessage()}</span>
+      {getMessage()?.message ||
+        getMessage()?.error ||
+        JSON.stringify(getMessage())}
       <i className='far fa-times-circle' onClick={() => clearError()} />
     </div>
   );
