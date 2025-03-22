@@ -2,7 +2,16 @@ import http from '../interceptor';
 
 export const registerRequest = data => http.post('registration', data);
 export const loginRequest = data => http.post('login', data);
-export const getUser = () => http.post('getUser');
+export const getUser = data => {
+  const token = localStorage.getItem('accessToken');
+
+  if (!token) {
+    return Promise.resolve(null);
+  }
+
+  return http.post('getUser', data);
+};
+
 export const updateContest = data => http.post('updateContest', data);
 
 export const getAllOffers = params => http.get('offers', { params });
@@ -20,7 +29,16 @@ export const downloadContestFile = data =>
   http.get(`downloadFile/${data.fileName}`);
 export const payMent = data => http.post('pay', data.formData);
 export const changeMark = data => http.post('changeMark', data);
-export const getPreviewChat = () => http.post('getPreview');
+export const getPreviewChat = () => {
+  const token = localStorage.getItem('accessToken');
+
+  if (!token) {
+    return Promise.resolve(null);
+  }
+
+  return http.post('getPreview');
+};
+
 export const getDialog = data => http.post('getChat', data);
 export const dataForContest = data => http.post('dataForContest', data);
 export const cashOut = data => http.post('cashout', data);
