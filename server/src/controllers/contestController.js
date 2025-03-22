@@ -77,8 +77,7 @@ module.exports.getContestById = async (req, res, next) => {
           where: {
             ...(req.tokenData.role === CONSTANTS.CREATOR
               ? { userId: req.tokenData.userId }
-              : {}),
-            isApproved: true,
+              : null),
           },
           attributes: { exclude: ['userId', 'contestId'] },
           include: [
@@ -106,6 +105,7 @@ module.exports.getContestById = async (req, res, next) => {
       }
       delete offer.Rating;
     });
+    contestInfo.currentUserId = req.tokenData.userId;
     res.send(contestInfo);
   } catch (err) {
     next(new ServerError());
