@@ -48,7 +48,10 @@ class CustomerDashboard extends React.Component {
     for (let i = 0; i < contests.length; i++) {
       array.push(
         <ContestBox
-          data={contests[i]}
+          data={{
+            ...contests[i],
+            count: contests[i].offers?.filter(o => o.isApproved).length || 0,
+          }}
           key={contests[i].id}
           goToExtended={this.goToExtended}
         />
