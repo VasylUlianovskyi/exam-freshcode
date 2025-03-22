@@ -41,12 +41,17 @@ class ContestPage extends React.Component {
   setOffersList = () => {
     const { role } = this.props.userStore;
     const { offers } = this.props.contestByIdStore;
-    console.log(offers);
 
-    const filteredOffers =
-      role === CONSTANTS.CUSTOMER
-        ? offers.filter(offer => offer.isApproved === true)
-        : offers;
+    let filteredOffers;
+
+    if (role === CONSTANTS.CUSTOMER) {
+      filteredOffers = offers.filter(offer => offer.isApproved === true);
+    } else {
+      const order = { null: 0, true: 1, false: 2 };
+      filteredOffers = [...offers].sort(
+        (a, b) => order[String(a.isApproved)] - order[String(b.isApproved)]
+      );
+    }
 
     if (!filteredOffers.length) {
       return (
