@@ -1,6 +1,6 @@
 const db = require('../models');
-const emailService = require('./../utils/emailService');
 const ServerError = require('../errors/ServerError');
+const { handleOfferApproval } = require('./queries/offerQueries');
 
 module.exports.getAllOffers = async (req, res, next) => {
   try {
@@ -61,90 +61,12 @@ module.exports.getPendingOffers = async (req, res, next) => {
   }
 };
 
-module.exports.approveOffer = async (req, res, next) => {
-  try {
-    const { offerId } = req.params;
-
-    const updatedOffer = await db.Offers.update(
-      { isApproved: true },
-      {
-        where: { id: offerId },
-        returning: true,
-      }
-    );
-
-    if (!updatedOffer[0]) {
-      return next(new ServerError('Failed to approve offer.'));
-    }
-
-    const offer = updatedOffer[1][0];
-
-    const creative = await db.Users.findOne({ where: { id: offer.userId } });
-
-    if (!creative) {
-      return next(
-        new ServerError(
-          'Failed to find the Creative associated with the offer.'
-        )
-      );
-    }
-
-    await emailService.sendEmail(
-      creative.email,
-      'Your offer has been approved',
-      `Hello ${creative.firstName},\n\nYour offer "${offer.text}" has been approved by the moderator.\n\nBest regards,\nSquadhelp team`
-    );
-
-    res.status(200).json({
-      message: 'Offer approved successfully and email sent.',
-      offer: offer,
-    });
-  } catch (err) {
-    next(new ServerError(err));
-  }
+module.exports.approveOffer = (req, res, next) => {
+  handleOfferApproval(req, res, next, true);
 };
 
-module.exports.rejectOffer = async (req, res, next) => {
-  try {
-    const { offerId } = req.params;
-
-    const updatedOffer = await db.Offers.update(
-      { isApproved: false },
-      {
-        where: { id: offerId },
-        returning: true,
-      }
-    );
-
-    if (!updatedOffer[0]) {
-      return next(new ServerError('Failed to reject offer.'));
-    }
-
-    const offer = updatedOffer[1][0];
-
-    const creative = await db.Users.findOne({ where: { id: offer.userId } });
-
-    if (!creative) {
-      return next(
-        new ServerError(
-          'Failed to find the Creative associated with the offer.'
-        )
-      );
-    }
-
-    await emailService.sendEmail(
-      creative.email,
-      'Your offer has been rejected',
-      `Hello ${creative.firstName},\n\nUnfortunately, your offer "${offer.text}" has been rejected by the moderator for violating company policy.\n\nBest regards,\nSquadhelp team`
-    );
-
-    res.status(200).json({
-      message: 'Offer rejected successfully and email sent.',
-      offer: offer,
-    });
-  } catch (err) {
-    next(new ServerError(err));
-  }
+module.exports.rejectOffer = (req, res, next) => {
+  handleOfferApproval(req, res, next, false);
 };
 
 module.exports.getApprovedOffers = async (req, res, next) => {
