@@ -296,7 +296,7 @@ module.exports.getCustomersContests = (req, res, next) => {
       {
         model: db.Offers,
         required: false,
-        attributes: ['id'],
+        attributes: ['id', 'isApproved'],
       },
     ],
   })
@@ -330,7 +330,7 @@ module.exports.getContests = (req, res, next) => {
         model: db.Offers,
         required: req.body.ownEntries,
         where: req.body.ownEntries ? { userId: req.tokenData.userId } : {},
-        attributes: ['id'],
+        attributes: ['id', 'isApproved'],
       },
     ],
   })

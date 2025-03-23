@@ -71,10 +71,7 @@ const contestsSlice = createSlice({
 
 const { actions, reducer } = contestsSlice;
 
-export const {
-  clearContestsList,
-  setNewCustomerFilter,
-  setNewCreatorFilter,
-} = actions;
+export const { clearContestsList, setNewCustomerFilter, setNewCreatorFilter } =
+  actions;
 
 export default reducer;

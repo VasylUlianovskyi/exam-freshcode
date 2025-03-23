@@ -25,9 +25,10 @@ class CustomerDashboard extends React.Component {
     this.getContests();
   }
 
-  getContests = () => {
+  getContests = filter => {
     this.props.getContests({
       limit: 8,
+      offset: 0,
       contestStatus: this.props.customerFilter,
     });
   };
@@ -48,10 +49,7 @@ class CustomerDashboard extends React.Component {
     for (let i = 0; i < contests.length; i++) {
       array.push(
         <ContestBox
-          data={{
-            ...contests[i],
-            count: contests[i].offers?.filter(o => o.isApproved).length || 0,
-          }}
+          data={contests[i]}
           key={contests[i].id}
           goToExtended={this.goToExtended}
         />

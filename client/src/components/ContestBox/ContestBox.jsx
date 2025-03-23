@@ -23,7 +23,10 @@ const ContestBox = props => {
   const ucFirstLetter = string =>
     string.charAt(0).toUpperCase() + string.slice(1);
 
-  const { id, title, contestType, prize, count, goToExtended } = props.data;
+  const { id, title, contestType, prize, Offers, goToExtended } = props.data;
+
+  const approvedCount = Offers?.filter(o => o.isApproved).length || 0;
+
   return (
     <div
       className={styles.contestBoxContainer}
@@ -71,7 +74,7 @@ const ContestBox = props => {
               src={`${CONSTANTS.STATIC_IMAGES_PATH}entrieImage.png`}
               alt='logo'
             />
-            <span>{count}</span>
+            <span>{approvedCount}</span>
           </div>
           <span>Entries</span>
         </div>
