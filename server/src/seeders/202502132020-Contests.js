@@ -1,6 +1,6 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('Contests', [
+    await queryInterface.bulkInsert('contests', [
       {
         contestType: 'name',
         status: 'active',
@@ -29,7 +29,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    // Видаляємо дані з таблиці Contests
-    await queryInterface.bulkDelete('Contests', null, {});
+    await queryInterface.bulkDelete('contests', null, {});
   },
 };

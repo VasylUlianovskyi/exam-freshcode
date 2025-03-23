@@ -6,7 +6,7 @@ const { SALT_ROUNDS } = require('../constants');
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert(
-      'Users',
+      'users',
       [
         {
           firstName: 'moderatorfn',
@@ -23,7 +23,7 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     await queryInterface.bulkDelete(
-      'Users',
+      'users',
       {
         email: 'moderator@gmail.com',
       },

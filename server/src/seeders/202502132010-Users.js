@@ -6,7 +6,7 @@ const { SALT_ROUNDS, CUSTOMER, CREATOR } = require('../constants');
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert(
-      'Users',
+      'users',
       [
         {
           firstName: 'buyerfn',
@@ -31,7 +31,7 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     await queryInterface.bulkDelete(
-      'Users',
+      'users',
       {
         email: { [Sequelize.Op.or]: ['buyer@gmail.com', 'creative@gmail.com'] },
       },

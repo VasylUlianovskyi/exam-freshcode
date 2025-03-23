@@ -1,7 +1,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert(
-      'Banks',
+      'banks',
       [
         {
           cardNumber: '4564654564564564',
@@ -22,6 +22,6 @@ module.exports = {
     );
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('Banks');
+    return queryInterface.bulkDelete('banks');
   },
 };
