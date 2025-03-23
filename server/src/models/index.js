@@ -37,81 +37,12 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
-db['Contests'].belongsTo(db['Users'], {
-  foreignKey: 'userId',
-  sourceKey: 'id',
-});
-db['Contests'].hasMany(db['Offers'], {
-  foreignKey: 'contestId',
-  targetKey: 'id',
-});
+console.log('MODELS:', Object.keys(db));
 
-db['Users'].hasMany(db['Offers'], { foreignKey: 'userId', targetKey: 'id' });
-db['Users'].hasMany(db['Contests'], { foreignKey: 'userId', targetKey: 'id' });
-db['Users'].hasMany(db['Ratings'], { foreignKey: 'userId', targetKey: 'id' });
-
-db['Offers'].belongsTo(db['Users'], { foreignKey: 'userId', sourceKey: 'id' });
-db['Offers'].belongsTo(db['Contests'], {
-  foreignKey: 'contestId',
-  sourceKey: 'id',
-});
-db['Offers'].hasOne(db['Ratings'], { foreignKey: 'offerId', targetKey: 'id' });
-
-db['Ratings'].belongsTo(db['Users'], { foreignKey: 'userId', targetKey: 'id' });
-db['Ratings'].belongsTo(db['Offers'], {
-  foreignKey: 'offerId',
-  targetKey: 'id',
-});
-
-db['Conversations'].hasMany(db['ConversationParticipants'], {
-  foreignKey: 'conversation_id',
-  onDelete: 'CASCADE',
-});
-db['Conversations'].hasMany(db['Messages'], {
-  foreignKey: 'conversation_id',
-  onDelete: 'CASCADE',
-});
-
-db['ConversationParticipants'].belongsTo(db['Conversations'], {
-  foreignKey: 'conversation_id',
-  onDelete: 'CASCADE',
-});
-db['ConversationParticipants'].belongsTo(db['Users'], {
-  foreignKey: 'user_id',
-  onDelete: 'CASCADE',
-});
-
-db['Messages'].belongsTo(db['Conversations'], {
-  foreignKey: 'conversation_id',
-  onDelete: 'CASCADE',
-});
-db['Messages'].belongsTo(db['Users'], {
-  foreignKey: 'sender_id',
-  onDelete: 'CASCADE',
-});
-
-db['Catalogs'].belongsTo(db['Users'], {
-  foreignKey: 'user_id',
-  onDelete: 'CASCADE',
-});
-
-db['Catalogs'].belongsToMany(db['Conversations'], {
-  through: db['CatalogConversations'],
-  foreignKey: 'catalog_id',
-  otherKey: 'conversation_id',
-});
-
-db['Conversations'].belongsToMany(db['Catalogs'], {
-  through: db['CatalogConversations'],
-  foreignKey: 'conversation_id',
-  otherKey: 'catalog_id',
-});
-
-db['CatalogConversations'].belongsTo(db['Catalogs'], {
-  foreignKey: 'catalog_id',
-});
-db['CatalogConversations'].belongsTo(db['Conversations'], {
-  foreignKey: 'conversation_id',
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
 });
 
 db.sequelize = sequelize;

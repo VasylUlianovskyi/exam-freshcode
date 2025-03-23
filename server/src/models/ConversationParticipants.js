@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       tableName: 'conversation_participants',
-      underscored: true,
+
       timestamps: false,
     }
   );
