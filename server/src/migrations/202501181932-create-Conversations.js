@@ -14,14 +14,6 @@ module.exports = {
           primaryKey: true,
           autoIncrement: true,
         },
-        blacklist: {
-          type: Sequelize.BOOLEAN,
-          defaultValue: false,
-        },
-        favorite_list: {
-          type: Sequelize.BOOLEAN,
-          defaultValue: false,
-        },
         created_at: {
           type: Sequelize.DATE,
           defaultValue: Sequelize.fn('NOW'),

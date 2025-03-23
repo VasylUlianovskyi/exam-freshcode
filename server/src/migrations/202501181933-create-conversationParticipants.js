@@ -18,7 +18,7 @@ module.exports = {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
-            model: 'conversations',
+            model: 'Conversations',
             key: 'id',
           },
           onDelete: 'CASCADE',
@@ -27,10 +27,18 @@ module.exports = {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
-            model: 'chat_users',
+            model: 'Users',
             key: 'id',
           },
           onDelete: 'CASCADE',
+        },
+        blacklist: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+        },
+        favorite_list: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
         },
       });
     }
