@@ -2,6 +2,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import WebSocket from './WebSocket';
 import Notification from '../../../components/Notification/Notification';
+import CONSTANTS from '../../../constants';
 
 class NotificationSocket extends WebSocket {
   constructor (dispatch, getState, room) {
@@ -22,9 +23,15 @@ class NotificationSocket extends WebSocket {
 
   onChangeOfferStatus = () => {
     this.socket.on('changeOfferStatus', message => {
-      toast(
-        <Notification message={message.message} contestId={message.contestId} />
-      );
+      const { role } = this.getState().userStore.data;
+      if (role === CONSTANTS.CREATOR) {
+        toast(
+          <Notification
+            message={message.message}
+            contestId={message.contestId}
+          />
+        );
+      }
     });
   };
 
