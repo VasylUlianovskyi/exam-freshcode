@@ -87,7 +87,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       tableName: 'contests',
-      undercored: true,
       timestamps: false,
     }
   );
