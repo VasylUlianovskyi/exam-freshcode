@@ -2,37 +2,39 @@ module.exports = (sequelize, DataTypes) => {
   const Conversations = sequelize.define(
     'Conversations',
     {
-      blacklist: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      favoriteList: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
       createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+        field: 'created_at',
       },
       updatedAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+        field: 'updated_at',
       },
     },
     {
+      tableName: 'conversations',
       underscored: true,
+      timestamps: true,
     }
   );
 
   Conversations.associate = models => {
     Conversations.hasMany(models.Messages, {
-      foreignKey: 'conversationId',
+      foreignKey: 'conversation_id',
       onDelete: 'CASCADE',
     });
 
     Conversations.hasMany(models.ConversationParticipants, {
-      foreignKey: 'conversationId',
+      foreignKey: 'conversation_id',
       onDelete: 'CASCADE',
+    });
+
+    Conversations.belongsToMany(models.Catalogs, {
+      through: models.CatalogConversations,
+      foreignKey: 'conversation_id',
+      otherKey: 'catalog_id',
     });
   };
 

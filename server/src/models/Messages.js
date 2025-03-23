@@ -1,5 +1,3 @@
-const { Sequelize, DataTypes } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
   const Messages = sequelize.define(
     'Messages',
@@ -11,33 +9,29 @@ module.exports = (sequelize, DataTypes) => {
       conversationId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        field: 'conversation_id',
       },
       senderId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-      updatedAt: {
-        type: DataTypes.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'sender_id',
       },
     },
     {
+      tableName: 'messages',
       underscored: true,
+      timestamps: true,
     }
   );
 
   Messages.associate = models => {
     Messages.belongsTo(models.Conversations, {
-      foreignKey: 'conversationId',
+      foreignKey: 'conversation_id',
       onDelete: 'CASCADE',
     });
 
-    Messages.belongsTo(models.ChatUsers, {
-      foreignKey: 'senderId',
+    Messages.belongsTo(models.Users, {
+      foreignKey: 'sender_id',
       onDelete: 'CASCADE',
     });
   };

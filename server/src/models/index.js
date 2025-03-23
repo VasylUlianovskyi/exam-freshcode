@@ -63,23 +63,56 @@ db['Ratings'].belongsTo(db['Offers'], {
   targetKey: 'id',
 });
 
-db.ChatUsers.hasMany(db.ConversationParticipants, { foreignKey: 'userId' });
-db.ChatUsers.hasMany(db.Messages, { foreignKey: 'senderId' });
-
-db.Conversations.hasMany(db.ConversationParticipants, {
-  foreignKey: 'conversationId',
+db['Conversations'].hasMany(db['ConversationParticipants'], {
+  foreignKey: 'conversation_id',
+  onDelete: 'CASCADE',
 });
-db.Conversations.hasMany(db.Messages, { foreignKey: 'conversationId' });
-
-db.ConversationParticipants.belongsTo(db.Conversations, {
-  foreignKey: 'conversationId',
+db['Conversations'].hasMany(db['Messages'], {
+  foreignKey: 'conversation_id',
+  onDelete: 'CASCADE',
 });
-db.ConversationParticipants.belongsTo(db.ChatUsers, { foreignKey: 'userId' });
 
-db.Messages.belongsTo(db.Conversations, { foreignKey: 'conversationId' });
-db.Messages.belongsTo(db.ChatUsers, { foreignKey: 'senderId' });
+db['ConversationParticipants'].belongsTo(db['Conversations'], {
+  foreignKey: 'conversation_id',
+  onDelete: 'CASCADE',
+});
+db['ConversationParticipants'].belongsTo(db['Users'], {
+  foreignKey: 'user_id',
+  onDelete: 'CASCADE',
+});
 
-db.ChatUsers.belongsTo(db.Users, { foreignKey: 'userId', targetKey: 'id' });
+db['Messages'].belongsTo(db['Conversations'], {
+  foreignKey: 'conversation_id',
+  onDelete: 'CASCADE',
+});
+db['Messages'].belongsTo(db['Users'], {
+  foreignKey: 'sender_id',
+  onDelete: 'CASCADE',
+});
+
+db['Catalogs'].belongsTo(db['Users'], {
+  foreignKey: 'user_id',
+  onDelete: 'CASCADE',
+});
+
+db['Catalogs'].belongsToMany(db['Conversations'], {
+  through: db['CatalogConversations'],
+  foreignKey: 'catalog_id',
+  otherKey: 'conversation_id',
+});
+
+db['Conversations'].belongsToMany(db['Catalogs'], {
+  through: db['CatalogConversations'],
+  foreignKey: 'conversation_id',
+  otherKey: 'catalog_id',
+});
+
+db['CatalogConversations'].belongsTo(db['Catalogs'], {
+  foreignKey: 'catalog_id',
+});
+db['CatalogConversations'].belongsTo(db['Conversations'], {
+  foreignKey: 'conversation_id',
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

@@ -5,13 +5,25 @@ module.exports = (sequelize, DataTypes) => {
       conversationId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        field: 'conversation_id',
       },
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        field: 'user_id',
+      },
+      blacklist: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      favoriteList: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        field: 'favorite_list',
       },
     },
     {
+      tableName: 'conversation_participants',
       underscored: true,
       timestamps: false,
     }
@@ -19,12 +31,12 @@ module.exports = (sequelize, DataTypes) => {
 
   ConversationParticipants.associate = models => {
     ConversationParticipants.belongsTo(models.Conversations, {
-      foreignKey: 'conversationId',
+      foreignKey: 'conversation_id',
       onDelete: 'CASCADE',
     });
 
-    ConversationParticipants.belongsTo(models.ChatUsers, {
-      foreignKey: 'userId',
+    ConversationParticipants.belongsTo(models.Users, {
+      foreignKey: 'user_id',
       onDelete: 'CASCADE',
     });
   };
