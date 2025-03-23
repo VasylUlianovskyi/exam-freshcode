@@ -4,19 +4,24 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     const tableExists = await queryInterface
-      .describeTable('messages')
+      .describeTable('catalog_conversations')
       .catch(() => false);
 
     if (!tableExists) {
-      await queryInterface.createTable('messages', {
+      await queryInterface.createTable('catalog_conversations', {
         id: {
           type: Sequelize.INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
-        body: {
-          type: Sequelize.TEXT,
+        catalog_id: {
+          type: Sequelize.INTEGER,
           allowNull: false,
+          references: {
+            model: 'catalogs',
+            key: 'id',
+          },
+          onDelete: 'CASCADE',
         },
         conversation_id: {
           type: Sequelize.INTEGER,
@@ -27,28 +32,11 @@ module.exports = {
           },
           onDelete: 'CASCADE',
         },
-        sender_id: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          references: {
-            model: 'users',
-            key: 'id',
-          },
-          onDelete: 'CASCADE',
-        },
-        created_at: {
-          type: Sequelize.DATE,
-          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        },
-        updated_at: {
-          type: Sequelize.DATE,
-          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        },
       });
     }
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('messages');
+    await queryInterface.dropTable('catalog_conversations');
   },
 };

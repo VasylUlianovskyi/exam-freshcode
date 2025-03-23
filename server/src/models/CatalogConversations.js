@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'catalog_id',
         references: {
-          model: 'Catalogs',
+          model: 'catalogs',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'conversation_id',
         references: {
-          model: 'Conversations',
+          model: 'conversations',
           key: 'id',
         },
         onDelete: 'CASCADE',
