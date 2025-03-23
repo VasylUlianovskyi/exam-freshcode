@@ -92,18 +92,26 @@ export const setOfferStatus = decorateAsyncThunk({
 const setOfferStatusExtraReducers = createExtraReducers({
   thunk: setOfferStatus,
   fulfilledReducer: (state, { payload }) => {
-    state.offers.forEach(offer => {
+    state.offers = state.offers.map(offer => {
       if (payload.status === CONSTANTS.OFFER_STATUS_WON) {
-        offer.status =
-          payload.id === offer.id
-            ? CONSTANTS.OFFER_STATUS_WON
-            : CONSTANTS.OFFER_STATUS_REJECTED;
+        return {
+          ...offer,
+          status:
+            payload.id === offer.id
+              ? CONSTANTS.OFFER_STATUS_WON
+              : CONSTANTS.OFFER_STATUS_REJECTED,
+        };
       } else if (payload.id === offer.id) {
-        offer.status = CONSTANTS.OFFER_STATUS_REJECTED;
+        return {
+          ...offer,
+          status: CONSTANTS.OFFER_STATUS_REJECTED,
+        };
       }
+      return offer;
     });
     state.error = null;
   },
+
   rejectedReducer: (state, { payload }) => {
     state.setOfferStatusError = payload;
   },
