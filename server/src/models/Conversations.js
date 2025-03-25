@@ -22,11 +22,13 @@ module.exports = (sequelize, DataTypes) => {
   Conversations.associate = models => {
     Conversations.hasMany(models.Messages, {
       foreignKey: 'conversation_id',
+
       onDelete: 'CASCADE',
     });
 
     Conversations.hasMany(models.ConversationParticipants, {
       foreignKey: 'conversation_id',
+      as: 'participants',
       onDelete: 'CASCADE',
     });
 

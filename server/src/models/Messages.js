@@ -16,6 +16,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'sender_id',
       },
+      createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at',
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        field: 'updated_at',
+      },
     },
     {
       tableName: 'messages',
