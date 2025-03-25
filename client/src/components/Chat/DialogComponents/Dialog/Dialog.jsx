@@ -17,6 +17,8 @@ class Dialog extends React.Component {
         conversationId: this.props.chatData.id,
         interlocutorId: this.props.interlocutor?.id,
       });
+    } else {
+      console.warn('😡 chatData is NULL on mount');
     }
     this.scrollToBottom();
   }

@@ -10,43 +10,48 @@ import styles from './ChatHeader.module.sass';
 import CONSTANTS from '../../../../constants';
 
 const ChatHeader = props => {
+  const { backToDialogList, chatData, interlocutor } = props;
+
+  if (!interlocutor) {
+    return (
+      <div className={styles.chatHeader}>
+        <span>Loading chat...</span>
+      </div>
+    );
+  }
+
   const changeFavorite = event => {
-    if (!props.chatData || !props.chatData.id) {
-      console.warn(
-        '⚠️ Warning: chatData or chatData.id is missing',
-        props.chatData
-      );
+    if (!chatData || !chatData.id) {
       return;
     }
 
-    const payload = {
-      conversation_id: props.chatData.id,
-      favoriteFlag: !props.chatData.favoriteList,
-    };
+    props.changeChatFavorite({
+      conversation_id: chatData.id,
+      favoriteFlag: !chatData.favoriteList,
+    });
 
-    props.changeChatFavorite(payload);
     event.stopPropagation();
   };
 
   const changeBlackList = event => {
-    if (!props.chatData || !props.chatData.id) {
-      console.warn(
-        '⚠️ Warning: chatData or chatData.id is missing',
-        props.chatData
-      );
+    if (!chatData || !chatData.id) {
       return;
     }
 
-    const payload = {
-      conversation_id: props.chatData.id,
-      blackListFlag: !props.chatData.blacklist,
-    };
+    props.changeChatBlock({
+      conversation_id: chatData.id,
+      blackListFlag: !chatData.blacklist,
+    });
 
-    props.changeChatBlock(payload);
     event.stopPropagation();
   };
-  const { avatar, firstName } = props.interlocutor;
-  const { backToDialogList, chatData } = props;
+
+  const { avatar = 'anon.png', firstName = 'Anonymous' } = interlocutor;
+  const avatarSrc =
+    avatar === 'anon.png'
+      ? CONSTANTS.ANONYM_IMAGE_PATH
+      : `${CONSTANTS.publicURL}${avatar}`;
+
   return (
     <div className={styles.chatHeader}>
       <div className={styles.buttonContainer} onClick={backToDialogList}>
@@ -57,14 +62,7 @@ const ChatHeader = props => {
       </div>
       <div className={styles.infoContainer}>
         <div>
-          <img
-            src={
-              avatar === 'anon.png'
-                ? CONSTANTS.ANONYM_IMAGE_PATH
-                : `${CONSTANTS.publicURL}${avatar}`
-            }
-            alt='user'
-          />
+          <img src={avatarSrc} alt='user' />
           <span>{firstName}</span>
         </div>
         {chatData && (

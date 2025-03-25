@@ -105,6 +105,13 @@ const sendMessageExtraReducers = createExtraReducers({
       });
     }
 
+    if (!state.chatData?.id && payload.message.conversationId) {
+      state.chatData = {
+        ...(state.chatData || {}),
+        id: payload.message.conversationId,
+      };
+    }
+
     state.messagesPreview = [...messagesPreview];
     state.messages.push(payload.message);
   },
@@ -327,9 +334,9 @@ const reducers = {
     const { messagesPreview } = state;
     let isNew = true;
     messagesPreview.forEach(preview => {
-      if (isEqual(preview.participants, message.participants)) {
+      if (preview.id === message.conversationId) {
         preview.text = message.body;
-        preview.sender = message.sender;
+        preview.sender = message.senderId;
         preview.createAt = message.createdAt;
         isNew = false;
       }
@@ -346,8 +353,22 @@ const reducers = {
   },
 
   goToExpandedDialog: (state, { payload }) => {
-    state.interlocutor = { ...state.interlocutor, ...payload.interlocutor };
-    state.chatData = payload.conversationData;
+    state.interlocutor = payload.interlocutor || {
+      id: null,
+      firstName: '',
+      lastName: '',
+      displayName: '',
+      avatar: '',
+      email: '',
+    };
+
+    state.chatData = payload.conversationData || {
+      id: null,
+      participants: [],
+      blacklist: [],
+      favoriteList: [],
+    };
+
     state.isShow = true;
     state.isExpanded = true;
     state.messages = [];

@@ -10,15 +10,22 @@ import Schems from '../../../../utils/validators/validationSchems';
 
 const ChatInput = props => {
   const submitHandler = async (values, { resetForm }) => {
-    if (!props.chatData || !props.chatData.id) {
-      return;
-    }
+    if (!props.interlocutor?.id) return;
 
-    await props.sendMessage({
+    const result = await props.sendMessage({
       messageBody: values.message,
       recipient: props.interlocutor.id,
-      conversationId: props.chatData.id,
+      conversationId: props.chatData?.id || null,
     });
+
+    const conversationId = result?.payload?.message?.conversationId;
+
+    if (conversationId) {
+      await props.getDialog({
+        conversationId,
+        interlocutorId: props.interlocutor.id,
+      });
+    }
 
     await props.getDialog({
       conversationId: props.chatData.id,
@@ -59,9 +66,9 @@ const ChatInput = props => {
 };
 
 const mapStateToProps = state => {
-  const { interlocutor } = state.chatStore;
+  const { interlocutor, chatData } = state.chatStore;
   const { data } = state.userStore;
-  return { interlocutor, data };
+  return { interlocutor, chatData, data };
 };
 
 const mapDispatchToProps = dispatch => ({
