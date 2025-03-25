@@ -37,8 +37,8 @@ const createMessage = async (conversationId, senderId, body) => {
 const getChatMessages = async conversationId => {
   return db.Messages.findAll({
     where: { conversationId },
-    order: [['createdAt', 'ASC']],
-    attributes: ['id', 'senderId', 'body', 'conversationId', 'createdAt'],
+    order: [['created_at', 'ASC']],
+    attributes: ['id', 'senderId', 'body', 'conversationId', 'created_at'],
   });
 };
 
@@ -58,8 +58,8 @@ const getUserConversationsWithPreview = async userId => {
       },
       {
         model: db.Messages,
-        attributes: ['id', 'senderId', 'body', 'createdAt'],
-        order: [['createdAt', 'DESC']],
+        attributes: ['id', 'senderId', 'body', 'created_at'],
+        order: [['created_at', 'DESC']],
         limit: 1,
       },
     ],
