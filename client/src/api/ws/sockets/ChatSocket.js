@@ -24,7 +24,7 @@ class ChatSocket extends WebSocket {
 
   onNewMessage = () => {
     this.socket.on('newMessage', data => {
-      this.dispatch(addMessage(data.message));
+      this.dispatch(addMessage(data));
     });
 
     this.dispatch(getPreviewChat());

@@ -23,8 +23,8 @@ class ChatController extends WebSocket {
     });
   }
 
-  emitNewMessage (conversationId, message) {
-    this.io.to(conversationId).emit('newMessage', { message });
+  emitNewMessage (conversationId, message, preview) {
+    this.io.to(conversationId).emit('newMessage', { message, preview });
   }
 
   emitChangeBlockStatus (target, message) {

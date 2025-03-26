@@ -75,12 +75,9 @@ module.exports.addMessage = async (req, res, next) => {
       favoriteList: senderParticipant?.favoriteList || false,
     };
 
-    controller.getChatController().emitNewMessage(recipient, {
-      message,
-      preview: {
-        ...preview,
-        interlocutor: recipientData,
-      },
+    controller.getChatController().emitNewMessage(conversation.id, message, {
+      ...preview,
+      interlocutor: recipientData,
     });
 
     res.send({

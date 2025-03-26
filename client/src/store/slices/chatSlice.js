@@ -338,6 +338,7 @@ const reducers = {
   addMessage: (state, { payload }) => {
     const { message, preview } = payload;
     const { messagesPreview } = state;
+
     let isNew = true;
     messagesPreview.forEach(preview => {
       if (preview.id === message.conversationId) {
@@ -347,7 +348,7 @@ const reducers = {
         isNew = false;
       }
     });
-    if (isNew) {
+    if (isNew && preview) {
       messagesPreview.push(preview);
     }
     state.messagesPreview = messagesPreview;
@@ -359,12 +360,10 @@ const reducers = {
   },
 
   goToExpandedDialog: (state, { payload }) => {
-    // ✅ Записуємо interlocutor ТІЛЬКИ якщо він є
     if (payload.interlocutor && payload.interlocutor.id) {
       state.interlocutor = payload.interlocutor;
     }
 
-    // ✅ Записуємо chatData, навіть якщо частковий (але краще перевірити payload.conversationData.id)
     state.chatData = payload.conversationData || {
       id: null,
       participants: [],
