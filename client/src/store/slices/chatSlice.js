@@ -11,6 +11,7 @@ import {
 const CHAT_SLICE_NAME = 'chat';
 
 const initialState = {
+  userId: null,
   isFetching: true,
   addChatId: null,
   isShowCatalogCreation: false,
@@ -335,24 +336,43 @@ const reducers = {
     state.messagesPreview = messagesPreview;
   },
 
+  setUserId: (state, { payload }) => {
+    state.userId = payload;
+  },
+
   addMessage: (state, { payload }) => {
     const { message, preview } = payload;
-    const { messagesPreview } = state;
+    if (!message) return;
+    const { messagesPreview, userId } = state;
 
     let isNew = true;
-    messagesPreview.forEach(preview => {
-      if (preview.id === message.conversationId) {
-        preview.text = message.body;
-        preview.sender = message.senderId;
-        preview.createAt = message.createdAt;
+
+    messagesPreview.forEach(p => {
+      if (p.id === message.conversationId) {
+        p.text = message.body;
+        p.sender = message.senderId;
+        p.createAt = message.createdAt;
+
+        if (!message.isRead && message.senderId !== userId) {
+          p.unreadCount = (p.unreadCount || 0) + 1;
+        }
+
         isNew = false;
       }
     });
+
     if (isNew && preview) {
-      messagesPreview.push(preview);
+      messagesPreview.push({
+        ...preview,
+        text: message.body,
+        sender: message.senderId,
+        createAt: message.createdAt,
+        unreadCount: !message.isRead && message.senderId !== userId ? 1 : 0,
+      });
     }
-    state.messagesPreview = messagesPreview;
-    state.messages = [...state.messages, payload.message];
+
+    state.messagesPreview = [...messagesPreview];
+    state.messages = [...state.messages, message];
   },
 
   backToDialogList: state => {
@@ -438,6 +458,7 @@ const { actions, reducer } = chatSlice;
 
 export const {
   changeBlockStatusInStore,
+  setUserId,
   addMessage,
   backToDialogList,
   goToExpandedDialog,

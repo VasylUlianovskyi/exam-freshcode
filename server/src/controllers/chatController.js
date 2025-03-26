@@ -47,6 +47,7 @@ module.exports.addMessage = async (req, res, next) => {
       senderId: userId,
       conversationId: conversation.id,
       body: messageBody,
+      isRead: false,
     });
 
     const recipientData = await db.Users.findByPk(recipient, {

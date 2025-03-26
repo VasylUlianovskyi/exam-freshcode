@@ -23,21 +23,20 @@ class ChatSocket extends WebSocket {
   };
 
   onNewMessage = () => {
-    this.socket.on('newMessage', data => {
-      this.dispatch(addMessage(data));
+    this.socket.on('newMessage', ({ message, preview }) => {
+      this.dispatch(addMessage({ message, preview }));
     });
-
     this.dispatch(getPreviewChat());
   };
 
   subscribeChat = id => {
     if (!this.socket) {
-      console.error('❌ [SOCKET] WebSocket НЕ ініціалізований!');
+      console.error('[SOCKET] WebSocket is NOT initialized!');
       return;
     }
 
     if (!id) {
-      console.error('❌ [SOCKET] ID чату відсутній!');
+      console.error('[SOCKET] Chat ID missing!');
       return;
     }
 
