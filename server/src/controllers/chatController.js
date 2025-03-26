@@ -6,7 +6,7 @@ const _ = require('lodash');
 
 module.exports.addMessage = async (req, res, next) => {
   const { userId } = req.tokenData;
-  const { recipient, messageBody, interlocutor } = req.body;
+  const { recipient, messageBody } = req.body;
 
   try {
     let conversation = await db.Conversations.findOne({
@@ -49,6 +49,17 @@ module.exports.addMessage = async (req, res, next) => {
       body: messageBody,
     });
 
+    const recipientData = await db.Users.findByPk(recipient, {
+      attributes: [
+        'id',
+        'firstName',
+        'lastName',
+        'displayName',
+        'avatar',
+        'email',
+      ],
+    });
+
     const participantIds = conversation.participants.map(p => p.userId);
     const senderParticipant = conversation.participants.find(
       p => p.userId === userId
@@ -60,22 +71,15 @@ module.exports.addMessage = async (req, res, next) => {
       text: message.body,
       createAt: message.createdAt,
       participants: participantIds,
-      blacklist: senderParticipant?.blacklist || [],
-      favoriteList: senderParticipant?.favoriteList || [],
+      blacklist: senderParticipant?.blacklist || false,
+      favoriteList: senderParticipant?.favoriteList || false,
     };
 
     controller.getChatController().emitNewMessage(recipient, {
       message,
       preview: {
         ...preview,
-        interlocutor: {
-          id: userId,
-          firstName: req.tokenData.firstName,
-          lastName: req.tokenData.lastName,
-          displayName: req.tokenData.displayName,
-          avatar: req.tokenData.avatar,
-          email: req.tokenData.email,
-        },
+        interlocutor: recipientData,
       },
     });
 
@@ -83,7 +87,7 @@ module.exports.addMessage = async (req, res, next) => {
       message,
       preview: {
         ...preview,
-        interlocutor,
+        interlocutor: recipientData,
       },
     });
   } catch (err) {
@@ -97,7 +101,7 @@ module.exports.getChat = async (req, res, next) => {
   const { interlocutorId } = req.body;
 
   try {
-    const conversation = await db.Conversations.findOne({
+    let conversation = await db.Conversations.findOne({
       include: [
         {
           model: db.ConversationParticipants,
@@ -111,9 +115,10 @@ module.exports.getChat = async (req, res, next) => {
 
     if (!conversation) {
       conversation = await db.Conversations.create();
+
       await db.ConversationParticipants.bulkCreate([
         { userId, conversationId: conversation.id },
-        { userId: recipient, conversationId: conversation.id },
+        { userId: interlocutorId, conversationId: conversation.id },
       ]);
     }
 
@@ -132,6 +137,7 @@ module.exports.getChat = async (req, res, next) => {
       conversationId: conversation.id,
     });
   } catch (err) {
+    console.error('getChat error:', err);
     next(err);
   }
 };
@@ -141,29 +147,26 @@ module.exports.getPreview = async (req, res, next) => {
 
   try {
     const conversations = await db.Conversations.findAll({
-      where: {
-        '$participants.user_id$': userId,
-      },
       include: [
         {
           model: db.ConversationParticipants,
           as: 'participants',
+          required: true,
           attributes: ['userId', 'blacklist', 'favoriteList'],
-          where: { userId },
         },
         {
           model: db.Messages,
+          required: true,
+          separate: true,
+          limit: 1,
+          order: [['createdAt', 'DESC']],
         },
       ],
     });
 
     const previews = await Promise.all(
       conversations.map(async convo => {
-        console.log('MESSAGE:', convo.Messages[0]);
-        const sortedMessages = convo.Messages.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        const lastMessage = sortedMessages[0];
+        const lastMessage = convo.Messages[0] || null;
 
         const participantIds = convo.participants.map(p => p.userId);
         const interlocutorId = participantIds.find(id => id !== userId);
@@ -182,8 +185,8 @@ module.exports.getPreview = async (req, res, next) => {
           text: lastMessage?.body || '',
           createAt: lastMessage?.createdAt || null,
           participants: participantIds,
-          blacklist: currentParticipant?.blacklist,
-          favoriteList: currentParticipant?.favoriteList,
+          blacklist: currentParticipant?.blacklist || false,
+          favoriteList: currentParticipant?.favoriteList || false,
           interlocutor,
         };
       })
@@ -191,7 +194,7 @@ module.exports.getPreview = async (req, res, next) => {
 
     res.send(previews);
   } catch (err) {
-    console.error('🔥 getPreview error:', err);
+    console.error('getPreview error:', err);
     next(err);
   }
 };

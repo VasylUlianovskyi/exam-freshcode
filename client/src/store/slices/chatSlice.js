@@ -19,7 +19,7 @@ const initialState = {
   messages: [],
   error: null,
   isExpanded: false,
-  interlocutor: [],
+  interlocutor: null,
   messagesPreview: [],
   isShow: false,
   chatMode: CONSTANTS.NORMAL_PREVIEW_CHAT_MODE,
@@ -68,6 +68,10 @@ const getDialogMessagesExtraReducers = createExtraReducers({
   fulfilledReducer: (state, { payload }) => {
     state.messages = payload.messages;
     state.interlocutor = payload.interlocutor;
+    state.chatData = {
+      ...(state.chatData || {}),
+      id: payload.conversationId,
+    };
   },
 });
 
@@ -92,6 +96,7 @@ const sendMessageExtraReducers = createExtraReducers({
         preview.text = payload.message.body;
         preview.sender = payload.message.senderId;
         preview.createAt = payload.message.createdAt;
+        preview.interlocutor = payload.preview.interlocutor;
         isNew = false;
       }
     });
@@ -102,6 +107,7 @@ const sendMessageExtraReducers = createExtraReducers({
         sender: payload.message.senderId,
         text: payload.message.body,
         createAt: payload.message.createdAt,
+        interlocutor: payload.preview.interlocutor,
       });
     }
 
@@ -353,15 +359,12 @@ const reducers = {
   },
 
   goToExpandedDialog: (state, { payload }) => {
-    state.interlocutor = payload.interlocutor || {
-      id: null,
-      firstName: '',
-      lastName: '',
-      displayName: '',
-      avatar: '',
-      email: '',
-    };
+    // ✅ Записуємо interlocutor ТІЛЬКИ якщо він є
+    if (payload.interlocutor && payload.interlocutor.id) {
+      state.interlocutor = payload.interlocutor;
+    }
 
+    // ✅ Записуємо chatData, навіть якщо частковий (але краще перевірити payload.conversationData.id)
     state.chatData = payload.conversationData || {
       id: null,
       participants: [],

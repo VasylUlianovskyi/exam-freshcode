@@ -23,14 +23,9 @@ const ChatInput = props => {
     if (conversationId) {
       await props.getDialog({
         conversationId,
-        interlocutorId: props.interlocutor.id,
+        interlocutorId: props.interlocutor?.id,
       });
     }
-
-    await props.getDialog({
-      conversationId: props.chatData.id,
-      interlocutorId: props.interlocutor?.id,
-    });
 
     resetForm();
   };
