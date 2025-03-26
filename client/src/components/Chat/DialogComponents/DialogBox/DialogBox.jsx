@@ -48,6 +48,9 @@ const DialogBox = props => {
             {interlocutor?.firstName}
           </span>
           <span className={styles.interlocutorMessage}>{text}</span>
+          {chatPreview.unreadCount > 0 && (
+            <div className={styles.unreadBadge}>{chatPreview.unreadCount}</div>
+          )}
         </div>
         <div className={styles.buttonsContainer}>
           <span className={styles.time}>{getTimeStr(createAt)}</span>

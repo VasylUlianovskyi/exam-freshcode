@@ -16,6 +16,12 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'sender_id',
       },
+      isRead: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        field: 'is_read',
+      },
+
       createdAt: {
         type: DataTypes.DATE,
         field: 'created_at',
