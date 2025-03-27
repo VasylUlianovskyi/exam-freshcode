@@ -19,6 +19,8 @@ services:
       context: ./server
     environment:
       NODE_ENV: development
+    env_file:
+      - ./server/.env
     ports:
       - "5000:5000"
     depends_on:

@@ -5,15 +5,24 @@ class WebSocket {
   constructor (dispatch, getState, room) {
     this.dispatch = dispatch;
     this.getState = getState;
+
     this.socket = socketIoClient(`${CONSTANTS.BASE_URL}${room}`, {
-      origins: 'localhost:*',
+      auth: {
+        token: localStorage.getItem('accessToken'),
+      },
     });
+
     this.listen();
   }
 
   listen = () => {
     this.socket.on('connect', () => {
+      console.log(`[WebSocket] Connected to room ${this.socket.nsp}`);
       this.anotherSubscribes();
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log(`[WebSocket] Disconnected from ${this.socket.nsp}`);
     });
   };
 
