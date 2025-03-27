@@ -17,13 +17,10 @@ class WebSocket {
 
   listen = () => {
     this.socket.on('connect', () => {
-      console.log(`[WebSocket] Connected to room ${this.socket.nsp}`);
       this.anotherSubscribes();
     });
 
-    this.socket.on('disconnect', () => {
-      console.log(`[WebSocket] Disconnected from ${this.socket.nsp}`);
-    });
+    this.socket.on('disconnect', () => {});
   };
 
   anotherSubscribes = () => {};
