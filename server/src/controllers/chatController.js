@@ -97,7 +97,6 @@ module.exports.addMessage = async (req, res, next) => {
       },
     });
   } catch (err) {
-    console.error('addMessage error:', err);
     next(err);
   }
 };
@@ -159,7 +158,6 @@ module.exports.getChat = async (req, res, next) => {
       conversationId: conversation.id,
     });
   } catch (err) {
-    console.error('getChat error:', err);
     next(err);
   }
 };
@@ -221,27 +219,64 @@ module.exports.getPreview = async (req, res, next) => {
 
     res.send(previews);
   } catch (err) {
-    console.error('getPreview error:', err);
     next(err);
   }
 };
 
 module.exports.blackList = async (req, res, next) => {
   const { userId } = req.tokenData;
-  const { conversationId, blackListFlag } = req.body;
+  const { interlocutorId, blackListFlag, conversationId } = req.body;
 
   try {
-    await db.ConversationParticipants.update(
+    let conversation;
+
+    if (conversationId) {
+      conversation = await db.Conversations.findOne({
+        where: { id: conversationId },
+        include: [
+          {
+            model: db.ConversationParticipants,
+            as: 'participants',
+            where: { userId: [userId, interlocutorId] },
+          },
+        ],
+      });
+    } else {
+      conversation = await db.Conversations.findOne({
+        include: [
+          {
+            model: db.ConversationParticipants,
+            as: 'participants',
+            where: { userId: [userId, interlocutorId] },
+          },
+        ],
+        group: ['Conversations.id'],
+        having: db.Sequelize.literal('COUNT(*) = 2'),
+      });
+    }
+
+    if (!conversation) {
+      return res.status(404).send({ message: 'Conversation not found' });
+    }
+
+    const [updatedCount] = await db.ConversationParticipants.update(
       { blacklist: blackListFlag },
-      { where: { userId, conversationId } }
+      {
+        where: {
+          userId,
+          conversationId: conversation.id,
+        },
+      }
     );
 
-    const participant = await db.ConversationParticipants.findOne({
-      where: { userId, conversationId },
+    const updatedParticipant = await db.ConversationParticipants.findOne({
+      where: {
+        userId,
+        conversationId: conversation.id,
+      },
     });
 
-    controller.getChatController().emitChangeBlockStatus(userId, participant);
-    res.send({ conversation: participant });
+    res.send({ conversation: updatedParticipant });
   } catch (err) {
     next(err);
   }
@@ -283,7 +318,6 @@ module.exports.favoriteChat = async (req, res, next) => {
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
-
     await db.ConversationParticipants.update(
       { favoriteList: favoriteFlag },
       {
@@ -303,7 +337,6 @@ module.exports.favoriteChat = async (req, res, next) => {
 
     res.send({ conversation: updatedParticipant });
   } catch (err) {
-    console.error('favoriteChat error:', err);
     next(err);
   }
 };

@@ -186,17 +186,24 @@ export const changeChatBlock = decorateAsyncThunk({
 
 const changeChatBlockExtraReducers = createExtraReducers({
   thunk: changeChatBlock,
+
   fulfilledReducer: (state, { payload }) => {
+    const updatedParticipant = payload.conversation;
+
     state.messagesPreview = state.messagesPreview.map(preview =>
-      preview.id === payload.conversation.id
-        ? { ...preview, ...payload.conversation }
+      preview.interlocutor?.id === updatedParticipant.userId
+        ? { ...preview, blackList: updatedParticipant.blackList }
         : preview
     );
 
-    if (state.chatData?.id === payload.conversation.id) {
-      state.chatData = { ...state.chatData, ...payload.conversation };
+    if (
+      state.chatData &&
+      state.interlocutor?.id === updatedParticipant.userId
+    ) {
+      state.chatData.blackList = updatedParticipant.blackList;
     }
   },
+
   rejectedReducer: (state, { payload }) => {
     state.error = payload;
   },

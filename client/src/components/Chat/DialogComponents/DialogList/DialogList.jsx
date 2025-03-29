@@ -34,9 +34,11 @@ const DialogList = ({
   const changeBlackList = (chatPreview, event) => {
     if (!chatPreview?.id) return;
     changeChatBlock({
-      conversation_id: chatPreview.id,
+      conversationId: chatPreview.id,
+      interlocutorId: chatPreview.interlocutor?.id,
       blackListFlag: !chatPreview.blacklist,
     });
+
     event.stopPropagation();
   };
 
