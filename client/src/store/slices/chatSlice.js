@@ -192,7 +192,7 @@ const changeChatBlockExtraReducers = createExtraReducers({
 
     state.messagesPreview = state.messagesPreview.map(preview =>
       preview.interlocutor?.id === updatedParticipant.userId
-        ? { ...preview, blackList: updatedParticipant.blackList }
+        ? { ...preview, blacklist: updatedParticipant.blackList }
         : preview
     );
 

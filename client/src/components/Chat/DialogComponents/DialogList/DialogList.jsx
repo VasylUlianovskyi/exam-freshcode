@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import moment from 'moment';
 import CONSTANTS from '../../../../constants';
 import {
@@ -21,22 +21,47 @@ const DialogList = ({
   changeShowAddChatToCatalogMenu,
   removeChat,
 }) => {
+  const dispatch = useDispatch();
+
   const changeFavorite = (chatPreview, event) => {
     if (!chatPreview?.id) return;
+
+    dispatch({
+      type: 'chat/changeChatFavorite/fulfilled',
+      payload: {
+        conversation: {
+          userId: chatPreview.interlocutor?.id,
+          favoriteList: !chatPreview.favoriteList,
+        },
+      },
+    });
+
     changeChatFavorite({
       conversationId: chatPreview.id,
       interlocutorId: chatPreview.interlocutor?.id,
       favoriteFlag: !chatPreview.favoriteList,
     });
+
     event.stopPropagation();
   };
 
   const changeBlackList = (chatPreview, event) => {
     if (!chatPreview?.id) return;
+
+    dispatch({
+      type: 'chat/changeChatBlock/fulfilled',
+      payload: {
+        conversation: {
+          userId: chatPreview.interlocutor?.id,
+          blacklist: !chatPreview.blacklist,
+        },
+      },
+    });
+
     changeChatBlock({
       conversationId: chatPreview.id,
       interlocutorId: chatPreview.interlocutor?.id,
-      blackListFlag: !chatPreview.blacklist,
+      blacklistFlag: !chatPreview.blacklist,
     });
 
     event.stopPropagation();
@@ -69,9 +94,9 @@ const DialogList = ({
       return <span className={styles.notFound}>Not found</span>;
     }
 
-    return list.map((chatPreview, index) => (
+    return list.map(chatPreview => (
       <DialogBox
-        key={index}
+        key={`${chatPreview.id}-${chatPreview.favoriteList}-${chatPreview.blacklist}`}
         interlocutor={chatPreview.interlocutor}
         chatPreview={chatPreview}
         getTimeStr={getTimeStr}
