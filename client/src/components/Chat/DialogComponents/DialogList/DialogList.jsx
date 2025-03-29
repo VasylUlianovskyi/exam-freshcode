@@ -84,11 +84,14 @@ const DialogList = ({
   };
 
   const renderPreview = filterFunc => {
-    const list = preview.filter(chat => {
-      if (chat.interlocutor?.id === userId) return false;
-      if (filterFunc && !filterFunc(chat)) return false;
-      return true;
-    });
+    const list = preview
+      .filter(chat => {
+        if (chat.interlocutor?.id === userId) return false;
+        if (filterFunc && !filterFunc(chat)) return false;
+        return true;
+      })
+
+      .sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
 
     if (!list.length) {
       return <span className={styles.notFound}>Not found</span>;
