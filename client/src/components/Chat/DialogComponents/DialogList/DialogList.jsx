@@ -24,7 +24,8 @@ const DialogList = ({
   const changeFavorite = (chatPreview, event) => {
     if (!chatPreview?.id) return;
     changeChatFavorite({
-      conversation_id: chatPreview.id,
+      conversationId: chatPreview.id,
+      interlocutorId: chatPreview.interlocutor?.id,
       favoriteFlag: !chatPreview.favoriteList,
     });
     event.stopPropagation();

@@ -249,20 +249,61 @@ module.exports.blackList = async (req, res, next) => {
 
 module.exports.favoriteChat = async (req, res, next) => {
   const { userId } = req.tokenData;
-  const { conversationId, favoriteFlag } = req.body;
+  const { interlocutorId, favoriteFlag, conversationId } = req.body;
 
   try {
+    let conversation;
+
+    if (conversationId) {
+      conversation = await db.Conversations.findOne({
+        where: { id: conversationId },
+        include: [
+          {
+            model: db.ConversationParticipants,
+            as: 'participants',
+            where: { userId: [userId, interlocutorId] },
+          },
+        ],
+      });
+    } else {
+      conversation = await db.Conversations.findOne({
+        include: [
+          {
+            model: db.ConversationParticipants,
+            as: 'participants',
+            where: { userId: [userId, interlocutorId] },
+          },
+        ],
+        group: ['Conversations.id'],
+        having: db.Sequelize.literal('COUNT(*) = 2'),
+      });
+    }
+
+    if (!conversation) {
+      return res.status(404).send({ message: 'Conversation not found' });
+    }
+
+
     await db.ConversationParticipants.update(
       { favoriteList: favoriteFlag },
-      { where: { userId, conversationId } }
+      {
+        where: {
+          userId,
+          conversationId: conversation.id,
+        },
+      }
     );
 
-    const participant = await db.ConversationParticipants.findOne({
-      where: { userId, conversationId },
+    const updatedParticipant = await db.ConversationParticipants.findOne({
+      where: {
+        userId,
+        conversationId: conversation.id,
+      },
     });
 
-    res.send({ conversation: participant });
+    res.send({ conversation: updatedParticipant });
   } catch (err) {
+    console.error('favoriteChat error:', err);
     next(err);
   }
 };

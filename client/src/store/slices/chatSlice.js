@@ -154,16 +154,22 @@ export const changeChatFavorite = decorateAsyncThunk({
 const changeChatFavoriteExtraReducers = createExtraReducers({
   thunk: changeChatFavorite,
   fulfilledReducer: (state, { payload }) => {
+    const updatedParticipant = payload.conversation;
+
     state.messagesPreview = state.messagesPreview.map(preview =>
-      preview.id === payload.conversation.id
-        ? { ...preview, ...payload.conversation }
+      preview.interlocutor?.id === updatedParticipant.userId
+        ? { ...preview, favoriteList: updatedParticipant.favoriteList }
         : preview
     );
 
-    if (state.chatData?.id === payload.conversation.id) {
-      state.chatData = { ...state.chatData, ...payload.conversation };
+    if (
+      state.chatData &&
+      state.interlocutor?.id === updatedParticipant.userId
+    ) {
+      state.chatData.favoriteList = updatedParticipant.favoriteList;
     }
   },
+
   rejectedReducer: (state, { payload }) => {
     state.error = payload;
   },
