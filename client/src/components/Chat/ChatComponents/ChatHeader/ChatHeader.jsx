@@ -26,7 +26,8 @@ const ChatHeader = props => {
     }
 
     props.changeChatFavorite({
-      conversation_id: chatData.id,
+      conversationId: chatData.id,
+      interlocutorId: chatData.interlocutor?.id,
       favoriteFlag: !chatData.favoriteList,
     });
 
@@ -39,7 +40,8 @@ const ChatHeader = props => {
     }
 
     props.changeChatBlock({
-      conversation_id: chatData.id,
+      conversationId: chatData.id,
+      interlocutorId: chatData.interlocutor?.id,
       blackListFlag: !chatData.blacklist,
     });
 
