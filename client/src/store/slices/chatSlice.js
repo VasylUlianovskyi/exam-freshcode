@@ -192,7 +192,7 @@ const changeChatBlockExtraReducers = createExtraReducers({
 
     state.messagesPreview = state.messagesPreview.map(preview =>
       preview.interlocutor?.id === updatedParticipant.userId
-        ? { ...preview, blacklist: updatedParticipant.blackList }
+        ? { ...preview, blacklist: updatedParticipant.blacklist }
         : preview
     );
 
@@ -200,7 +200,7 @@ const changeChatBlockExtraReducers = createExtraReducers({
       state.chatData &&
       state.interlocutor?.id === updatedParticipant.userId
     ) {
-      state.chatData.blackList = updatedParticipant.blackList;
+      state.chatData.blacklist = updatedParticipant.blacklist;
     }
   },
 
@@ -426,7 +426,7 @@ const reducers = {
     if (interlocutor && interlocutor.id) {
       state.interlocutor = interlocutor;
     } else {
-      state.interlocutor = interlocutor || null; // або залишити попереднього — залежить від логіки
+      state.interlocutor = interlocutor || null;
     }
 
     const { id, blacklist, favoriteList } = conversationData || {};

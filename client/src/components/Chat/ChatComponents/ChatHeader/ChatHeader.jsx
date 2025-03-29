@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import {
   backToDialogList,
@@ -9,9 +9,12 @@ import {
 import styles from './ChatHeader.module.sass';
 import CONSTANTS from '../../../../constants';
 
-const ChatHeader = props => {
-  const { backToDialogList, chatData, interlocutor } = props;
+const ChatHeader = () => {
+  const dispatch = useDispatch();
 
+  const chatData = useSelector(state => state.chatStore.chatData);
+  const interlocutor = useSelector(state => state.chatStore.interlocutor);
+  console.log(chatData);
   if (!interlocutor) {
     return (
       <div className={styles.chatHeader}>
@@ -21,32 +24,54 @@ const ChatHeader = props => {
   }
 
   const changeFavorite = event => {
-    if (!chatData || !chatData.id) {
-      return;
-    }
+    if (!chatData || !chatData.id || !interlocutor?.id) return;
 
-    props.changeChatFavorite({
-      conversationId: chatData.id,
-      interlocutorId: chatData.interlocutor?.id,
-      favoriteFlag: !chatData.favoriteList,
+    dispatch({
+      type: 'chat/changeChatFavorite/fulfilled',
+      payload: {
+        conversation: {
+          userId: interlocutor.id,
+          favoriteList: !chatData.favoriteList,
+        },
+      },
     });
+
+    dispatch(
+      changeChatFavorite({
+        conversationId: chatData.id,
+        interlocutorId: interlocutor.id,
+        favoriteFlag: !chatData.favoriteList,
+      })
+    );
 
     event.stopPropagation();
   };
 
   const changeBlackList = event => {
-    if (!chatData || !chatData.id) {
-      return;
-    }
+    if (!chatData || !chatData.id || !interlocutor?.id) return;
 
-    props.changeChatBlock({
-      conversationId: chatData.id,
-      interlocutorId: chatData.interlocutor?.id,
-      blackListFlag: !chatData.blacklist,
+    dispatch({
+      type: 'chat/changeChatBlock/fulfilled',
+      payload: {
+        conversation: {
+          userId: interlocutor.id,
+          blacklist: !chatData.blacklist,
+        },
+      },
     });
+
+    dispatch(
+      changeChatBlock({
+        conversationId: chatData.id,
+        interlocutorId: interlocutor.id,
+        blacklistFlag: !chatData.blacklist,
+      })
+    );
 
     event.stopPropagation();
   };
+
+  const handleBack = () => dispatch(backToDialogList());
 
   const { avatar = 'anon.png', firstName = 'Anonymous' } = interlocutor;
   const avatarSrc =
@@ -56,7 +81,7 @@ const ChatHeader = props => {
 
   return (
     <div className={styles.chatHeader}>
-      <div className={styles.buttonContainer} onClick={backToDialogList}>
+      <div className={styles.buttonContainer} onClick={handleBack}>
         <img
           src={`${CONSTANTS.STATIC_IMAGES_PATH}arrow-left-thick.png`}
           alt='back'
@@ -90,15 +115,4 @@ const ChatHeader = props => {
   );
 };
 
-const mapStateToProps = state => ({
-  chatData: state.chatStore.chatData,
-  interlocutor: state.chatStore.interlocutor,
-});
-
-const mapDispatchToProps = dispatch => ({
-  backToDialogList: () => dispatch(backToDialogList()),
-  changeChatFavorite: data => dispatch(changeChatFavorite(data)),
-  changeChatBlock: data => dispatch(changeChatBlock(data)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ChatHeader);
+export default ChatHeader;
