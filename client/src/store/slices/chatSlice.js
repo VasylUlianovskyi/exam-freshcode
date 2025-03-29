@@ -42,9 +42,18 @@ export const getPreviewChat = decorateAsyncThunk({
 const getPreviewChatExtraReducers = createExtraReducers({
   thunk: getPreviewChat,
   fulfilledReducer: (state, { payload }) => {
-    const uniquePreviews = payload.filter(
-      chat => !state.messagesPreview.some(prev => prev.id === chat.id)
+    const existingInterlocutorIds = state.messagesPreview.map(
+      p => p.interlocutor?.id
     );
+
+    const uniquePreviews = payload.filter(
+      chat => !existingInterlocutorIds.includes(chat.interlocutor?.id)
+    );
+
+    if (uniquePreviews.length && window.chatSocket) {
+      const conversationIds = uniquePreviews.map(p => p.id);
+      window.chatSocket.subscribeChat(conversationIds);
+    }
 
     state.messagesPreview = [...state.messagesPreview, ...uniquePreviews];
     state.error = null;
@@ -89,38 +98,47 @@ export const sendMessage = decorateAsyncThunk({
 const sendMessageExtraReducers = createExtraReducers({
   thunk: sendMessage,
   fulfilledReducer: (state, { payload }) => {
-    const { messagesPreview } = state;
+    const { message, preview } = payload;
+    const { messagesPreview, userId } = state;
+
     let isNew = true;
 
-    messagesPreview.forEach(preview => {
-      if (preview.id === payload.message.conversationId) {
-        preview.text = payload.message.body;
-        preview.sender = payload.message.senderId;
-        preview.createAt = payload.message.createdAt;
-        preview.interlocutor = payload.preview.interlocutor;
+    const updatedPreviews = messagesPreview.map(prev => {
+      if (
+        prev.id === message.conversationId &&
+        prev.interlocutor?.id === preview?.interlocutor?.id
+      ) {
         isNew = false;
+        return {
+          ...prev,
+          text: message.body,
+          sender: message.senderId,
+          createAt: message.createdAt,
+          interlocutor: preview.interlocutor,
+        };
       }
+      return prev;
     });
 
-    if (isNew) {
-      messagesPreview.push({
-        id: payload.message.conversationId,
-        sender: payload.message.senderId,
-        text: payload.message.body,
-        createAt: payload.message.createdAt,
-        interlocutor: payload.preview.interlocutor,
+    if (isNew && preview) {
+      updatedPreviews.push({
+        ...preview,
+        text: message.body,
+        sender: message.senderId,
+        createAt: message.createdAt,
+        unreadCount: !message.isRead && message.senderId !== userId ? 1 : 0,
       });
     }
 
-    if (!state.chatData?.id && payload.message.conversationId) {
+    if (!state.chatData?.id && message.conversationId) {
       state.chatData = {
         ...(state.chatData || {}),
-        id: payload.message.conversationId,
+        id: message.conversationId,
       };
     }
 
-    state.messagesPreview = [...messagesPreview];
-    state.messages.push(payload.message);
+    state.messagesPreview = updatedPreviews;
+    state.messages = [...state.messages, message];
   },
 });
 
@@ -343,36 +361,46 @@ const reducers = {
   addMessage: (state, { payload }) => {
     const { message, preview } = payload;
     if (!message) return;
+
     const { messagesPreview, userId } = state;
 
     let isNew = true;
 
-    messagesPreview.forEach(p => {
+    const updatedPreviews = messagesPreview.map(p => {
       if (p.id === message.conversationId) {
-        p.text = message.body;
-        p.sender = message.senderId;
-        p.createAt = message.createdAt;
-
-        if (!message.isRead && message.senderId !== userId) {
-          p.unreadCount = (p.unreadCount || 0) + 1;
-        }
-
         isNew = false;
+        return {
+          ...p,
+          text: message.body,
+          sender: message.senderId,
+          createAt: message.createdAt,
+          unreadCount:
+            !message.isRead && message.senderId !== userId
+              ? (p.unreadCount || 0) + 1
+              : p.unreadCount || 0,
+        };
       }
+      return p;
     });
 
     if (isNew && preview) {
-      messagesPreview.push({
-        ...preview,
-        text: message.body,
-        sender: message.senderId,
-        createAt: message.createdAt,
-        unreadCount: !message.isRead && message.senderId !== userId ? 1 : 0,
-      });
+      const exists = updatedPreviews.some(
+        p => p.interlocutor?.id === preview.interlocutor?.id
+      );
+
+      if (!exists && preview.interlocutor?.id !== userId) {
+        updatedPreviews.push({
+          ...preview,
+          text: message.body,
+          sender: message.senderId,
+          createAt: message.createdAt,
+          unreadCount: !message.isRead && message.senderId !== userId ? 1 : 0,
+        });
+      }
     }
 
-    state.messagesPreview = [...messagesPreview];
-    state.messages = [...state.messages, message];
+    state.messagesPreview = [...updatedPreviews];
+    state.messages.push(message);
   },
 
   backToDialogList: state => {
@@ -380,15 +408,20 @@ const reducers = {
   },
 
   goToExpandedDialog: (state, { payload }) => {
-    if (payload.interlocutor && payload.interlocutor.id) {
-      state.interlocutor = payload.interlocutor;
+    const { interlocutor, conversationData } = payload;
+
+    if (interlocutor && interlocutor.id) {
+      state.interlocutor = interlocutor;
+    } else {
+      state.interlocutor = interlocutor || null; // або залишити попереднього — залежить від логіки
     }
 
-    state.chatData = payload.conversationData || {
-      id: null,
-      participants: [],
-      blacklist: [],
-      favoriteList: [],
+    const { id, blacklist, favoriteList } = conversationData || {};
+
+    state.chatData = {
+      id: id || null,
+      blacklist: typeof blacklist !== 'undefined' ? blacklist : false,
+      favoriteList: typeof favoriteList !== 'undefined' ? favoriteList : false,
     };
 
     state.isShow = true;

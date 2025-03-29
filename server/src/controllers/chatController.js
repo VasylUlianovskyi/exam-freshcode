@@ -9,20 +9,32 @@ module.exports.addMessage = async (req, res, next) => {
   const { recipient, messageBody } = req.body;
 
   try {
-    let conversation = await db.Conversations.findOne({
+    const allConversations = await db.Conversations.findAll({
       include: [
         {
           model: db.ConversationParticipants,
           as: 'participants',
           where: { userId },
         },
-        {
-          model: db.ConversationParticipants,
-          as: 'participants',
-          where: { userId: recipient },
-        },
       ],
     });
+
+    let conversation = null;
+
+    for (const convo of allConversations) {
+      const participants = await convo.getParticipants();
+      const participantIds = participants.map(p => p.userId);
+
+      if (
+        participantIds.length === 2 &&
+        participantIds.includes(userId) &&
+        participantIds.includes(recipient)
+      ) {
+        conversation = convo;
+        conversation.participants = participants;
+        break;
+      }
+    }
 
     if (!conversation) {
       const newConversation = await db.Conversations.create();
@@ -32,15 +44,12 @@ module.exports.addMessage = async (req, res, next) => {
         { userId: recipient, conversationId: newConversation.id },
       ]);
 
-      conversation = await db.Conversations.findOne({
-        where: { id: newConversation.id },
-        include: [
-          {
-            model: db.ConversationParticipants,
-            as: 'participants',
-          },
-        ],
+      const participants = await db.ConversationParticipants.findAll({
+        where: { conversationId: newConversation.id },
       });
+
+      conversation = newConversation;
+      conversation.participants = participants;
     }
 
     const message = await db.Messages.create({
@@ -61,7 +70,6 @@ module.exports.addMessage = async (req, res, next) => {
       ],
     });
 
-    const participantIds = conversation.participants.map(p => p.userId);
     const senderParticipant = conversation.participants.find(
       p => p.userId === userId
     );
@@ -71,7 +79,7 @@ module.exports.addMessage = async (req, res, next) => {
       sender: userId,
       text: message.body,
       createAt: message.createdAt,
-      participants: participantIds,
+      participants: conversation.participants.map(p => p.userId),
       blacklist: senderParticipant?.blacklist || false,
       favoriteList: senderParticipant?.favoriteList || false,
     };
@@ -99,25 +107,41 @@ module.exports.getChat = async (req, res, next) => {
   const { interlocutorId } = req.body;
 
   try {
-    let conversation = await db.Conversations.findOne({
+    const allConversations = await db.Conversations.findAll({
       include: [
         {
           model: db.ConversationParticipants,
           as: 'participants',
-          where: {
-            userId: [userId, interlocutorId],
-          },
+          where: { userId },
         },
       ],
     });
 
+    let conversation = null;
+
+    for (const convo of allConversations) {
+      const participants = await convo.getParticipants();
+      const participantIds = participants.map(p => p.userId);
+
+      if (
+        participantIds.length === 2 &&
+        participantIds.includes(userId) &&
+        participantIds.includes(interlocutorId)
+      ) {
+        conversation = convo;
+        break;
+      }
+    }
+
     if (!conversation) {
-      conversation = await db.Conversations.create();
+      const newConversation = await db.Conversations.create();
 
       await db.ConversationParticipants.bulkCreate([
-        { userId, conversationId: conversation.id },
-        { userId: interlocutorId, conversationId: conversation.id },
+        { userId, conversationId: newConversation.id },
+        { userId: interlocutorId, conversationId: newConversation.id },
       ]);
+
+      conversation = newConversation;
     }
 
     const messages = await db.Messages.findAll({
@@ -154,7 +178,8 @@ module.exports.getPreview = async (req, res, next) => {
         },
         {
           model: db.Messages,
-          required: true,
+          as: 'Messages',
+          required: false,
           separate: true,
           limit: 1,
           order: [['createdAt', 'DESC']],
@@ -162,10 +187,14 @@ module.exports.getPreview = async (req, res, next) => {
       ],
     });
 
-    const previews = await Promise.all(
-      conversations.map(async convo => {
-        const lastMessage = convo.Messages[0] || null;
+    const validConversations = conversations.filter(convo => {
+      const participantIds = convo.participants.map(p => p.userId);
+      return participantIds.length === 2 && participantIds.includes(userId);
+    });
 
+    const previews = await Promise.all(
+      validConversations.map(async convo => {
+        const lastMessage = convo.Messages[0] || null;
         const participantIds = convo.participants.map(p => p.userId);
         const interlocutorId = participantIds.find(id => id !== userId);
 

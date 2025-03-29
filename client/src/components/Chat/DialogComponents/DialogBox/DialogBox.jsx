@@ -3,75 +3,73 @@ import classNames from 'classnames';
 import styles from './DialogBox.module.sass';
 import CONSTANTS from '../../../../constants';
 
-const DialogBox = props => {
+const DialogBox = ({
+  chatPreview,
+  getTimeStr,
+  changeFavorite,
+  changeBlackList,
+  catalogOperation,
+  goToExpandedDialog,
+  chatMode,
+  interlocutor,
+}) => {
   const {
-    chatPreview,
-    getTimeStr,
-    changeFavorite,
-    changeBlackList,
-    catalogOperation,
-    goToExpandedDialog,
-    chatMode,
-    interlocutor,
-  } = props;
-  const { favoriteList, blacklist, id, text, createAt } = chatPreview;
+    favoriteList = false,
+    blacklist = false,
+    id,
+    text,
+    createAt,
+    unreadCount = 0,
+  } = chatPreview;
 
-  const isFavorite = favoriteList ?? false;
-  const isBlocked = blacklist ?? false;
+  const { firstName, avatar = 'anon.png' } = interlocutor || {};
+
+  const avatarUrl =
+    avatar === 'anon.png'
+      ? CONSTANTS.ANONYM_IMAGE_PATH
+      : `${CONSTANTS.publicURL}${avatar}`;
+
+  const handleOpenDialog = () => {
+    goToExpandedDialog({
+      interlocutor,
+      conversationData: { id, blacklist, favoriteList },
+    });
+  };
 
   return (
-    <div
-      className={styles.previewChatBox}
-      onClick={() =>
-        goToExpandedDialog({
-          interlocutor,
-          conversationData: {
-            id,
-            blacklist,
-            favoriteList,
-          },
-        })
-      }
-    >
-      <img
-        src={
-          interlocutor?.avatar === 'anon.png'
-            ? CONSTANTS.ANONYM_IMAGE_PATH
-            : `${CONSTANTS.publicURL}${interlocutor?.avatar}`
-        }
-        alt='user'
-      />
+    <div className={styles.previewChatBox} onClick={handleOpenDialog}>
+      <img src={avatarUrl} alt='user' />
 
       <div className={styles.infoContainer}>
         <div className={styles.interlocutorInfo}>
-          <span className={styles.interlocutorName}>
-            {interlocutor?.firstName}
-          </span>
+          <span className={styles.interlocutorName}>{firstName}</span>
           <span className={styles.interlocutorMessage}>{text}</span>
-          {chatPreview.unreadCount > 0 && (
-            <div className={styles.unreadBadge}>{chatPreview.unreadCount}</div>
+          {unreadCount > 0 && (
+            <div className={styles.unreadBadge}>{unreadCount}</div>
           )}
         </div>
+
         <div className={styles.buttonsContainer}>
           <span className={styles.time}>{getTimeStr(createAt)}</span>
+
           <i
-            onClick={event => changeFavorite(chatPreview, event)}
+            onClick={e => changeFavorite(chatPreview, e)}
             className={classNames({
-              'far fa-heart': !isFavorite,
-              'fas fa-heart': isFavorite,
+              'far fa-heart': !favoriteList,
+              'fas fa-heart': favoriteList,
             })}
           />
 
           <i
-            onClick={event => changeBlackList(chatPreview, event)}
+            onClick={e => changeBlackList(chatPreview, e)}
             className={classNames({
-              'fas fa-user-lock': !isBlocked,
-              'fas fa-unlock': isBlocked,
+              'fas fa-user-lock': !blacklist,
+              'fas fa-unlock': blacklist,
             })}
           />
 
           <i
-            onClick={event => catalogOperation(event, id)}
+            onClick={e => catalogOperation(e, id)}
             className={classNames({
               'far fa-plus-square':
                 chatMode !== CONSTANTS.CATALOG_PREVIEW_CHAT_MODE,
