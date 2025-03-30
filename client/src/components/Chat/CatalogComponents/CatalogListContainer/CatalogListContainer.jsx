@@ -25,10 +25,6 @@ class CatalogListContainer extends React.Component {
     const dialogsInCatalog = messagesPreview.filter(dialog =>
       chats.includes(dialog.id)
     );
-
-    console.log('🧠 messagesPreview:', messagesPreview);
-    console.log('📚 catalog chats:', chats);
-    console.log('🎯 result:', dialogsInCatalog);
     return dialogsInCatalog;
   };
 

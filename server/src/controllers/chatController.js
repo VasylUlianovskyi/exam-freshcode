@@ -430,13 +430,25 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
 
 module.exports.removeChatFromCatalog = async (req, res, next) => {
   try {
+    const { catalogId, chatId } = req.body;
+
     await db.CatalogConversations.destroy({
       where: {
-        catalogId: req.body.catalogId,
-        conversationId: req.body.chatId,
+        catalogId,
+        conversationId: chatId,
       },
     });
-    res.send({ success: true });
+
+    const updatedCatalog = await db.Catalogs.findByPk(catalogId, {
+      include: [
+        {
+          model: db.Conversations,
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    res.status(200).send(updatedCatalog);
   } catch (err) {
     next(err);
   }
