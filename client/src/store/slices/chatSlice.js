@@ -76,12 +76,24 @@ export const getDialogMessages = decorateAsyncThunk({
 const getDialogMessagesExtraReducers = createExtraReducers({
   thunk: getDialogMessages,
   fulfilledReducer: (state, { payload }) => {
-    state.messages = payload.messages;
-    state.interlocutor = payload.interlocutor;
+    const { messages, interlocutor, conversationId } = payload;
+
+    state.messages = messages;
+    state.interlocutor = interlocutor;
     state.chatData = {
       ...(state.chatData || {}),
-      id: payload.conversationId,
+      id: conversationId,
     };
+
+    state.messagesPreview = state.messagesPreview.map(preview => {
+      if (preview.id === conversationId) {
+        return {
+          ...preview,
+          unreadCount: 0,
+        };
+      }
+      return preview;
+    });
   },
 });
 

@@ -2,6 +2,10 @@ const jwt = require('jsonwebtoken');
 const CONSTANTS = require('../../constants');
 
 class WebSocket {
+  constructor () {
+    this.activeChats = new Map();
+  }
+
   connect (namespace, io) {
     this.io = io.of(namespace);
     this.listen();
@@ -17,8 +21,23 @@ class WebSocket {
           const userId = decoded.userId;
 
           if (userId) {
+            socket.userId = userId;
             socket.join(userId);
             console.log(`User ${userId} joined their room`);
+
+            socket.on('setActiveChat', ({ conversationId }) => {
+              if (conversationId) {
+                this.activeChats.set(userId, conversationId);
+                console.log(`User ${userId} is viewing chat ${conversationId}`);
+              } else {
+                this.activeChats.delete(userId);
+                console.log(`User ${userId} left chat`);
+              }
+            });
+
+            socket.on('disconnect', () => {
+              this.activeChats.delete(userId);
+            });
           }
         } catch (err) {
           console.error('Token verification failed:', err.message);

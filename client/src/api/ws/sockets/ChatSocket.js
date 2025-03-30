@@ -24,9 +24,24 @@ class ChatSocket extends WebSocket {
 
   onNewMessage = () => {
     this.socket.on('newMessage', ({ message, preview }) => {
+      const { chatData, userId } = this.getState().chatStore;
+      const isChatOpened =
+        chatData?.id === message.conversationId && message.senderId !== userId;
+
+      if (isChatOpened) {
+        message.isRead = true;
+        preview.unreadCount = 0;
+      }
+
       this.dispatch(addMessage({ message, preview }));
     });
+
     this.dispatch(getPreviewChat());
+  };
+
+  setActiveChat = conversationId => {
+    if (!this.socket) return;
+    this.socket.emit('setActiveChat', { conversationId });
   };
 
   subscribeChat = id => {
