@@ -42,8 +42,20 @@ const DialogBox = ({
 
       <div className={styles.infoContainer}>
         <div className={styles.interlocutorInfo}>
-          <span className={styles.interlocutorName}>{firstName}</span>
-          <span className={styles.interlocutorMessage}>{text}</span>
+          <span
+            className={classNames(styles.interlocutorName, {
+              [styles.bold]: unreadCount > 0,
+            })}
+          >
+            {firstName}
+          </span>
+          <span
+            className={classNames(styles.interlocutorMessage, {
+              [styles.bold]: unreadCount > 0,
+            })}
+          >
+            {text}
+          </span>
           {unreadCount > 0 && (
             <div className={styles.unreadBadge}>{unreadCount}</div>
           )}
