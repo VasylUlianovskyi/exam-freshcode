@@ -342,20 +342,33 @@ module.exports.favoriteChat = async (req, res, next) => {
   }
 };
 
+//// CATALOGS CONTROLLER
+
 module.exports.createCatalog = async (req, res, next) => {
   try {
+    const { catalogName, chatId } = req.body;
+    const { userId } = req.tokenData;
+
     const catalog = await db.Catalogs.create({
-      userId: req.tokenData.userId,
-      catalogName: req.body.catalogName,
+      userId,
+      catalogName,
     });
 
-    await db.CatalogConversations.create({
-      catalogId: catalog.id,
-      conversationId: req.body.chatId,
-    });
+    if (chatId) {
+      const chatExists = await db.Conversations.findByPk(chatId);
+      if (!chatExists) {
+        return res.status(400).send({ message: 'Chat not found' });
+      }
 
-    res.send(catalog);
+      await db.CatalogConversations.create({
+        catalogId: catalog.id,
+        conversationId: chatId,
+      });
+    }
+
+    res.status(201).send(catalog);
   } catch (err) {
+    console.error('createCatalog error:', err); // <<< додай це обов’язково
     next(err);
   }
 };

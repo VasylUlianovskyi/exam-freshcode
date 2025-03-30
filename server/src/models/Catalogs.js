@@ -1,9 +1,12 @@
-const { underscoredIf } = require('sequelize/lib/utils');
-
 module.exports = (sequelize, DataTypes) => {
   const Catalogs = sequelize.define(
     'Catalogs',
     {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,

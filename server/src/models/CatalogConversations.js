@@ -2,6 +2,11 @@ module.exports = (sequelize, DataTypes) => {
   const CatalogConversations = sequelize.define(
     'CatalogConversations',
     {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       catalogId: {
         type: DataTypes.INTEGER,
         allowNull: false,
