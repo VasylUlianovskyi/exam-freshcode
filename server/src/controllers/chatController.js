@@ -278,7 +278,6 @@ module.exports.blackList = async (req, res, next) => {
 
     res.send({ conversation: updatedParticipant });
   } catch (err) {
-    console.error('Blacklist update error:', err);
     next(err);
   }
 };
@@ -368,7 +367,6 @@ module.exports.createCatalog = async (req, res, next) => {
 
     res.status(201).send(catalog);
   } catch (err) {
-    console.error('createCatalog error:', err);
     next(err);
   }
 };
@@ -398,7 +396,15 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
       return res.status(400).send({ message: 'Missing catalogId or chatId' });
     }
 
-    const catalog = await db.Catalogs.findByPk(catalogId);
+    const catalog = await db.Catalogs.findByPk(catalogId, {
+      include: [
+        {
+          model: db.Conversations,
+          through: { attributes: [] },
+        },
+      ],
+    });
+
     if (!catalog) {
       return res.status(404).send({ message: 'Catalog not found' });
     }
@@ -413,7 +419,11 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
     });
 
     if (existing) {
-      return res.send({ success: false, message: 'Chat already in catalog' });
+      return res.status(200).send({
+        success: false,
+        message: 'Chat already in catalog',
+        catalogName: catalog.catalogName,
+      });
     }
 
     await db.CatalogConversations.create({
@@ -421,9 +431,22 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
       conversationId: chatId,
     });
 
-    res.send({ success: true });
+    const updatedCatalog = await db.Catalogs.findByPk(catalogId, {
+      include: [
+        {
+          model: db.Conversations,
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    res.send({
+      success: true,
+      id: updatedCatalog.id,
+      catalogName: updatedCatalog.catalogName,
+      Conversations: updatedCatalog.Conversations,
+    });
   } catch (err) {
-    console.error('addNewChatToCatalog error:', err);
     next(err);
   }
 };
@@ -478,7 +501,6 @@ module.exports.deleteCatalog = async (req, res, next) => {
 
     res.send({ success: true });
   } catch (err) {
-    console.error('deleteCatalog error:', err);
     next(err);
   }
 };

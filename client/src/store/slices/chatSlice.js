@@ -246,7 +246,7 @@ const addChatToCatalogExtraReducers = createExtraReducers({
   thunk: addChatToCatalog,
   fulfilledReducer: (state, { payload }) => {
     if (!payload.success && payload.message === 'Chat already in catalog') {
-      alert('Chat already in this catalog');
+      alert(`Chat already exits in ${payload.catalogName} catalog`);
       state.isShowCatalogCreation = false;
       return;
     }
@@ -259,6 +259,8 @@ const addChatToCatalogExtraReducers = createExtraReducers({
         break;
       }
     }
+
+    alert(`Chat added to ${payload.catalogName} catalog`);
 
     state.catalogList = [...catalogList];
     state.isShowCatalogCreation = false;
