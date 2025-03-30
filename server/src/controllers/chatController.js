@@ -413,7 +413,7 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
     });
 
     if (existing) {
-      return res.status(409).send({ message: 'Chat already in catalog' });
+      return res.send({ success: false, message: 'Chat already in catalog' });
     }
 
     await db.CatalogConversations.create({

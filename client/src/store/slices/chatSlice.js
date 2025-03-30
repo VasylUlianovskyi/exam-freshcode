@@ -230,25 +230,40 @@ const getCatalogListExtraReducers = createExtraReducers({
 //---------- addChatToCatalog
 export const addChatToCatalog = decorateAsyncThunk({
   key: `${CHAT_SLICE_NAME}/addChatToCatalog`,
-  thunk: async payload => {
-    const { data } = await restController.addChatToCatalog(payload);
-    return data;
+  thunk: async (payload, thunkAPI) => {
+    try {
+      const { data } = await restController.addChatToCatalog(payload);
+      return data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data || { message: 'Unexpected error' }
+      );
+    }
   },
 });
 
 const addChatToCatalogExtraReducers = createExtraReducers({
   thunk: addChatToCatalog,
   fulfilledReducer: (state, { payload }) => {
+    if (!payload.success && payload.message === 'Chat already in catalog') {
+      alert('Chat already in this catalog');
+      state.isShowCatalogCreation = false;
+      return;
+    }
+
     const { catalogList } = state;
+
     for (let i = 0; i < catalogList.length; i++) {
-      if (catalogList[i]._id === payload._id) {
+      if (catalogList[i].id === payload.id) {
         catalogList[i].chats = payload.chats;
         break;
       }
     }
-    state.isShowCatalogCreation = false;
+
     state.catalogList = [...catalogList];
+    state.isShowCatalogCreation = false;
   },
+
   rejectedReducer: (state, { payload }) => {
     state.error = payload;
     state.isShowCatalogCreation = false;
