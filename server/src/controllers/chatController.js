@@ -373,16 +373,29 @@ module.exports.createCatalog = async (req, res, next) => {
 
 module.exports.updateNameCatalog = async (req, res, next) => {
   try {
-    const updated = await db.Catalogs.update(
-      { catalogName: req.body.catalogName },
+    const { catalogId, catalogName } = req.body;
+    const { userId } = req.tokenData;
+
+    await db.Catalogs.update(
+      { catalogName },
       {
         where: {
-          id: req.body.catalogId,
-          userId: req.tokenData.userId,
+          id: catalogId,
+          userId,
         },
       }
     );
-    res.send(updated);
+
+    const updatedCatalog = await db.Catalogs.findByPk(catalogId, {
+      include: [
+        {
+          model: db.Conversations,
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    res.status(200).send(updatedCatalog);
   } catch (err) {
     next(err);
   }
