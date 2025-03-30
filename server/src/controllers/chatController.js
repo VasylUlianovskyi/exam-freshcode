@@ -368,7 +368,7 @@ module.exports.createCatalog = async (req, res, next) => {
 
     res.status(201).send(catalog);
   } catch (err) {
-    console.error('createCatalog error:', err); // <<< додай це обов’язково
+    console.error('createCatalog error:', err);
     next(err);
   }
 };
@@ -392,12 +392,38 @@ module.exports.updateNameCatalog = async (req, res, next) => {
 
 module.exports.addNewChatToCatalog = async (req, res, next) => {
   try {
-    await db.CatalogConversations.create({
-      catalogId: req.body.catalogId,
-      conversationId: req.body.chatId,
+    const { catalogId, chatId } = req.body;
+
+    if (!catalogId || !chatId) {
+      return res.status(400).send({ message: 'Missing catalogId or chatId' });
+    }
+
+    const catalog = await db.Catalogs.findByPk(catalogId);
+    if (!catalog) {
+      return res.status(404).send({ message: 'Catalog not found' });
+    }
+
+    const conversation = await db.Conversations.findByPk(chatId);
+    if (!conversation) {
+      return res.status(404).send({ message: 'Chat not found' });
+    }
+
+    const existing = await db.CatalogConversations.findOne({
+      where: { catalogId, conversationId: chatId },
     });
+
+    if (existing) {
+      return res.status(409).send({ message: 'Chat already in catalog' });
+    }
+
+    await db.CatalogConversations.create({
+      catalogId,
+      conversationId: chatId,
+    });
+
     res.send({ success: true });
   } catch (err) {
+    console.error('addNewChatToCatalog error:', err);
     next(err);
   }
 };
@@ -418,14 +444,29 @@ module.exports.removeChatFromCatalog = async (req, res, next) => {
 
 module.exports.deleteCatalog = async (req, res, next) => {
   try {
-    await db.Catalogs.destroy({
+    const { catalogId } = req.body;
+    const { userId } = req.tokenData;
+
+    if (!catalogId) {
+      return res.status(400).send({ message: 'catalogId is required' });
+    }
+
+    const deletedCount = await db.Catalogs.destroy({
       where: {
-        id: req.body.catalogId,
-        userId: req.tokenData.userId,
+        id: catalogId,
+        userId,
       },
     });
-    res.end();
+
+    if (deletedCount === 0) {
+      return res
+        .status(404)
+        .send({ message: 'Catalog not found or not yours' });
+    }
+
+    res.send({ success: true });
   } catch (err) {
+    console.error('deleteCatalog error:', err);
     next(err);
   }
 };
