@@ -12,7 +12,7 @@ const Catalog = props => {
       <span className={styles.catalogName}>{catalogName}</span>
       <div className={styles.infoContainer}>
         <span>Chats number: </span>
-        <span className={styles.numbers}>{Conversations.length}</span>
+        <span className={styles.numbers}>{Conversations?.length || 0}</span>
         <i
           className='fas fa-trash-alt'
           onClick={event => deleteCatalog(event, id)}
