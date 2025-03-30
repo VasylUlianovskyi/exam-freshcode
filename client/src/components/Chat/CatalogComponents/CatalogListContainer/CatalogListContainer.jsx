@@ -8,31 +8,31 @@ import CatalogList from '../CatalogList/CatalogList';
 import DialogList from '../../DialogComponents/DialogList/DialogList';
 
 class CatalogListContainer extends React.Component {
-  componentDidMount() {
+  componentDidMount () {
     this.props.getCatalogList();
   }
 
   removeChatFromCatalog = (event, chatId) => {
-    const { _id } = this.props.chatStore.currentCatalog;
-    this.props.removeChatFromCatalog({ chatId, catalogId: _id });
+    const { id } = this.props.chatStore.currentCatalog;
+    this.props.removeChatFromCatalog({ chatId, catalogId: id });
     event.stopPropagation();
   };
 
   getDialogsPreview = () => {
     const { messagesPreview, currentCatalog } = this.props.chatStore;
-    const { chats } = currentCatalog;
-    const dialogsInCatalog = [];
-    for (let i = 0; i < messagesPreview.length; i++) {
-      for (let j = 0; j < chats.length; j++) {
-        if (chats[j] === messagesPreview[i]._id) {
-          dialogsInCatalog.push(messagesPreview[i]);
-        }
-      }
-    }
+    const chats = currentCatalog?.Conversations?.map(chat => chat.id) || [];
+
+    const dialogsInCatalog = messagesPreview.filter(dialog =>
+      chats.includes(dialog.id)
+    );
+
+    console.log('🧠 messagesPreview:', messagesPreview);
+    console.log('📚 catalog chats:', chats);
+    console.log('🎯 result:', dialogsInCatalog);
     return dialogsInCatalog;
   };
 
-  render() {
+  render () {
     const { catalogList, isShowChatsInCatalog } = this.props.chatStore;
     const { id } = this.props.userStore.data;
     return (
@@ -51,14 +51,14 @@ class CatalogListContainer extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const { chatStore, userStore } = state;
   return { chatStore, userStore };
 };
 
-const mapDispatchToProps = (dispatch) => ({
-  getCatalogList: (data) => dispatch(getCatalogList(data)),
-  removeChatFromCatalog: (data) => dispatch(removeChatFromCatalog(data)),
+const mapDispatchToProps = dispatch => ({
+  getCatalogList: data => dispatch(getCatalogList(data)),
+  removeChatFromCatalog: data => dispatch(removeChatFromCatalog(data)),
 });
 
 export default connect(
