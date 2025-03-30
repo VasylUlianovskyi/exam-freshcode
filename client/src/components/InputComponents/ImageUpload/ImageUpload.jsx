@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useField, useFormikContext } from 'formik';
 import classNames from 'classnames';
 
 const ImageUpload = ({ name, classes }) => {
   const [field, meta] = useField(name);
-  const { setFieldValue } = useFormikContext();
+  const { setFieldValue, values } = useFormikContext();
   const { uploadContainer, inputContainer, imgStyle } = classes;
   const [preview, setPreview] = useState(null);
 
@@ -26,6 +26,12 @@ const ImageUpload = ({ name, classes }) => {
     reader.onload = () => setPreview(reader.result);
     reader.readAsDataURL(file);
   };
+
+  useEffect(() => {
+    if (!values[name]) {
+      setPreview(null);
+    }
+  }, [values[name]]);
 
   return (
     <div className={uploadContainer}>

@@ -181,7 +181,7 @@ const OfferBox = props => {
                 })
               }
               className={styles.responseLogo}
-              src={`${CONSTANTS.publicURL}${data.fileName}`}
+              src={`${CONSTANTS.publicURL}/images/${data.fileName}`}
               alt='logo'
             />
           ) : (
