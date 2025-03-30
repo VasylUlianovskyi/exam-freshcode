@@ -471,7 +471,11 @@ module.exports.removeChatFromCatalog = async (req, res, next) => {
       ],
     });
 
-    res.status(200).send(updatedCatalog);
+    res.status(200).send({
+      id: updatedCatalog.id,
+      catalogName: updatedCatalog.catalogName,
+      Conversations: updatedCatalog.Conversations,
+    });
   } catch (err) {
     next(err);
   }
