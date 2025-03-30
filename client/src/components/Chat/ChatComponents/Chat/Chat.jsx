@@ -29,16 +29,19 @@ class Chat extends React.Component {
     this.props.getPreviewChat();
   }
 
-  componentWillUnmount () {
-    chatController.unsubscribeChat(this.props.userStore.data.id);
-  }
-
   componentDidUpdate (prevProps) {
     if (
       !prevProps.chatStore.chatData?.id &&
       this.props.chatStore.chatData?.id
     ) {
       chatController.subscribeChat(this.props.chatStore.chatData.id);
+    }
+
+    if (
+      prevProps.chatStore.messagesPreview.length === 0 &&
+      this.props.chatStore.messagesPreview.length > 0
+    ) {
+      chatController.subscribeToAllChats(this.props.chatStore.messagesPreview);
     }
   }
 

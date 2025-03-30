@@ -46,6 +46,16 @@ class ChatSocket extends WebSocket {
   unsubscribeChat = conversationId => {
     this.socket.emit('unsubscribeChat', conversationId);
   };
+
+  subscribeToAllChats = previews => {
+    if (!this.socket || !Array.isArray(previews)) return;
+
+    previews.forEach(preview => {
+      if (preview?.id) {
+        this.socket.emit('subscribeChat', preview.id);
+      }
+    });
+  };
 }
 
 export default ChatSocket;

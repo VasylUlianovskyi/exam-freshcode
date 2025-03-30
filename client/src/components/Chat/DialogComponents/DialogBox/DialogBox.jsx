@@ -5,6 +5,7 @@ import CONSTANTS from '../../../../constants';
 
 const DialogBox = ({
   chatPreview,
+  unreadCount,
   getTimeStr,
   changeFavorite,
   changeBlackList,
@@ -19,7 +20,6 @@ const DialogBox = ({
     id,
     text,
     createAt,
-    unreadCount = 0,
   } = chatPreview;
 
   const { firstName, avatar = 'anon.png' } = interlocutor || {};

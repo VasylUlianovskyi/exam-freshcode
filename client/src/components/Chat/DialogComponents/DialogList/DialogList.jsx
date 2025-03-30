@@ -86,11 +86,9 @@ const DialogList = ({
   const renderPreview = filterFunc => {
     const list = preview
       .filter(chat => {
-        if (chat.interlocutor?.id === userId) return false;
         if (filterFunc && !filterFunc(chat)) return false;
         return true;
       })
-
       .sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
 
     if (!list.length) {
@@ -99,9 +97,10 @@ const DialogList = ({
 
     return list.map(chatPreview => (
       <DialogBox
-        key={`${chatPreview.id}-${chatPreview.favoriteList}-${chatPreview.blacklist}`}
+        key={chatPreview.id}
         interlocutor={chatPreview.interlocutor}
         chatPreview={chatPreview}
+        unreadCount={chatPreview.unreadCount}
         getTimeStr={getTimeStr}
         changeFavorite={changeFavorite}
         changeBlackList={changeBlackList}

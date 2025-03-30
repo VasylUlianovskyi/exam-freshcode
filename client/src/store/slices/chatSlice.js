@@ -397,42 +397,38 @@ const reducers = {
 
     const { messagesPreview, userId } = state;
 
-    let isNew = true;
-
+    let found = false;
     const updatedPreviews = messagesPreview.map(p => {
       if (p.id === message.conversationId) {
-        isNew = false;
+        found = true;
+
+        const shouldIncrementUnread =
+          !message.isRead && message.senderId !== userId;
+
         return {
           ...p,
           text: message.body,
           sender: message.senderId,
           createAt: message.createdAt,
-          unreadCount:
-            !message.isRead && message.senderId !== userId
-              ? (p.unreadCount || 0) + 1
-              : p.unreadCount || 0,
+          unreadCount: shouldIncrementUnread
+            ? (p.unreadCount || 0) + 1
+            : p.unreadCount || 0,
         };
       }
       return p;
     });
 
-    if (isNew && preview) {
-      const exists = updatedPreviews.some(
-        p => p.interlocutor?.id === preview.interlocutor?.id
-      );
-
-      if (!exists && preview.interlocutor?.id !== userId) {
-        updatedPreviews.push({
-          ...preview,
-          text: message.body,
-          sender: message.senderId,
-          createAt: message.createdAt,
-          unreadCount: !message.isRead && message.senderId !== userId ? 1 : 0,
-        });
-      }
+    if (!found && preview && preview.interlocutor?.id !== userId) {
+      updatedPreviews.push({
+        ...preview,
+        text: message.body,
+        sender: message.senderId,
+        createAt: message.createdAt,
+        unreadCount: !message.isRead && message.senderId !== userId ? 1 : 0,
+      });
     }
 
-    state.messagesPreview = [...updatedPreviews];
+    state.messagesPreview = updatedPreviews;
     state.messages.push(message);
   },
 

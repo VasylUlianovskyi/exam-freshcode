@@ -143,6 +143,17 @@ module.exports.getChat = async (req, res, next) => {
       conversation = newConversation;
     }
 
+    await db.Messages.update(
+      { isRead: true },
+      {
+        where: {
+          conversationId: conversation.id,
+          isRead: false,
+          senderId: interlocutorId,
+        },
+      }
+    );
+
     const messages = await db.Messages.findAll({
       where: { conversationId: conversation.id },
       order: [['createdAt', 'ASC']],
@@ -204,6 +215,14 @@ module.exports.getPreview = async (req, res, next) => {
           p => p.userId === userId
         );
 
+        const unreadCount = await db.Messages.count({
+          where: {
+            conversationId: convo.id,
+            senderId: { [db.Sequelize.Op.ne]: userId },
+            isRead: false,
+          },
+        });
+
         return {
           id: convo.id,
           sender: lastMessage?.senderId || null,
@@ -213,10 +232,10 @@ module.exports.getPreview = async (req, res, next) => {
           blacklist: currentParticipant?.blacklist || false,
           favoriteList: currentParticipant?.favoriteList || false,
           interlocutor,
+          unreadCount,
         };
       })
     );
-
     res.send(previews);
   } catch (err) {
     next(err);
