@@ -9,7 +9,7 @@ router.post('/getChat', checkToken.checkToken, chatController.getChat);
 
 router.post('/getPreview', checkToken.checkToken, chatController.getPreview);
 
-router.post('/blackList', checkToken.checkToken, chatController.blackList);
+router.post('/blacklist', checkToken.checkToken, chatController.blackList);
 
 router.post('/favorite', checkToken.checkToken, chatController.favoriteChat);
 

@@ -225,24 +225,16 @@ module.exports.getPreview = async (req, res, next) => {
 
 module.exports.blackList = async (req, res, next) => {
   const { userId } = req.tokenData;
-  const { interlocutorId, blackListFlag, conversationId } = req.body;
+  const { interlocutorId, blacklistFlag, conversationId } = req.body;
 
   try {
     let conversation;
-
     if (conversationId) {
       conversation = await db.Conversations.findOne({
         where: { id: conversationId },
-        include: [
-          {
-            model: db.ConversationParticipants,
-            as: 'participants',
-            where: { userId: [userId, interlocutorId] },
-          },
-        ],
       });
     } else {
-      conversation = await db.Conversations.findOne({
+      const possibleConversations = await db.Conversations.findAll({
         include: [
           {
             model: db.ConversationParticipants,
@@ -250,9 +242,11 @@ module.exports.blackList = async (req, res, next) => {
             where: { userId: [userId, interlocutorId] },
           },
         ],
-        group: ['Conversations.id'],
-        having: db.Sequelize.literal('COUNT(*) = 2'),
       });
+
+      conversation = possibleConversations.find(
+        c => c.participants?.length === 2
+      );
     }
 
     if (!conversation) {
@@ -260,7 +254,7 @@ module.exports.blackList = async (req, res, next) => {
     }
 
     const [updatedCount] = await db.ConversationParticipants.update(
-      { blacklist: blackListFlag },
+      { blacklist: blacklistFlag },
       {
         where: {
           userId,
@@ -268,6 +262,12 @@ module.exports.blackList = async (req, res, next) => {
         },
       }
     );
+
+    if (updatedCount === 0) {
+      return res
+        .status(500)
+        .send({ message: 'Failed to update blacklist status' });
+    }
 
     const updatedParticipant = await db.ConversationParticipants.findOne({
       where: {
@@ -278,6 +278,7 @@ module.exports.blackList = async (req, res, next) => {
 
     res.send({ conversation: updatedParticipant });
   } catch (err) {
+    console.error('Blacklist update error:', err);
     next(err);
   }
 };
