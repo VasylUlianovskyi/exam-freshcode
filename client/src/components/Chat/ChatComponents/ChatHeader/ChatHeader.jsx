@@ -14,7 +14,6 @@ const ChatHeader = () => {
 
   const chatData = useSelector(state => state.chatStore.chatData);
   const interlocutor = useSelector(state => state.chatStore.interlocutor);
-  console.log(chatData);
   if (!interlocutor) {
     return (
       <div className={styles.chatHeader}>
