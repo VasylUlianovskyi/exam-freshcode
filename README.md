@@ -1,10 +1,10 @@
-# **Project: [Project Name]**
+# **Project: [Exam Freshcode Project]**
 
-## 🚀 Local Development Setup
+## Local Development Setup
 
 This project uses Docker Compose for local development.
 
-### 🧼 One-Time Environment Reset (First-Time Setup)
+### One-Time Environment Reset (First-Time Setup)
 
 - If you previously build this project with command "docker compose -f docker-compose-dev.yaml up --build" you must clean up images and container, otherwise, an errors may occur when creating new database tables
 
@@ -27,8 +27,6 @@ This project uses Docker Compose for local development.
       docker compose -f docker-compose-dev.yaml up --build
   ```
 
-````
-
 The application is available at: `http://localhost:3000`
 
 - To check the container status:
@@ -40,8 +38,6 @@ The application is available at: `http://localhost:3000`
     docker compose -f docker-compose-dev.yaml down -v
   ```
 
----
-
 ## **Environment Variables**
 
 POSTGRES_USER=postgres
@@ -51,22 +47,18 @@ POSTGRES_DB=freshcode-exam-project
 API_ENDPOINT=http://localhost:3000
 
 ```
-In `.env` at the project root (`docker-compose-dev.yaml`):
+  In `.env` at the project root (`docker-compose-dev.yaml`):
 ```
 
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=freshcode-exam-project
 
----
-
 ## **Bug Fixes**
 
 - Fixed bugs and updated all libraries.
 - Converted class components to functional components.
 - Removed unused imports and libraries.
-
----
 
 ## **Layout**
 
@@ -123,4 +115,7 @@ POSTGRES_DB=freshcode-exam-project
 - **Refactored API requests** for unified controller structure.
 
 ---
-````
+
+```
+
+```
