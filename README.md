@@ -1,12 +1,36 @@
 # **Project: [Project Name]**
 
+## 🚀 Local Development Setup
+
+This project uses Docker Compose for local development.
+
+### 🧼 One-Time Environment Reset (First-Time Setup)
+
+- If you previously build this project with command "docker compose -f docker-compose-dev.yaml up --build" you must clean up images and container, otherwise, an errors may occur when creating new database tables
+
+- Run the following script to reset the environment:
+
+```bash
+      ./reset-dev.sh
+```
+
+- If you have permission denied log use:
+
+```
+    chmod +x reset-dev.sh
+```
+
 ## **Running Docker Containers in Development Mode**
 
 - Command to build images and start containers:
   ```bash
       docker compose -f docker-compose-dev.yaml up --build
   ```
-  The application is available at: `http://localhost:3000`
+
+````
+
+The application is available at: `http://localhost:3000`
+
 - To check the container status:
   ```bash
       sudo docker container inspect exam-freshcode-front-react
@@ -99,3 +123,4 @@ POSTGRES_DB=freshcode-exam-project
 - **Refactored API requests** for unified controller structure.
 
 ---
+````
