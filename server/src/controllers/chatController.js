@@ -1,6 +1,7 @@
 const moment = require('moment');
 const db = require('../models');
-const userQueries = require('./queries/userQueries');
+const chatQueries = require('./queries/chatQueries');
+
 const controller = require('../socketInit');
 const _ = require('lodash');
 
@@ -9,48 +10,10 @@ module.exports.addMessage = async (req, res, next) => {
   const { recipient, messageBody } = req.body;
 
   try {
-    const allConversations = await db.Conversations.findAll({
-      include: [
-        {
-          model: db.ConversationParticipants,
-          as: 'participants',
-          where: { userId },
-        },
-      ],
-    });
-
-    let conversation = null;
-
-    for (const convo of allConversations) {
-      const participants = await convo.getParticipants();
-      const participantIds = participants.map(p => p.userId);
-
-      if (
-        participantIds.length === 2 &&
-        participantIds.includes(userId) &&
-        participantIds.includes(recipient)
-      ) {
-        conversation = convo;
-        conversation.participants = participants;
-        break;
-      }
-    }
-
-    if (!conversation) {
-      const newConversation = await db.Conversations.create();
-
-      await db.ConversationParticipants.bulkCreate([
-        { userId, conversationId: newConversation.id },
-        { userId: recipient, conversationId: newConversation.id },
-      ]);
-
-      const participants = await db.ConversationParticipants.findAll({
-        where: { conversationId: newConversation.id },
-      });
-
-      conversation = newConversation;
-      conversation.participants = participants;
-    }
+    const conversation = await chatQueries.getOrCreateConversation(
+      userId,
+      recipient
+    );
 
     const message = await db.Messages.create({
       senderId: userId,
@@ -59,16 +22,7 @@ module.exports.addMessage = async (req, res, next) => {
       isRead: false,
     });
 
-    const recipientData = await db.Users.findByPk(recipient, {
-      attributes: [
-        'id',
-        'firstName',
-        'lastName',
-        'displayName',
-        'avatar',
-        'email',
-      ],
-    });
+    const recipientData = await chatQueries.getUserPreview(recipient);
 
     const senderParticipant = conversation.participants.find(
       p => p.userId === userId
@@ -106,42 +60,10 @@ module.exports.getChat = async (req, res, next) => {
   const { interlocutorId } = req.body;
 
   try {
-    const allConversations = await db.Conversations.findAll({
-      include: [
-        {
-          model: db.ConversationParticipants,
-          as: 'participants',
-          where: { userId },
-        },
-      ],
-    });
-
-    let conversation = null;
-
-    for (const convo of allConversations) {
-      const participants = await convo.getParticipants();
-      const participantIds = participants.map(p => p.userId);
-
-      if (
-        participantIds.length === 2 &&
-        participantIds.includes(userId) &&
-        participantIds.includes(interlocutorId)
-      ) {
-        conversation = convo;
-        break;
-      }
-    }
-
-    if (!conversation) {
-      const newConversation = await db.Conversations.create();
-
-      await db.ConversationParticipants.bulkCreate([
-        { userId, conversationId: newConversation.id },
-        { userId: interlocutorId, conversationId: newConversation.id },
-      ]);
-
-      conversation = newConversation;
-    }
+    const conversation = await chatQueries.getOrCreateConversation(
+      userId,
+      interlocutorId
+    );
 
     await db.Messages.update(
       { isRead: true },
@@ -159,9 +81,7 @@ module.exports.getChat = async (req, res, next) => {
       order: [['createdAt', 'ASC']],
     });
 
-    const interlocutor = await db.Users.findByPk(interlocutorId, {
-      attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
-    });
+    const interlocutor = await chatQueries.getUserPreview(interlocutorId);
 
     res.send({
       messages,
@@ -206,22 +126,16 @@ module.exports.getPreview = async (req, res, next) => {
         const lastMessage = convo.Messages[0] || null;
         const participantIds = convo.participants.map(p => p.userId);
         const interlocutorId = participantIds.find(id => id !== userId);
-
-        const interlocutor = await db.Users.findByPk(interlocutorId, {
-          attributes: ['id', 'firstName', 'lastName', 'displayName', 'avatar'],
-        });
+        const interlocutor = await chatQueries.getUserPreview(interlocutorId);
 
         const currentParticipant = convo.participants.find(
           p => p.userId === userId
         );
 
-        const unreadCount = await db.Messages.count({
-          where: {
-            conversationId: convo.id,
-            senderId: { [db.Sequelize.Op.ne]: userId },
-            isRead: false,
-          },
-        });
+        const unreadCount = await chatQueries.getUnreadMessageCount(
+          convo.id,
+          userId
+        );
 
         return {
           id: convo.id,
@@ -236,6 +150,7 @@ module.exports.getPreview = async (req, res, next) => {
         };
       })
     );
+
     res.send(previews);
   } catch (err) {
     next(err);
@@ -247,55 +162,28 @@ module.exports.blackList = async (req, res, next) => {
   const { interlocutorId, blacklistFlag, conversationId } = req.body;
 
   try {
-    let conversation;
-    if (conversationId) {
-      conversation = await db.Conversations.findOne({
-        where: { id: conversationId },
-      });
-    } else {
-      const possibleConversations = await db.Conversations.findAll({
-        include: [
-          {
-            model: db.ConversationParticipants,
-            as: 'participants',
-            where: { userId: [userId, interlocutorId] },
-          },
-        ],
-      });
-
-      conversation = possibleConversations.find(
-        c => c.participants?.length === 2
-      );
-    }
+    const conversation = conversationId
+      ? await db.Conversations.findOne({ where: { id: conversationId } })
+      : await chatQueries.getOrCreateConversation(userId, interlocutorId);
 
     if (!conversation) {
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
-    const [updatedCount] = await db.ConversationParticipants.update(
-      { blacklist: blacklistFlag },
-      {
-        where: {
-          userId,
-          conversationId: conversation.id,
-        },
-      }
+    const updated = await chatQueries.updateParticipantFlag(
+      userId,
+      conversation.id,
+      'blacklist',
+      blacklistFlag
     );
 
-    if (updatedCount === 0) {
+    if (!updated) {
       return res
         .status(500)
         .send({ message: 'Failed to update blacklist status' });
     }
 
-    const updatedParticipant = await db.ConversationParticipants.findOne({
-      where: {
-        userId,
-        conversationId: conversation.id,
-      },
-    });
-
-    res.send({ conversation: updatedParticipant });
+    res.send({ conversation: updated });
   } catch (err) {
     next(err);
   }
@@ -306,55 +194,28 @@ module.exports.favoriteChat = async (req, res, next) => {
   const { interlocutorId, favoriteFlag, conversationId } = req.body;
 
   try {
-    let conversation;
-
-    if (conversationId) {
-      conversation = await db.Conversations.findOne({
-        where: { id: conversationId },
-        include: [
-          {
-            model: db.ConversationParticipants,
-            as: 'participants',
-            where: { userId: [userId, interlocutorId] },
-          },
-        ],
-      });
-    } else {
-      conversation = await db.Conversations.findOne({
-        include: [
-          {
-            model: db.ConversationParticipants,
-            as: 'participants',
-            where: { userId: [userId, interlocutorId] },
-          },
-        ],
-        group: ['Conversations.id'],
-        having: db.Sequelize.literal('COUNT(*) = 2'),
-      });
-    }
+    const conversation = conversationId
+      ? await db.Conversations.findOne({ where: { id: conversationId } })
+      : await chatQueries.getOrCreateConversation(userId, interlocutorId);
 
     if (!conversation) {
       return res.status(404).send({ message: 'Conversation not found' });
     }
 
-    await db.ConversationParticipants.update(
-      { favoriteList: favoriteFlag },
-      {
-        where: {
-          userId,
-          conversationId: conversation.id,
-        },
-      }
+    const updated = await chatQueries.updateParticipantFlag(
+      userId,
+      conversation.id,
+      'favoriteList',
+      favoriteFlag
     );
 
-    const updatedParticipant = await db.ConversationParticipants.findOne({
-      where: {
-        userId,
-        conversationId: conversation.id,
-      },
-    });
+    if (!updated) {
+      return res
+        .status(500)
+        .send({ message: 'Failed to update favorite status' });
+    }
 
-    res.send({ conversation: updatedParticipant });
+    res.send({ conversation: updated });
   } catch (err) {
     next(err);
   }
