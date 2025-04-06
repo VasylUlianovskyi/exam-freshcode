@@ -1,9 +1,7 @@
-const moment = require('moment');
 const db = require('../models');
 const chatQueries = require('./queries/chatQueries');
-
+const catalogQueries = require('./queries/catalogQueries');
 const controller = require('../socketInit');
-const _ = require('lodash');
 
 module.exports.addMessage = async (req, res, next) => {
   const { userId } = req.tokenData;
@@ -228,21 +226,14 @@ module.exports.createCatalog = async (req, res, next) => {
     const { catalogName, chatId } = req.body;
     const { userId } = req.tokenData;
 
-    const catalog = await db.Catalogs.create({
-      userId,
-      catalogName,
-    });
+    const catalog = await catalogQueries.createCatalog(userId, catalogName);
 
     if (chatId) {
-      const chatExists = await db.Conversations.findByPk(chatId);
-      if (!chatExists) {
-        return res.status(400).send({ message: 'Chat not found' });
+      try {
+        await catalogQueries.addChatToCatalog(catalog.id, chatId);
+      } catch (err) {
+        return res.status(400).send({ message: err.message });
       }
-
-      await db.CatalogConversations.create({
-        catalogId: catalog.id,
-        conversationId: chatId,
-      });
     }
 
     res.status(201).send(catalog);
@@ -256,24 +247,11 @@ module.exports.updateNameCatalog = async (req, res, next) => {
     const { catalogId, catalogName } = req.body;
     const { userId } = req.tokenData;
 
-    await db.Catalogs.update(
-      { catalogName },
-      {
-        where: {
-          id: catalogId,
-          userId,
-        },
-      }
+    const updatedCatalog = await catalogQueries.updateCatalogName(
+      userId,
+      catalogId,
+      catalogName
     );
-
-    const updatedCatalog = await db.Catalogs.findByPk(catalogId, {
-      include: [
-        {
-          model: db.Conversations,
-          through: { attributes: [] },
-        },
-      ],
-    });
 
     res.status(200).send(updatedCatalog);
   } catch (err) {
@@ -289,49 +267,16 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
       return res.status(400).send({ message: 'Missing catalogId or chatId' });
     }
 
-    const catalog = await db.Catalogs.findByPk(catalogId, {
-      include: [
-        {
-          model: db.Conversations,
-          through: { attributes: [] },
-        },
-      ],
-    });
+    const { alreadyExists, updatedCatalog, catalog } =
+      await catalogQueries.addChatToCatalog(catalogId, chatId);
 
-    if (!catalog) {
-      return res.status(404).send({ message: 'Catalog not found' });
-    }
-
-    const conversation = await db.Conversations.findByPk(chatId);
-    if (!conversation) {
-      return res.status(404).send({ message: 'Chat not found' });
-    }
-
-    const existing = await db.CatalogConversations.findOne({
-      where: { catalogId, conversationId: chatId },
-    });
-
-    if (existing) {
+    if (alreadyExists) {
       return res.status(200).send({
         success: false,
         message: 'Chat already in catalog',
         catalogName: catalog.catalogName,
       });
     }
-
-    await db.CatalogConversations.create({
-      catalogId,
-      conversationId: chatId,
-    });
-
-    const updatedCatalog = await db.Catalogs.findByPk(catalogId, {
-      include: [
-        {
-          model: db.Conversations,
-          through: { attributes: [] },
-        },
-      ],
-    });
 
     res.send({
       success: true,
@@ -340,6 +285,12 @@ module.exports.addNewChatToCatalog = async (req, res, next) => {
       Conversations: updatedCatalog.Conversations,
     });
   } catch (err) {
+    if (
+      err.message === 'Catalog not found' ||
+      err.message === 'Chat not found'
+    ) {
+      return res.status(404).send({ message: err.message });
+    }
     next(err);
   }
 };
@@ -348,21 +299,10 @@ module.exports.removeChatFromCatalog = async (req, res, next) => {
   try {
     const { catalogId, chatId } = req.body;
 
-    await db.CatalogConversations.destroy({
-      where: {
-        catalogId,
-        conversationId: chatId,
-      },
-    });
-
-    const updatedCatalog = await db.Catalogs.findByPk(catalogId, {
-      include: [
-        {
-          model: db.Conversations,
-          through: { attributes: [] },
-        },
-      ],
-    });
+    const updatedCatalog = await catalogQueries.removeChatFromCatalog(
+      catalogId,
+      chatId
+    );
 
     res.status(200).send({
       id: updatedCatalog.id,
@@ -383,12 +323,7 @@ module.exports.deleteCatalog = async (req, res, next) => {
       return res.status(400).send({ message: 'catalogId is required' });
     }
 
-    const deletedCount = await db.Catalogs.destroy({
-      where: {
-        id: catalogId,
-        userId,
-      },
-    });
+    const deletedCount = await catalogQueries.deleteCatalog(userId, catalogId);
 
     if (deletedCount === 0) {
       return res
@@ -404,19 +339,9 @@ module.exports.deleteCatalog = async (req, res, next) => {
 
 module.exports.getCatalogs = async (req, res, next) => {
   try {
-    const catalogs = await db.Catalogs.findAll({
-      where: {
-        userId: req.tokenData.userId,
-      },
-      include: [
-        {
-          model: db.Conversations,
-          through: {
-            attributes: [],
-          },
-        },
-      ],
-    });
+    const { userId } = req.tokenData;
+
+    const catalogs = await catalogQueries.getUserCatalogs(userId);
 
     res.send(catalogs);
   } catch (err) {
