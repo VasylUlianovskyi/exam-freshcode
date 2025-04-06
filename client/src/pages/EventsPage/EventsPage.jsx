@@ -43,7 +43,7 @@ const EventsPage = () => {
   return (
     <>
       <Header />
-      <h1>Events</h1>
+      <h1 className={styles.eventsTitle}>Events</h1>
       <div className={styles.eventsPage}>
         <div className={styles.eventsContainer}>
           <EventForm />

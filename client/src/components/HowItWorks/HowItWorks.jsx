@@ -200,7 +200,9 @@ class HowItWorks extends Component {
                 <div className={styles.flex}>
                   <div className={styles.left}>
                     <h4>World's #1 Naming Platform</h4>
-                    <h1>How Does Atom Work?</h1>
+                    <h1 className={styles.howItWorksTitle}>
+                      How Does Atom Work?
+                    </h1>
                     <p>
                       Atom helps you come up with a great name for your business
                       by combining the power of crowdsourcing with sophisticated
