@@ -291,10 +291,10 @@
     font-size: xx-large
     color: blue
     font-weight: bold
-    position: absolute
+    position: relative
     align-self: flex-end
-    right: -5%
-    top: 38%
+    left: 14%
+    top: -40%
 
 .container .faqsTabs .active
   background: linear-gradient(45deg, #ff6955 0, #e97543 100%)
@@ -498,7 +498,7 @@
     display: flex
     flex-wrap: wrap
     justify-content: center
-    gap: 50px
+    gap: 0px
     margin: 0 auto
 
   .waysToUseContainer
@@ -548,22 +548,10 @@
     width: 100%
     padding-top: 56.25%
 
-  .row
-    flex-direction: column
-    align-content: center
-    margin: 0 auto
-
   .colCard
     max-width: 90%
     width: 100%
     margin: 10px auto
-
-  .stepCard
-    flex: 1 1 100%
-    max-width: 90%
-    text-align: center
-    padding: 15px
-    margin: 10px
 
   .videoBox
     width: 95%
@@ -574,10 +562,21 @@
 
 @media (max-width: 576px)
 
+  .row
+    display: flex
+    flex-direction: row
+    align-content: center
+    margin: 0 auto
+
   .stepCard
-    width: 90%
-    margin: 10px auto
+    flex: 1 1 50%
+    max-width: 90%
     text-align: center
+    padding: 15px
+    margin: 10px
+
+    .arrowRight
+      left: 5%
 
   .searchForm
     flex-direction: row
