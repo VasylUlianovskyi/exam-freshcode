@@ -125,6 +125,15 @@ const creativeFaqs = [
 ];
 
 class HowItWorks extends Component {
+  constructor (props) {
+    super(props);
+    this.state = {
+      activeTab: '#collect-top',
+      activeFAQ: {},
+    };
+    this.answerRefs = {};
+  }
+
   state = {
     activeTab: '#collect-top',
     activeFAQ: {},
@@ -162,27 +171,38 @@ class HowItWorks extends Component {
   renderFAQ = (faqsToRender, category) => {
     return faqsToRender.map((faq, index) => {
       const uniqueId = `${category}-${index}`;
+      const isOpen = this.state.activeFAQ[uniqueId];
+
       return (
         <div
           key={uniqueId}
-          className={`${styles.faqItem} ${
-            this.state.activeFAQ[uniqueId] ? styles.active : ''
-          }`}
+          className={`${styles.faqItem} ${isOpen ? styles.active : ''}`}
           onClick={() => this.toggleFAQ(category, index)}
         >
           <div className={styles.question}>
             <span>{faq.question}</span>
             <LiaPlusSolid
-              className={`${styles.icon} ${
-                this.state.activeFAQ[uniqueId] ? styles.open : ''
-              }`}
+              className={`${styles.icon} ${isOpen ? styles.open : ''}`}
             />
           </div>
-          {this.state.activeFAQ[uniqueId] && (
-            <div>
-              <p className={styles.answer}>{faq.answer}</p>
-            </div>
-          )}
+
+          <div
+            className={styles.answerWrapper}
+            style={{
+              maxHeight: isOpen
+                ? this.answerRefs[uniqueId]?.scrollHeight + 'px'
+                : '0px',
+              overflow: 'hidden',
+              transition: 'max-height 0.5s ease',
+            }}
+          >
+            <p
+              className={styles.answer}
+              ref={el => (this.answerRefs[uniqueId] = el)}
+            >
+              {faq.answer}
+            </p>
+          </div>
         </div>
       );
     });
