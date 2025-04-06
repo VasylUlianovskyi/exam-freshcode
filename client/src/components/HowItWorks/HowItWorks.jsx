@@ -290,7 +290,7 @@ class HowItWorks extends Component {
                       </div>
                     </div>
                   </div>
-                  <div className={styles.colCard}>
+                  <div className={`${styles.colCard} ${styles.fullWidth}`}>
                     <div className={`${styles.item} ${styles.alignBox}`}>
                       <div>
                         <div className={styles.icon}>
