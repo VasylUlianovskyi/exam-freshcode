@@ -13,7 +13,7 @@ const EventForm = () => {
 
   return (
     <Formik
-      initialValues={{ eventName: '', eventDate: '', reminderTime: 1 }}
+      initialValues={{ eventName: '', eventDate: '', reminderTime: 10 }}
       validationSchema={EventsFormSchema}
       onSubmit={(values, { resetForm }) => {
         const newTimer = {

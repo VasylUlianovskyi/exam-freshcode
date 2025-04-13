@@ -225,6 +225,19 @@ export default {
     reminderTime: yup
       .number()
       .min(1, 'Reminder time must be at least 1 minute!')
-      .required('Reminder time is required'),
+      .required('Reminder time is required')
+      .test(
+        'reminder-less-than-time-left',
+        'Reminder time must be less than or equal to the time until the event',
+        function (value) {
+          const { eventDate } = this.parent;
+          if (!eventDate || !value) return true;
+          const now = new Date();
+          const event = new Date(eventDate);
+          const diffInMinutes = (event - now) / 60000;
+
+          return value <= diffInMinutes;
+        }
+      ),
   }),
 };
